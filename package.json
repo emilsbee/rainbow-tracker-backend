@@ -1,0 +1,34 @@
+{
+  "name": "rainbow-tracker-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
+    "debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/koa": "^2.13.3",
+    "@types/koa-bodyparser": "^4.3.1",
+    "@types/koa-router": "^7.4.2",
+    "@types/node": "^15.6.1",
+    "@types/pg": "^8.6.0",
+    "@types/uuid": "^8.3.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.0.0",
+    "koa-session": "^6.2.0",
+    "pg": "^8.6.0",
+    "uuid": "^3.4.0"
+  }
+}
