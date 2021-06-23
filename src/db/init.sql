@@ -2,6 +2,7 @@ CREATE TABLE users (
 	user_id VARCHAR(50),
 	email VARCHAR(320) UNIQUE NOT NULL,
 	password VARCHAR(50) NOT NULL,
+	role VARCHAR(3) NOT NULL,
 	PRIMARY KEY(user_id)
 );
 

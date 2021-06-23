@@ -23,7 +23,7 @@ router.post("/auth", contentType.JSON, async (ctx:Context, next:Next) => {
         let res = await db.query(findUserQuery, values)
 
         if (res.rowCount !== 0) {
-            ctx.session.user_id = res.rows[0].user_id
+            ctx.session.userid = res.rows[0].user_id
             ctx.status = 200
         } else {
             ctx.status = 401
@@ -36,7 +36,7 @@ router.post("/auth", contentType.JSON, async (ctx:Context, next:Next) => {
 /**
  * Route for logging out.
  */
-router.get("/auth/logout", protect, async (ctx:Context, next:Next) => {
+router.get("/auth/logout", protect.user, async (ctx:Context, next:Next) => {
     ctx.session = null
     ctx.status = 204
 })

@@ -1,8 +1,6 @@
 // External imports
 import {Context, Next} from "koa";
 
-// Internal imports
-
 const ContentType = {
     JSON: "application/json"
 }

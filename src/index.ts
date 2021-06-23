@@ -7,7 +7,7 @@ const session = require('koa-session');
 // Internal imports
 import userRouter from "./routes/user"
 import authRouter from "./routes/auth"
-import weekRouter from "./routes/week/week"
+import weekRouter from "./routes/week"
 
 const app = new koa()
 
