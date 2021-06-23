@@ -5,7 +5,7 @@ let Router = require('koa-router');
 // Internal imports
 import contentType from "../middleware/contentType";
 import protect from "../middleware/auth";
-import {createWeek, getWeekByWeekid, getWeekId} from "../dao/weekDao/weekDao";
+import {createWeek, getWeekByWeekid, getWeekId, updateWeekCategoriesByWeekid} from "../dao/weekDao/weekDao";
 
 let router = new Router(); // Initialize router
 
@@ -53,10 +53,10 @@ router.post("/week", contentType.JSON, protect.user, async (ctx:Context, next:Ne
 /**
  * Router for updating a specific week's categories.
  */
-router.put("/week", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
+router.put("/week/categories", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.session.userid
-    let week = ctx.request.body as FullWeek
-
+    let week = ctx.request.body as {weekid:string, categories:Category[]}
+    ctx.status = await updateWeekCategoriesByWeekid(week.weekid, userid, week.categories)
 })
 
 /**

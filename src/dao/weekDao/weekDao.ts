@@ -12,8 +12,9 @@ const db = require("../../db")
  * @param weekid of the week to update.
  * @param userid of the user for which to update the week.
  * @param categories the new categories to update the week with.
+ * @return status code.
  */
-export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]) => {
+export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<number> => {
     const client:Client = await db.getClient()
     const updateWeekCategoriesQuery = "UPDATE categories SET category_id=$1, activity_id=$2 WHERE week_id=$3 AND week_day=$4 AND category_position=$5 AND user_id=$6"
 
@@ -22,12 +23,14 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
         await client.query('BEGIN')
 
         for (let i = 0; i < categories.length; i++) {
-            
+            let updateWeekCategoriesQueryValues = [categories[i].categoryid, categories[i].activityid, weekid, categories[i].weekDay, categories[i].categoryPosition, userid]
+            await client.query(updateWeekCategoriesQuery, updateWeekCategoriesQueryValues)
         }
 
+        return 204
     } catch (e) {
         await client.query('ROLLBACK')
-
+        return 400
     } finally {
         await client.end()
     }
