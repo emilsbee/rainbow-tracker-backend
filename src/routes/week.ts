@@ -41,7 +41,7 @@ export type FullWeek = Week & {categories:Category[][], notes:Note[][]}
  * categories and notes.
  * @return week with notes and categories organized in days.
  */
-router.post("/week", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
+router.post("/weeks", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.session.userid
     let {weekNr, weekYear} = ctx.request.body as Week
     let {status, week} = await createWeek(weekNr, weekYear, userid)
