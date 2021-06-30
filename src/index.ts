@@ -8,6 +8,7 @@ const session = require('koa-session');
 import userRouter from "./routes/user"
 import authRouter from "./routes/auth"
 import weekRouter from "./routes/week"
+import categoryTypeRouter from "./routes/categoryType"
 
 const app = new koa()
 
@@ -39,6 +40,9 @@ app.use(authRouter.allowedMethods())
 
 app.use(weekRouter.routes())
 app.use(weekRouter.allowedMethods())
+
+app.use(categoryTypeRouter.routes())
+app.use(categoryTypeRouter.allowedMethods())
 
 app.listen(process.env.PORT, () => {
     console.log("Listening on port "+process.env.PORT)

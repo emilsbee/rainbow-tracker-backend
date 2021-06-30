@@ -47,7 +47,7 @@ router.post("/week", contentType.JSON, protect.user, async (ctx:Context, next:Ne
     let {status, week} = await createWeek(weekNr, weekYear, userid)
     ctx.status = status
     ctx.set("Content-Type", "application/json")
-    ctx.week = JSON.stringify(week)
+    ctx.body = JSON.stringify(week)
 })
 
 /**
