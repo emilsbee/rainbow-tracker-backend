@@ -1,0 +1,40 @@
+version: '3.5'
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: rainbow
+      POSTGRES_PASSWORD: 911
+      POSTGRES_DB: rainbow
+    volumes:
+      - type: bind
+        source: /data/postgres-rainbow
+        target: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: emils@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 911
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - type: bind
+        source: /data/pgadmin4
+        target: /var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
