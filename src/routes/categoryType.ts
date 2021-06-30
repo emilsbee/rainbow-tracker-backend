@@ -5,7 +5,7 @@ let Router = require('koa-router');
 // Internal imports
 import contentType from "../middleware/contentType";
 import protect from "../middleware/auth";
-import {createCategoryType} from "../dao/categoryTypeDao";
+import {createCategoryType, getCategoryTypes} from "../dao/categoryTypeDao";
 
 let router = new Router()
 
@@ -27,10 +27,22 @@ export type ActivityType = {
 }
 
 /**
+ * Route for fetching the category types for a user.
+ * @return categoryType[] array of the category types.
+ */
+router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
+    const userid = ctx.session.userid
+    let {status, categoryTypes} = await getCategoryTypes(userid)
+    ctx.status = status
+    ctx.set("Content-Type", "application/json")
+    ctx.body = JSON.stringify(categoryTypes)
+})
+
+/**
  * Route for creating a category type for a user.
  * @return categoryType the created category type object.
  */
-router.post("/category-type", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
+router.post("/category-types", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.session.userid
     let categoryTypeToCreate = ctx.request.body as CategoryType
 
