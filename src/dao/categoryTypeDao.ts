@@ -11,7 +11,7 @@ const db = require("../db")
  */
 export const getCategoryTypes = async (userid:string):Promise<{ status:number, categoryTypes:CategoryType[] }> => {
     try {
-        const getCategoryTypesQuery = "SELECT * FROM category_type WHERE user_id=$1"
+        const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1"
         let newCategoryTypes = await db.query(getCategoryTypesQuery, [userid])
         return {
             status:200, categoryTypes: newCategoryTypes.rows
@@ -29,7 +29,7 @@ export const getCategoryTypes = async (userid:string):Promise<{ status:number, c
  */
 export const createCategoryType = async (userid:string, color:string, name:string):Promise<{ status:number, categoryType:CategoryType }> => {
     try {
-        const createUserQuery = "INSERT INTO category_type(category_id, user_id, color, name, archived) VALUES($1, $2, $3, $4, $5);"
+        const createUserQuery = "INSERT INTO category_type(categoryid, userid, color, name, archived) VALUES($1, $2, $3, $4, $5);"
         let categoryid = uuid()
         const values = [categoryid, userid, color, name, false]
         await db.query(createUserQuery, values)

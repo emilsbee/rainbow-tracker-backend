@@ -16,7 +16,7 @@ const db = require("../../db")
  */
 export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<number> => {
     const client:Client = await db.getClient()
-    const updateWeekCategoriesQuery = "UPDATE categories SET category_id=$1, activity_id=$2 WHERE week_id=$3 AND week_day=$4 AND category_position=$5 AND user_id=$6"
+    const updateWeekCategoriesQuery = 'UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND "weekDay"=$4 AND "categoryPosition"=$5 AND userid=$6'
 
     try {
         // Begin transaction
@@ -46,9 +46,9 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
 export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[] }> => {
     const client:Client = await db.getClient()
     const values = [weekid, userid]
-    const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM notes WHERE notes.week_id = $1 AND notes.user_id = $2', values}
-    const getWeekQuery = {name: 'fetch-week', text: 'SELECT * FROM weeks WHERE weeks.week_id = $1 AND weeks.user_id = $2', values}
-    const getWeekCategories = {name: 'fetch-categories', text:'SELECT * FROM categories WHERE categories.week_id = $1 AND categories.user_id = $2', values}
+    const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2', values}
+    const getWeekQuery = {name: 'fetch-week', text: 'SELECT * FROM week WHERE week.weekid = $1 AND week.userid = $2', values}
+    const getWeekCategories = {name: 'fetch-categories', text:'SELECT * FROM category WHERE category.weekid = $1 AND category.userid = $2', values}
 
     try {
         // Begin transaction
@@ -62,10 +62,10 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
         return {
             status: 200,
             week: [{
-                weekid: week.rows[0].week_id,
-                userid: week.rows[0].user_id,
-                weekNr: week.rows[0].week_number,
-                weekYear: week.rows[0].week_year,
+                weekid: week.rows[0].weekid,
+                userid: week.rows[0].userid,
+                weekNr: week.rows[0].weekNr,
+                weekYear: week.rows[0].weekYear,
                 categories: groupByDays(categories.rows),
                 notes: groupByDays(notes.rows)
             }]
@@ -90,7 +90,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
  */
 export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<string> => {
     let weekidQueryValues = [userid, weekNr, weekYear]
-    const getWeekidQuery = {name: "fetch-weekid", text: "SELECT week_id FROM weeks WHERE weeks.user_id=$1 AND weeks.week_number=$2 AND weeks.week_year=$3", values: weekidQueryValues}
+    const getWeekidQuery = {name: "fetch-weekid", text: 'SELECT weekid FROM week WHERE week.userid=$1 AND week."weekNr"=$2 AND week."weekYear"=$3', values: weekidQueryValues}
 
     try {
         let weekid = await db.query(getWeekidQuery)
@@ -120,7 +120,7 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         await client.query('BEGIN')
 
         // Save category
-        const createWeekQuery = "INSERT INTO weeks(week_id, user_id, week_number, week_year) VALUES($1, $2, $3, $4);"
+        const createWeekQuery = 'INSERT INTO week(weekid, userid, "weekNr", "weekYear") VALUES($1, $2, $3, $4);'
         let weekid = uuid()
         const values = [weekid, userid, weekNr, weekYear]
         await client.query(createWeekQuery, values)
@@ -128,8 +128,8 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         // Save category's categories and notes
         const categories:Category[] = []
         const notes:Note[] = []
-        const createCategoryQuery:string = "INSERT INTO categories(week_id, week_day, category_position, user_id) VALUES($1, $2, $3, $4);"
-        const createNoteQuery:string = "INSERT INTO notes(week_id, week_day, note_position, stack_id, user_id, note) VALUES($1, $2, $3, $4, $5, $6);"
+        const createCategoryQuery:string = 'INSERT INTO category(weekid, "weekDay", "categoryPosition", userid) VALUES($1, $2, $3, $4);'
+        const createNoteQuery:string = 'INSERT INTO note(weekid, "weekDay", "notePosition", stackid, userid, note) VALUES($1, $2, $3, $4, $5, $6);'
 
         for (let dayIndex:number = 0; dayIndex < 7; dayIndex++) {
             for (let pos:number = 1; pos < 97; pos++) {

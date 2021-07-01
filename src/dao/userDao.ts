@@ -12,7 +12,7 @@ const db = require("../db")
  */
 export const getUserRole = async (userid:string):Promise<string> => {
     let userRoleQueryValues = [userid]
-    const getUserRoleQuery = {name: "fetch-user-role", text: "SELECT role FROM users WHERE users.user_id=$1", values: userRoleQueryValues}
+    const getUserRoleQuery = {name: "fetch-user-role", text: "SELECT role FROM app_user WHERE app_user.userid=$1", values: userRoleQueryValues}
 
     try {
         let role = await db.query(getUserRoleQuery)
@@ -35,7 +35,7 @@ export const getUserRole = async (userid:string):Promise<string> => {
  */
 export const createUser = async (email:string, password:string, role:string):Promise<number> => {
     try {
-        const createUserQuery = "INSERT INTO users(user_id, email, password, role) VALUES($1, $2, $3, $4);"
+        const createUserQuery = "INSERT INTO app_use(userid, email, password, role) VALUES($1, $2, $3, $4);"
 
         let passwordHash = crypto.pbkdf2Sync(password, process.env.SALT, 1000, 50, 'sha512').toString()
         const values = [uuid(), email, passwordHash,role]
