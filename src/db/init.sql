@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE app_user (
 	user_id VARCHAR(50),
 	email VARCHAR(320) UNIQUE NOT NULL,
 	password VARCHAR(50) NOT NULL,
@@ -6,13 +6,13 @@ CREATE TABLE users (
 	PRIMARY KEY(user_id)
 );
 
-CREATE TABLE weeks (
+CREATE TABLE week (
     week_id VARCHAR(50),
     user_id VARCHAR(50) NOT NULL,
     week_number INT NOT NULL,
     week_year INT NOT NULL,
 	PRIMARY KEY(week_id),
-	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id),
+	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
 	CONSTRAINT week_number CHECK (
 	    week_number > 0
 	),
@@ -23,7 +23,7 @@ CREATE TABLE weeks (
 
 );
 
-CREATE TABLE notes (
+CREATE TABLE note (
     week_id VARCHAR(50) NOT NULL,
     week_day INT NOT NULL,
     note_position INT NOT NULL,
@@ -31,8 +31,8 @@ CREATE TABLE notes (
     user_id VARCHAR(50) NOT NULL,
     note VARCHAR,
     PRIMARY KEY(week_id, week_day, note_position),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES weeks(week_id),
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
+    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
     CONSTRAINT week_day CHECK (
         week_day > -1 AND week_day < 7
     )
@@ -45,7 +45,7 @@ CREATE TABLE category_type (
     name VARCHAR(50) NOT NULL,
     archived BOOLEAN NOT NULL,
     PRIMARY KEY(category_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id)
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
 
 CREATE TABLE activity_type (
@@ -57,10 +57,10 @@ CREATE TABLE activity_type (
     archived BOOLEAN NOT NULL,
     PRIMARY KEY(activity_id),
     CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id)
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
 
-CREATE TABLE categories (
+CREATE TABLE category (
     week_id VARCHAR(50),
     week_day INT NOT NULL,
     category_position INT NOT NULL,
@@ -68,10 +68,10 @@ CREATE TABLE categories (
     category_id VARCHAR(50),
     activity_id VARCHAR(50),
     PRIMARY KEY(week_id, week_day, category_position),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES weeks(week_id),
+    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
     CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
     CONSTRAINT fk_activity FOREIGN KEY(activity_id) REFERENCES activity_type(activity_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id),
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
     CONSTRAINT week_day CHECK (
         week_day > -1 AND week_day < 7
     )
@@ -84,8 +84,8 @@ CREATE TABLE analytics_category (
     user_id VARCHAR(50) NOT NULL,
     PRIMARY KEY(category_id),
     CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES weeks(week_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id)
+    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
 
 CREATE TABLE analytics_activity (
@@ -95,6 +95,6 @@ CREATE TABLE analytics_activity (
     user_id VARCHAR(50) NOT NULL,
     PRIMARY KEY(activity_id),
     CONSTRAINT fk_activity FOREIGN KEY(activity_id) REFERENCES activity_type(activity_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES weeks(week_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id)
+    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
