@@ -1,4 +1,5 @@
 // External imports
+import Router from "koa-router";
 require('dotenv').config()
 const koa = require("koa")
 const bodyParser = require('koa-bodyparser');
@@ -32,18 +33,16 @@ const CONFIG = {
 app.use(session(CONFIG, app))
 
 // Routers
-app.use(userRouter.routes())
-app.use(userRouter.allowedMethods());
+let restRouter = new Router()
 
-app.use(authRouter.routes())
-app.use(authRouter.allowedMethods())
+restRouter.use("/rest", userRouter.routes(), userRouter.allowedMethods())
+restRouter.use("/rest", authRouter.routes(), authRouter.allowedMethods())
+restRouter.use("/rest", weekRouter.routes(), weekRouter.allowedMethods())
+restRouter.use("/rest", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 
-app.use(weekRouter.routes())
-app.use(weekRouter.allowedMethods())
+app.use(restRouter.routes())
 
-app.use(categoryTypeRouter.routes())
-app.use(categoryTypeRouter.allowedMethods())
-
+// Start server
 app.listen(process.env.PORT, () => {
     console.log("Listening on port "+process.env.PORT)
 })
