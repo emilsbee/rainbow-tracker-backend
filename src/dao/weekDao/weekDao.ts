@@ -71,6 +71,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
             }]
         }
     } catch (e) {
+
         await client.query('ROLLBACK')
         return {
             status: 400,
