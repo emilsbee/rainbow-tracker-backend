@@ -35,6 +35,14 @@ services:
       - postgres
     restart: unless-stopped
 
+  app:
+    container_name: rainbow-tracker-backend
+    image: mrfinance/rainbow-tracker-backend
+    ports:
+      - "3000:3000"
+    networks:
+      - postgres
+
 networks:
   postgres:
     driver: bridge

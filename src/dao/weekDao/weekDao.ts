@@ -98,7 +98,7 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
         if (weekid.rowCount === 0) {
             return null
         } else {
-            return weekid.rows[0].week_id
+            return weekid.rows[0].weekid
         }
     } catch (e) {
         return null
@@ -156,7 +156,6 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         return {status: 201, week: [{weekid, userid: userid, weekNr:weekNr, weekYear:weekYear, notes:groupByDays(notes), categories:groupByDays(categories)}]}
     } catch (e) {
         await client.query('ROLLBACK')
-        console.log(e)
         return {status: 400, week: []}
     } finally {
         await client.end()

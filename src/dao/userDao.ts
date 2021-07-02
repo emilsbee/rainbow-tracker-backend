@@ -35,7 +35,7 @@ export const getUserRole = async (userid:string):Promise<string> => {
  */
 export const createUser = async (email:string, password:string, role:string):Promise<number> => {
     try {
-        const createUserQuery = "INSERT INTO app_use(userid, email, password, role) VALUES($1, $2, $3, $4);"
+        const createUserQuery = "INSERT INTO app_user(userid, email, password, role) VALUES($1, $2, $3, $4);"
 
         let passwordHash = crypto.pbkdf2Sync(password, process.env.SALT, 1000, 50, 'sha512').toString()
         const values = [uuid(), email, passwordHash,role]

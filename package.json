@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
+    "dev": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
+    "start": "export NODE_ENV=production && ts-node src/index.ts",
     "debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts"
   },
   "keywords": [],

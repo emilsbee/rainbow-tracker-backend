@@ -53,10 +53,11 @@ router.post("/weeks", contentType.JSON, protect.user, async (ctx:Context, next:N
 /**
  * Router for updating a specific week's categories.
  */
-router.put("/week/categories", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
+router.put("/week/:weekid/categories", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.session.userid
-    let week = ctx.request.body as {weekid:string, categories:Category[]}
-    ctx.status = await updateWeekCategoriesByWeekid(week.weekid, userid, week.categories)
+    let weekid = ctx.params.weekid
+    let week = ctx.request.body as {categories:Category[]}
+    ctx.status = await updateWeekCategoriesByWeekid(weekid, userid, week.categories)
 })
 
 /**

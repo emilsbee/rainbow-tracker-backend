@@ -26,6 +26,13 @@ export type ActivityType = {
     archived:boolean
 }
 
+router.put("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
+    const userid = ctx.session.userid
+    let categoryid:string = ctx.params.categoryid
+
+    ctx.status = 200
+})
+
 /**
  * Route for fetching the category types for a user.
  * @return categoryType[] array of the category types.
