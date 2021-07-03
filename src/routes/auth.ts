@@ -29,7 +29,6 @@ router.post("/auth", contentType.JSON, async (ctx:Context, next:Next) => {
             ctx.status = 401
         }
     } catch (e) {
-        console.log(e)
         ctx.status = 401
     }
 })
