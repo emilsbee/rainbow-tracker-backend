@@ -3,7 +3,24 @@ const crypto = require("crypto")
 import {v4 as uuid} from "uuid";
 
 // Internal imports
+import {User} from "../routes/user";
 const db = require("../db")
+
+/**
+ * Get user info.
+ * @param userid of user for which to find info.
+ * @return User object with password being null.
+ */
+export const getUserInfo = async (userid:string):Promise<{ status:number, user:User[] }> => {
+    const getUserInfoQuery = {name: "fetch-user-info", text: "SELECT email, role, userid FROM app_user WHERE userid=$1", values: [userid]}
+    try {
+        let user = await db.query(getUserInfoQuery)
+
+         return {status: 200, user: user.rows}
+    } catch (e) {
+        return {status: 404, user: []}
+    }
+}
 
 /**
  * Given a userid the user's role is found.
