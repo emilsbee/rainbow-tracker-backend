@@ -2,9 +2,9 @@
   "name": "rainbow-tracker-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "export NODE_ENV=test && nodemon --exec 'ts-node' src/index.ts",
     "dev": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
     "start": "export NODE_ENV=production && ts-node src/index.ts",
     "debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts"
