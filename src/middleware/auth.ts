@@ -7,16 +7,23 @@ import {roles} from "../constants/roles";
 
 export default {
     user: async (ctx:Context, next:Next):Promise<void> => {
-        if (ctx.session.isNew) {
+        if (ctx.session.isNew) { // If not logged in
             ctx.throw(401)
-        } else {
-            await next()
+        } else { // If logged in
+            let useridFromParams = ctx.params.userid
+            let userid = ctx.session.userid
+
+            if (useridFromParams && useridFromParams !== userid) { // If the actual userid (from session) isn't the same as userid provided in url params
+                ctx.throw(403)
+            } else {
+                await next()
+            }
         }
     },
     admin: async (ctx:Context, next:Next):Promise<void> => {
-        if (ctx.session.isNew) {
+        if (ctx.session.isNew) { // If not logged in at all
             ctx.throw(401)
-        } else {
+        } else { // If logged in
             let role = await getUserRole(ctx.session.userid)
 
             if (role !== roles.ADMIN) {

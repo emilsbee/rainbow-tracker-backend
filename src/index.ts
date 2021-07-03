@@ -1,5 +1,4 @@
 // External imports
-import Router from "koa-router";
 require('dotenv').config()
 const koa = require("koa")
 const bodyParser = require('koa-bodyparser');
@@ -33,14 +32,11 @@ const CONFIG = {
 app.use(session(CONFIG, app))
 
 // Routers
-let restRouter = new Router()
+userRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
+userRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 
-restRouter.use("/rest", userRouter.routes(), userRouter.allowedMethods())
-restRouter.use("/rest", authRouter.routes(), authRouter.allowedMethods())
-restRouter.use("/rest", weekRouter.routes(), weekRouter.allowedMethods())
-restRouter.use("/rest", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
-
-app.use(restRouter.routes())
+app.use(userRouter.routes()).use(userRouter.allowedMethods())
+app.use(authRouter.routes()).use(authRouter.allowedMethods())
 
 // Start server
 app.listen(process.env.PORT, () => {
