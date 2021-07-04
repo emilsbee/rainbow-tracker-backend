@@ -1,12 +1,11 @@
 // External imports
 import {Context, Next} from "koa";
 let Router = require('koa-router');
-const crypto = require("crypto")
 
 // Internal
 import contentType from "../middleware/contentType";
 import protect from "../middleware/auth"
-const db = require("../db/index")
+import {login} from "../dao/authDao";
 
 let router = new Router();
 
@@ -16,21 +15,15 @@ let router = new Router();
 router.post("/auth", contentType.JSON, async (ctx:Context, next:Next) => {
     const {email, password} = ctx.request.body as {email:string, password:string}
 
-    try {
-        const findUserQuery = "SELECT * FROM app_user WHERE email=$1 AND password=$2;"
-        let passwordHash = crypto.pbkdf2Sync(password, process.env.SALT, 1000, 50, "sha512").toString()
-        const values = [email, passwordHash]
-        let res = await db.query(findUserQuery, values)
+    let {status, user} = await login(email, password)
 
-        if (res.rowCount !== 0) {
-            ctx.session.userid = res.rows[0].userid
-            ctx.status = 200
-        } else {
-            ctx.status = 401
-        }
-    } catch (e) {
-        ctx.status = 401
+    if (user.length !== 0) {
+        ctx.session.userid = user[0].userid
     }
+
+    ctx.status = status
+    ctx.set("Content-Type", "application/json")
+    ctx.body = user
 })
 
 /**
