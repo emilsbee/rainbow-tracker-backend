@@ -12,7 +12,7 @@ let router = new Router();
 /**
  * Route for logging in with email and password.
  */
-router.post("/auth", contentType.JSON, async (ctx:Context, next:Next) => {
+router.post("/auth/login", contentType.JSON, async (ctx:Context, next:Next) => {
     const {email, password} = ctx.request.body as {email:string, password:string}
 
     let {status, user} = await login(email, password)
