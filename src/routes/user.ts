@@ -30,7 +30,7 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
  * @return User
  */
 router.get("/user/:userid", protect.user, async (ctx:Context) => {
-    let userid:string = ctx.session.userid
+    let userid:string = ctx.params.userid
 
     let {status, user} = await getUserInfo(userid)
 

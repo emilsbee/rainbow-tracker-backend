@@ -42,7 +42,7 @@ export type FullWeek = Week & {categories:Category[][], notes:Note[][]}
  * @return week with notes and categories organized in days.
  */
 router.post("/weeks", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
-    const userid = ctx.session.userid
+    const userid = ctx.params.userid
     let {weekNr, weekYear} = ctx.request.body as Week
     let {status, week} = await createWeek(weekNr, weekYear, userid)
     ctx.status = status
@@ -54,7 +54,7 @@ router.post("/weeks", contentType.JSON, protect.user, async (ctx:Context, next:N
  * Router for updating a specific week's categories.
  */
 router.put("/week/:weekid/categories", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
-    const userid = ctx.session.userid
+    const userid = ctx.params.userid
     let weekid = ctx.params.weekid
     let week = ctx.request.body as {categories:Category[]}
     ctx.status = await updateWeekCategoriesByWeekid(weekid, userid, week.categories)
@@ -65,7 +65,7 @@ router.put("/week/:weekid/categories", contentType.JSON, protect.user, async (ct
  * @return week with notes and categories organized in days.
  */
 router.get("/week", protect.user, async (ctx:Context, next:Next) => {
-    let userid = ctx.session.userid
+    let userid = ctx.params.userid
     let weekNr = ctx.request.query.week_number as string
     let weekYear = ctx.request.query.week_year as string
 

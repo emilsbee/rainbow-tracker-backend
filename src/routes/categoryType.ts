@@ -27,7 +27,7 @@ export type ActivityType = {
 }
 
 router.put("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
-    const userid = ctx.session.userid
+    const userid = ctx.params.userid
     let categoryid:string = ctx.params.categoryid
 
     ctx.status = 200
@@ -38,7 +38,7 @@ router.put("/category-type/:categoryid", protect.user, async (ctx:Context, next:
  * @return categoryType[] array of the category types.
  */
 router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
-    const userid = ctx.session.userid
+    const userid = ctx.params.userid
     let {status, categoryTypes} = await getCategoryTypes(userid)
     ctx.status = status
     ctx.set("Content-Type", "application/json")
@@ -50,7 +50,7 @@ router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
  * @return categoryType the created category type object.
  */
 router.post("/category-types", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
-    const userid = ctx.session.userid
+    const userid = ctx.params.userid
     let categoryTypeToCreate = ctx.request.body as CategoryType
 
     let color = categoryTypeToCreate.color
