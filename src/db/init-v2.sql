@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS analytics_activity CASCADE;
 CREATE TABLE app_user (
 	userid VARCHAR(50),
 	email VARCHAR(320) UNIQUE NOT NULL,
-	password VARCHAR(50) NOT NULL,
+	password VARCHAR(250) NOT NULL,
 	role VARCHAR(3) NOT NULL,
 	PRIMARY KEY(userid)
 );
@@ -22,7 +22,7 @@ CREATE TABLE week (
     "weekNr" INT NOT NULL,
     "weekYear" INT NOT NULL,
 	PRIMARY KEY(weekid),
-	CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid),
+	CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
 	CONSTRAINT "weekNr" CHECK (
 	    "weekNr" > 0
 	),
@@ -40,7 +40,7 @@ CREATE TABLE note (
     userid VARCHAR(50) NOT NULL,
     note VARCHAR,
     PRIMARY KEY(weekid, "weekDay", "notePosition"),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
     CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
     CONSTRAINT "weekDay" CHECK (
         "weekDay" > -1 AND "weekDay" < 7
@@ -54,7 +54,7 @@ CREATE TABLE category_type (
     name VARCHAR(50) NOT NULL,
     archived BOOLEAN NOT NULL,
     PRIMARY KEY(categoryid),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid)
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE activity_type (
@@ -66,7 +66,7 @@ CREATE TABLE activity_type (
     archived BOOLEAN NOT NULL,
     PRIMARY KEY(activityid),
     CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid)
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE category (
@@ -80,7 +80,7 @@ CREATE TABLE category (
     CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
     CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
     CONSTRAINT fk_activity FOREIGN KEY(activityid) REFERENCES activity_type(activityid),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
     CONSTRAINT "weekDay" CHECK (
         "weekDay" > -1 AND "weekDay" < 7
     )
@@ -94,7 +94,7 @@ CREATE TABLE analytics_category (
     PRIMARY KEY(categoryid),
     CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
     CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid)
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE analytics_activity (
@@ -105,5 +105,5 @@ CREATE TABLE analytics_activity (
     PRIMARY KEY(activityid),
     CONSTRAINT fk_activity FOREIGN KEY(activityid) REFERENCES activity_type(activityid),
     CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
-    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid)
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );

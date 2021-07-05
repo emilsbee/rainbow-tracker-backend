@@ -50,16 +50,46 @@ export const getUserRole = async (userid:string):Promise<string> => {
  * @param password of the user.
  * @param role of the user.
  */
-export const createUser = async (email:string, password:string, role:string):Promise<number> => {
+export const createUser = async (email:string, password:string, role:string):Promise<{ status:number, user:User[] }> => {
     try {
         const createUserQuery = "INSERT INTO app_user(userid, email, password, role) VALUES($1, $2, $3, $4);"
-
-        let passwordHash = crypto.pbkdf2Sync(password, process.env.SALT, 1000, 50, 'sha512').toString()
-        const values = [uuid(), email, passwordHash,role]
+        let salt = crypto.randomBytes(48).toString('hex')
+        let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, 'sha512').toString()
+        let newUser = {
+            userid: uuid(),
+            email,
+            role,
+            password: ""
+        }
+        const values = [newUser.userid, email, passwordHash+":"+salt, role]
         await db.query(createUserQuery, values)
-
-        return 201
+        delete newUser.password
+        return {status: 201, user:[newUser]}
     } catch (err) {
-        return 422
+        return {status: 422, user:[]}
+    }
+}
+
+/**
+ * Deletes a user with given userid.
+ * @param userid of the user to delete.
+ */
+export const deleteUser = async (userid:string):Promise<{status:number}> => {
+    try {
+        const deleteUserQuery = "DELETE FROM app_user, activity_type, analytics_activity, analytics_category, category, category_type, note, week WHERE userid=$1"
+
+        let result = await db.query(deleteUserQuery, [userid])
+
+        let status:number;
+        if (result.rowCount === 0) {
+            status = 404
+        } else {
+            status = 204
+        }
+
+        return {status}
+    } catch (e) {
+        console.log(e)
+        return {status: 400}
     }
 }

@@ -1,8 +1,10 @@
 // External imports
+import {Client, QueryResult} from "pg";
+
 const crypto = require("crypto")
 
 // Internal imports
-import {User} from "../routes/user"
+import user, {User} from "../routes/user"
 const db = require("../db/index")
 
 /**
@@ -12,20 +14,33 @@ const db = require("../db/index")
  * @param password of the user to login.
  */
 export const login = async (email:string, password:string):Promise<{status:number, user:User[]}> => {
+    const client:Client = await db.getClient()
+
     try {
-        const findUserQuery = "SELECT * FROM app_user WHERE email=$1 AND password=$2;"
-        let passwordHash = crypto.pbkdf2Sync(password, process.env.SALT, 1000, 50, "sha512").toString()
-        const values = [email, passwordHash]
+        // Begin transaction
+        await client.query('BEGIN')
 
-        let user = await db.query(findUserQuery, values)
+        // Fetches the provided user by email
+        const getUserPasswordQuery = "SELECT * FROM app_user WHERE email=$1"
+        let userPassResult:QueryResult = await client.query(getUserPasswordQuery, [email])
 
-        if (user.rowCount !== 0) {
-            delete user.rows[0].password
-            return {status: 200, user:user.rows}
-        } else {
+        if (userPassResult.rowCount !== 0) { // If the provided email exists in the database and has a password
+
+            let salt = userPassResult.rows[0].password.split(":")[1] // Extract the salt from password fetched from db
+            let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, "sha512").toString() // Recreates the hashed password with salt
+
+            if (userPassResult.rows[0].password === passwordHash+":"+salt) { // Passwords match
+                delete userPassResult.rows[0].password
+                return {status: 200, user:userPassResult.rows}
+            } else { // Passwords don't match
+                return {status:401, user:[]}
+            }
+        } else { // The provided email doesn't exist in the db
             return {status: 401, user:[]}
         }
     } catch (e) {
         return {status: 401, user:[]}
+    } finally {
+        await client.end()
     }
 }

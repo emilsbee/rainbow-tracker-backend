@@ -5,7 +5,8 @@ let Router = require('koa-router');
 // Internal
 import contentType from "../middleware/contentType";
 import protect from "../middleware/auth";
-import {createUser, getUserInfo} from "../dao/userDao";
+import {createUser, deleteUser, getUserInfo} from "../dao/userDao";
+import u from "koa-session/lib/util";
 
 let router = new Router(); // Initialize router
 
@@ -17,13 +18,26 @@ export type User = {
 }
 
 /**
- * Create a user with given user_id, email, password.
+ * Create a user with given userid, email, password.
  */
 router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
-    let user = ctx.request.body as User
+    let userToCreate = ctx.request.body as User
 
-    ctx.status = await createUser(user.email, user.password, user.role)
+    let {status, user} = await createUser(userToCreate.email, userToCreate.password, userToCreate.role)
+    ctx.status = status
+    ctx.set("Content-Type", "application/json")
+    ctx.body = user
 });
+
+/**
+ * Delete a user with given userid.
+ */
+router.delete("/users/:userid", protect.user, async (ctx:Context, next:Next) => {
+    const userid = ctx.params.userid
+    let {status} = await deleteUser(userid)
+    ctx.status = status
+    ctx.set("Content-Type", "application/json")
+})
 
 /**
  * Get information about the user.
