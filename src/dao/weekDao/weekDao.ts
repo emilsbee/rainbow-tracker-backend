@@ -88,7 +88,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
  * @param weekYear of the week.
  * @param userid or null if no week found.
  */
-export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<string> => {
+export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<string | null> => {
     let weekidQueryValues = [userid, weekNr, weekYear]
     const getWeekidQuery = {name: "fetch-weekid", text: 'SELECT weekid FROM week WHERE week.userid=$1 AND week."weekNr"=$2 AND week."weekYear"=$3', values: weekidQueryValues}
 

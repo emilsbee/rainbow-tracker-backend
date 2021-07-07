@@ -27,7 +27,7 @@ export const getUserInfo = async (userid:string):Promise<{ status:number, user:U
  * @param userid of user to find the role.
  * @return role or null if the userid is invalid.
  */
-export const getUserRole = async (userid:string):Promise<string> => {
+export const getUserRole = async (userid:string):Promise<string | null> => {
     let userRoleQueryValues = [userid]
     const getUserRoleQuery = {name: "fetch-user-role", text: "SELECT role FROM app_user WHERE app_user.userid=$1", values: userRoleQueryValues}
 
@@ -52,18 +52,18 @@ export const getUserRole = async (userid:string):Promise<string> => {
  */
 export const createUser = async (email:string, password:string, role:string):Promise<{ status:number, user:User[] }> => {
     try {
-        const createUserQuery = "INSERT INTO app_user(userid, email, password, role) VALUES($1, $2, $3, $4);"
-        let salt = crypto.randomBytes(48).toString('hex')
-        let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, 'sha512').toString()
+        const createUserQuery = "INSERT INTO app_user(userid, email, password, role, salt) VALUES($1, $2, $3, $4, $5);"
+        let salt = crypto.randomBytes(16).toString('hex')
+        let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, 'sha512').toString('hex')
         let newUser = {
             userid: uuid(),
             email,
             role,
-            password: ""
+            password: "",
+            salt: ""
         }
-        const values = [newUser.userid, email, passwordHash+":"+salt, role]
+        const values = [newUser.userid, email, passwordHash, role, salt]
         await db.query(createUserQuery, values)
-        delete newUser.password
         return {status: 201, user:[newUser]}
     } catch (err) {
         return {status: 422, user:[]}

@@ -1,7 +1,5 @@
 // External imports
-import {CipherCCM, DecipherGCM} from "crypto";
-
-const crypto = require("crypto")
+import {encrypt, decrypt} from "./utils/encrypt";
 require('dotenv').config()
 const koa = require("koa")
 const bodyParser = require('koa-bodyparser');
@@ -21,27 +19,8 @@ app.use(bodyParser());
 app.keys = [process.env.TOKEN_KEY]
 
 const CONFIG = {
-    encode: (cookie: { userid:string, _expire:number, _maxAge:number }):string => {
-        let iv:Buffer = crypto.randomBytes(parseInt(process.env.TOKEN_ENCRYPT_IV_LENGTH)); // Generates a random initialization vector
-
-        let cipher:CipherCCM = crypto.createCipheriv(process.env.TOKEN_ENCRYPT_ALGORITHM, process.env.TOKEN_ENCRYPT_KEY, iv);
-        let encrypted:Buffer = cipher.update(Buffer.from(JSON.stringify(cookie)));
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-    },
-    decode: (encryptedCookie:string):string => {
-        let textParts:string[] = encryptedCookie.split(':'); // the encryptedCookie has the form iv:cookie
-
-        let iv:Buffer = Buffer.from(textParts.shift(), 'hex'); // Gets the iv part from textParts
-
-        let encryptedText:Buffer = Buffer.from(textParts.join(':'), 'hex');
-        let decipher:DecipherGCM = crypto.createDecipheriv(process.env.TOKEN_ENCRYPT_ALGORITHM, process.env.TOKEN_ENCRYPT_KEY, iv);
-        let decrypted:Buffer = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-        return JSON.parse(decrypted.toString())
-    },
+    encode: (cookie: { userid:string, _expire:number, _maxAge:number }) => encrypt(cookie),
+    decode: (cookie:string) => decrypt(cookie),
     key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
     /** (number || 'session') maxAge in ms (default is 1 days) */
     /** 'session' will result in a cookie that expires when session/browser is closed */

@@ -27,14 +27,14 @@ export const getCategoryTypes = async (userid:string):Promise<{ status:number, c
  * @param color of the category type to create.
  * @param name of the category type to create.
  */
-export const createCategoryType = async (userid:string, color:string, name:string):Promise<{ status:number, categoryType:CategoryType }> => {
+export const createCategoryType = async (userid:string, color:string, name:string):Promise<{ status:number, categoryType:CategoryType[] }> => {
     try {
         const createUserQuery = "INSERT INTO category_type(categoryid, userid, color, name, archived) VALUES($1, $2, $3, $4, $5);"
         let categoryid = uuid()
         const values = [categoryid, userid, color, name, false]
         await db.query(createUserQuery, values)
-        return {status: 201, categoryType:{userid, categoryid, name, color, archived: false}}
+        return {status: 201, categoryType:[{userid, categoryid, name, color, archived: false}]}
     } catch (err) {
-        return {status: 422, categoryType: null}
+        return {status: 422, categoryType: []}
     }
 }

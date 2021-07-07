@@ -7,7 +7,12 @@ const { Pool } = require('pg')
 let env = process.env.NODE_ENV
 
 // convert to uppercase
-let envString = env.toUpperCase()
+let envString:string
+if (env) {
+    envString = env.toUpperCase()
+} else {
+    throw new Error("You must have the environment variable NODE_ENV")
+}
 
 // access the environment variables for this environment
 let pgpassword = process.env['PGPASSWORD_' + envString]

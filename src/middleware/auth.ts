@@ -8,7 +8,7 @@ import user from "../routes/user";
 
 export default {
     user: async (ctx:Context, next:Next):Promise<void> => {
-        if (ctx.session.isNew) { // If not logged in
+        if (!ctx.session || ctx.session.isNew) { // If not logged in
             ctx.throw(401)
         } else { // If logged in
             let useridFromParams = ctx.params.userid
@@ -23,7 +23,7 @@ export default {
         }
     },
     admin: async (ctx:Context, next:Next):Promise<void> => {
-        if (ctx.session.isNew) { // If not logged in at all
+        if (!ctx.session || ctx.session.isNew) { // If not logged in at all
             ctx.throw(401)
         } else { // If logged in
             let role = await getUserRole(ctx.session.userid)

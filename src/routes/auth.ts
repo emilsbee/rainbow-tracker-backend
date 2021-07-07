@@ -17,8 +17,10 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context, next:Next) => {
 
     let {status, user} = await login(email, password)
 
-    if (user.length !== 0) {
+    if (user.length !== 0 && ctx.session) {
         ctx.session.userid = user[0].userid
+    } else {
+        status = 401
     }
 
     ctx.status = status

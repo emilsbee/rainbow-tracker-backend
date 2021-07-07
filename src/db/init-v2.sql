@@ -13,6 +13,7 @@ CREATE TABLE app_user (
 	email VARCHAR(320) UNIQUE NOT NULL,
 	password VARCHAR(250) NOT NULL,
 	role VARCHAR(3) NOT NULL,
+	salt VARCHAR(50) NOT NULL,
 	PRIMARY KEY(userid)
 );
 

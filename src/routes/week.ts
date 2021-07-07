@@ -23,8 +23,8 @@ export type Category = {
     weekDay:number,
     categoryPosition:number,
     userid:string,
-    categoryid:string,
-    activityid:string
+    categoryid:string | null,
+    activityid:string | null
 }
 
 export type Week = {

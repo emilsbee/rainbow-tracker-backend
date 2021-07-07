@@ -26,11 +26,12 @@ export const login = async (email:string, password:string):Promise<{status:numbe
 
         if (userPassResult.rowCount !== 0) { // If the provided email exists in the database and has a password
 
-            let salt = userPassResult.rows[0].password.split(":")[1] // Extract the salt from password fetched from db
-            let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, "sha512").toString() // Recreates the hashed password with salt
+            let salt = userPassResult.rows[0].salt
+            let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, "sha512").toString('hex') // Recreates the hashed password with salt
 
-            if (userPassResult.rows[0].password === passwordHash+":"+salt) { // Passwords match
+            if (userPassResult.rows[0].password === passwordHash) { // Passwords match
                 delete userPassResult.rows[0].password
+                delete userPassResult.rows[0].salt
                 return {status: 200, user:userPassResult.rows}
             } else { // Passwords don't match
                 return {status:401, user:[]}

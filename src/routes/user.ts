@@ -14,7 +14,8 @@ export type User = {
     userid:string,
     email:string,
     password:string,
-    role:string
+    role:string,
+    salt:string
 }
 
 /**
