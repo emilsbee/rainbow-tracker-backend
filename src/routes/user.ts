@@ -20,7 +20,7 @@ export type User = {
 /**
  * Create a user with given userid, email, password.
  */
-router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
+router.post('/users', contentType.JSON, async  (ctx:Context, next:Next) => {
     let userToCreate = ctx.request.body as User
 
     let {status, user} = await createUser(userToCreate.email, userToCreate.password, userToCreate.role)
