@@ -2,7 +2,7 @@
 import {v4 as uuid} from "uuid";
 
 // Internal imports
-import {CategoryType} from "../routes/categoryType";
+import {CategoryType} from "../routes/public/categoryType";
 const db = require("../db")
 
 /**

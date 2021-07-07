@@ -4,7 +4,7 @@ import {Client, QueryResult} from "pg";
 const crypto = require("crypto")
 
 // Internal imports
-import user, {User} from "../routes/user"
+import user, {User} from "../routes/admin/user"
 const db = require("../db/index")
 
 /**

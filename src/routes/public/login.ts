@@ -3,9 +3,9 @@ import {Context, Next} from "koa";
 let Router = require('koa-router');
 
 // Internal
-import contentType from "../middleware/contentType";
-import protect from "../middleware/auth"
-import {login} from "../dao/authDao";
+import contentType from "../../middleware/contentType";
+import {login} from "../../dao/authDao";
+
 
 let router = new Router();
 
@@ -28,12 +28,4 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context, next:Next) => {
     ctx.body = user
 })
 
-/**
- * Route for logging out.
- */
-router.get("/auth/logout", protect.user, async (ctx:Context, next:Next) => {
-    ctx.session = null
-    ctx.status = 204
-})
-
-export default router
+export  default router

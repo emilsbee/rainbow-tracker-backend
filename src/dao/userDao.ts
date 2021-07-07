@@ -3,7 +3,7 @@ const crypto = require("crypto")
 import {v4 as uuid} from "uuid";
 
 // Internal imports
-import {User} from "../routes/user";
+import {User} from "../routes/admin/user";
 const db = require("../db")
 
 /**
@@ -12,7 +12,7 @@ const db = require("../db")
  * @return User object with password being null.
  */
 export const getUserInfo = async (userid:string):Promise<{ status:number, user:User[] }> => {
-    const getUserInfoQuery = {name: "fetch-user-info", text: "SELECT email, role, userid FROM app_user WHERE userid=$1", values: [userid]}
+    const getUserInfoQuery = {name: "fetch-user-info", text: "SELECT email, userid FROM app_user WHERE userid=$1", values: [userid]}
     try {
         let user = await db.query(getUserInfoQuery)
 
@@ -23,46 +23,22 @@ export const getUserInfo = async (userid:string):Promise<{ status:number, user:U
 }
 
 /**
- * Given a userid the user's role is found.
- * @param userid of user to find the role.
- * @return role or null if the userid is invalid.
- */
-export const getUserRole = async (userid:string):Promise<string | null> => {
-    let userRoleQueryValues = [userid]
-    const getUserRoleQuery = {name: "fetch-user-role", text: "SELECT role FROM app_user WHERE app_user.userid=$1", values: userRoleQueryValues}
-
-    try {
-        let role = await db.query(getUserRoleQuery)
-
-        if (role.rowCount === 0) {
-            return null
-        } else {
-            return role.rows[0].role
-        }
-    } catch (e) {
-        return null
-    }
-}
-
-/**
- * Creates a user with given email, password and role.
+ * Creates a user with given email, password.
  * @param email of the user.
  * @param password of the user.
- * @param role of the user.
  */
-export const createUser = async (email:string, password:string, role:string):Promise<{ status:number, user:User[] }> => {
+export const createUser = async (email:string, password:string):Promise<{ status:number, user:User[] }> => {
     try {
-        const createUserQuery = "INSERT INTO app_user(userid, email, password, role, salt) VALUES($1, $2, $3, $4, $5);"
+        const createUserQuery = "INSERT INTO app_user(userid, email, password, salt) VALUES($1, $2, $3, $4);"
         let salt = crypto.randomBytes(16).toString('hex')
         let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, 'sha512').toString('hex')
         let newUser = {
             userid: uuid(),
             email,
-            role,
             password: "",
             salt: ""
         }
-        const values = [newUser.userid, email, passwordHash, role, salt]
+        const values = [newUser.userid, email, passwordHash, salt]
         await db.query(createUserQuery, values)
         return {status: 201, user:[newUser]}
     } catch (err) {

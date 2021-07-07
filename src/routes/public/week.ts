@@ -3,9 +3,9 @@ import {Context, Next} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import contentType from "../middleware/contentType";
-import protect from "../middleware/auth";
-import {createWeek, getWeekByWeekid, getWeekId, updateWeekCategoriesByWeekid} from "../dao/weekDao/weekDao";
+import contentType from "../../middleware/contentType";
+import protect from "../../middleware/auth";
+import {createWeek, getWeekByWeekid, getWeekId, updateWeekCategoriesByWeekid} from "../../dao/weekDao/weekDao";
 
 let router = new Router(); // Initialize router
 

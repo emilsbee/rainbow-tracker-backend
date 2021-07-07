@@ -1,5 +1,5 @@
 // Internal imports
-import {Category, Note} from "../../routes/week";
+import {Category, Note} from "../../routes/public/week";
 
 /**
  * Given an array of categories or notes, this function creates a double

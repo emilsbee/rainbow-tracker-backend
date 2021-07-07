@@ -6,10 +6,12 @@ const bodyParser = require('koa-bodyparser');
 const session = require('koa-session');
 
 // Internal imports
-import userRouter from "./routes/user"
-import authRouter from "./routes/auth"
-import weekRouter from "./routes/week"
-import categoryTypeRouter from "./routes/categoryType"
+import loginRouter from "./routes/public/login"
+import userRouter from "./routes/admin/user"
+import authRouter from "./routes/public/auth"
+import weekRouter from "./routes/public/week"
+import categoryTypeRouter from "./routes/public/categoryType"
+import Router from "koa-router";
 
 const app = new koa()
 
@@ -31,15 +33,25 @@ const CONFIG = {
     signed: true, /** (boolean) signed or not (default true) */
     rolling: true, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. default is false **/
 };
-
 app.use(session(CONFIG, app))
 
 // Routers
-userRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
-userRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
+// Admin router is for endpoints only accessible by someone with an admin access token.
+const adminRouter = new Router()
+adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods())
 
-app.use(userRouter.routes()).use(userRouter.allowedMethods())
-app.use(authRouter.routes()).use(authRouter.allowedMethods())
+// Public router is for endpoints accessible by anyone. They only give data about the account that made the
+// request.
+const publicRouter = new Router()
+publicRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
+publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
+publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
+
+
+// Assigning all the routes to the app instance
+app.use(adminRouter.routes()).use(adminRouter.allowedMethods())
+app.use(publicRouter.routes()).use(publicRouter.allowedMethods())
+app.use(loginRouter.routes()).use(loginRouter.allowedMethods())
 
 // Start server
 app.listen(process.env.PORT, () => {

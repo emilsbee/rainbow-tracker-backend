@@ -1,10 +1,5 @@
 // External imports
 import {Context, Next} from "koa";
-import {getUserRole} from "../dao/userDao";
-import {roles} from "../constants/roles";
-import user from "../routes/user";
-
-// Internal imports
 
 export default {
     user: async (ctx:Context, next:Next):Promise<void> => {
@@ -13,9 +8,8 @@ export default {
         } else { // If logged in
             let useridFromParams = ctx.params.userid
             let userid = ctx.session.userid
-            let role = await getUserRole(userid)
 
-            if (role !== roles.ADMIN && useridFromParams && useridFromParams !== userid) { // If the actual userid (from session) isn't the same as userid provided in url params
+            if (useridFromParams !== userid) { // If the actual userid (from session) isn't the same as userid provided in url params
                 ctx.throw(403)
             } else {
                 await next()
@@ -23,16 +17,12 @@ export default {
         }
     },
     admin: async (ctx:Context, next:Next):Promise<void> => {
-        if (!ctx.session || ctx.session.isNew) { // If not logged in at all
-            ctx.throw(401)
-        } else { // If logged in
-            let role = await getUserRole(ctx.session.userid)
+        let bearerToken = ctx.get('Authorization').split(" ")[1];
 
-            if (role !== roles.ADMIN) {
-                ctx.throw(403)
-            }  else {
-                await next()
-            }
+        if (bearerToken === process.env.TEMP_ACCESS_KEY) {
+            await next()
+        } else {
+            ctx.throw(401)
         }
     }
 }

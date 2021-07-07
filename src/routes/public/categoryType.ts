@@ -3,9 +3,9 @@ import {Context, Next} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import contentType from "../middleware/contentType";
-import protect from "../middleware/auth";
-import {createCategoryType, getCategoryTypes} from "../dao/categoryTypeDao";
+import contentType from "../../middleware/contentType";
+import protect from "../../middleware/auth";
+import {createCategoryType, getCategoryTypes} from "../../dao/categoryTypeDao";
 
 let router = new Router()
 
