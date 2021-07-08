@@ -5,7 +5,7 @@ let Router = require('koa-router');
 // Internal imports
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
-import {createCategoryType, getCategoryTypes, updateCategoryType} from "../../dao/categoryTypeDao";
+import {createCategoryType, deleteCategoryType, getCategoryTypes, updateCategoryType} from "../../dao/categoryTypeDao";
 
 let router = new Router()
 
@@ -26,7 +26,24 @@ export type ActivityType = {
     archived:boolean
 }
 
-router.put("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
+/**
+ * Route for archiving a category type, including all the activity types
+ * of that category type.
+ */
+router.delete("/category-type/:categoryid", protect.user, async (ctx:Context) => {
+    const userid = ctx.params.userid
+    const categoryid = ctx.params.categoryid
+
+    let status = await deleteCategoryType(userid, categoryid)
+
+    ctx.status = status
+})
+
+/**
+ * Route for updating a category type.
+ * @return categoryType[]
+ */
+router.patch("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
     let categoryToUpdate = ctx.request.body as CategoryType
     let {status, categoryType} = await updateCategoryType(userid, categoryToUpdate)

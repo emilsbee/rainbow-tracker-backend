@@ -3,7 +3,39 @@ import {v4 as uuid} from "uuid";
 
 // Internal imports
 import {CategoryType} from "../routes/public/categoryType";
+import {Client} from "pg";
 const db = require("../db")
+
+/**
+ * Archives a category type by a given categoryid. Also, archives all the activity types
+ * for the category.
+ * @param userid for which to archive the category type.
+ * @param categoryid of the category to archive.
+ */
+export const deleteCategoryType = async (userid:string, categoryid:string):Promise<number> => {
+    const client:Client = await db.getClient()
+
+    try {
+        // Begin transaction
+        await client.query('BEGIN')
+
+        const archiveActivityTypeQuery = "UPDATE activity_type SET archived=true WHERE categoryid=$1 AND userid=$2"
+        await client.query(archiveActivityTypeQuery, [categoryid, userid])
+
+        const archiveCategoryTypeQuery = "UPDATE category_type SET archived=true WHERE categoryid=$1 AND userid=$2"
+        await client.query(archiveCategoryTypeQuery, [categoryid, userid])
+
+        // Commit transaction
+        await client.query('COMMIT')
+
+        return 204
+    } catch (e) {
+        await client.query('ROLLBACK')
+        return 400
+    } finally {
+        await client.end()
+    }
+}
 
 /**
  * Update category type for a given user.
@@ -36,7 +68,7 @@ export const updateCategoryType = async (userid:string, newCategoryType:Category
  */
 export const getCategoryTypes = async (userid:string):Promise<{ status:number, categoryTypes:CategoryType[] }> => {
     try {
-        const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1"
+        const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false"
         let newCategoryTypes = await db.query(getCategoryTypesQuery, [userid])
         return {
             status:200, categoryTypes: newCategoryTypes.rows
