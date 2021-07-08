@@ -25,8 +25,14 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
 
     let {status, user} = await createUser(userToCreate.email, userToCreate.password)
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
-    ctx.body = user
+
+    if (user.length !== 0) {
+        ctx.set("Content-Type", "application/json")
+        ctx.body = [{
+            userid: user[0].userid,
+            email: user[0].email
+        }]
+    }
 });
 
 /**
@@ -34,9 +40,8 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
  */
 router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
-    let {status} = await deleteUser(userid)
+    let status = await deleteUser(userid)
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
 })
 
 /**

@@ -1,4 +1,6 @@
 // External imports
+import {Client} from "pg";
+
 const crypto = require("crypto")
 import {v4 as uuid} from "uuid";
 
@@ -47,25 +49,22 @@ export const createUser = async (email:string, password:string):Promise<{ status
 }
 
 /**
- * Deletes a user with given userid.
+ * Deletes all rows related to the given user in all tables.
  * @param userid of the user to delete.
  */
-export const deleteUser = async (userid:string):Promise<{status:number}> => {
+export const deleteUser = async (userid:string):Promise<number> => {
     try {
-        const deleteUserQuery = "DELETE FROM app_user, activity_type, analytics_activity, analytics_category, category, category_type, note, week WHERE userid=$1"
+        const deleteUserRowsQuery = "DELETE FROM : WHERE userid = $1;"
+        const tablesToDeleteFrom = ["activity_type", "analytics_activity", "analytics_category", "category", "category_type", "note", "week", "app_user"]
 
-        let result = await db.query(deleteUserQuery, [userid])
-
-        let status:number;
-        if (result.rowCount === 0) {
-            status = 404
-        } else {
-            status = 204
+        for (let i = 0; i < tablesToDeleteFrom.length; i++) {
+            let newQuery = deleteUserRowsQuery.replace(":", tablesToDeleteFrom[i])
+            await db.query(newQuery, [userid])
         }
 
-        return {status}
+        return 204
     } catch (e) {
         console.log(e)
-        return {status: 400}
+        return 400
     }
 }
