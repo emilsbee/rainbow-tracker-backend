@@ -62,7 +62,11 @@ router.post("/category-types", contentType.JSON, protect.user, async (ctx:Contex
 
     if (categoryType != null) {
         ctx.set("Content-Type", "application/json")
-        ctx.body = JSON.stringify(categoryType)
+        ctx.body = JSON.stringify([{
+            categoryid: categoryType[0].categoryid,
+            name: categoryType[0].name,
+            color: categoryType[0].color
+        }])
     }
 })
 
