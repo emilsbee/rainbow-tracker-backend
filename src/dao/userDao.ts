@@ -53,7 +53,12 @@ export const createUser = async (email:string, password:string):Promise<{ status
  * @param userid of the user to delete.
  */
 export const deleteUser = async (userid:string):Promise<number> => {
+    const client:Client = await db.getClient()
+
     try {
+        // Begin transaction
+        await client.query('BEGIN')
+
         const deleteUserRowsQuery = "DELETE FROM : WHERE userid = $1;"
         const tablesToDeleteFrom = ["activity_type", "analytics_activity", "analytics_category", "category", "category_type", "note", "week", "app_user"]
 
@@ -62,9 +67,14 @@ export const deleteUser = async (userid:string):Promise<number> => {
             await db.query(newQuery, [userid])
         }
 
+        // Commit transaction
+        await client.query('COMMIT')
+
         return 204
     } catch (e) {
-        console.log(e)
+        await client.query('ROLLBACK')
         return 400
+    } finally {
+        await client.end()
     }
 }
