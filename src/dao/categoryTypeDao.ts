@@ -6,6 +6,31 @@ import {CategoryType} from "../routes/public/categoryType";
 const db = require("../db")
 
 /**
+ * Update category type for a given user.
+ * @param userid for which to update category type.
+ * @param newCategoryType to update with.
+ */
+export const updateCategoryType = async (userid:string, newCategoryType:CategoryType):Promise<{ status:number, categoryType:CategoryType[] }> => {
+    try {
+        const updateCategoryTypeQuery = "UPDATE category_type SET color=$1, name=$2 WHERE userid=$3 AND categoryid=$4;"
+        let updatedCategory = await db.query(updateCategoryTypeQuery, [newCategoryType.color, newCategoryType.name, userid, newCategoryType.categoryid])
+
+        if (updatedCategory.rowCount === 0) {
+            return {
+                status: 404,
+                categoryType: []
+            }
+        } else {
+            return {
+                status: 200, categoryType: updatedCategory.rows
+            }
+        }
+    } catch (e) {
+        return {status: 400, categoryType:[]}
+    }
+}
+
+/**
  * Fetches all category types for a given user.
  * @param userid of the user for which to fetch the category types.
  */

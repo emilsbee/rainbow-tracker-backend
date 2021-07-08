@@ -5,7 +5,7 @@ let Router = require('koa-router');
 // Internal imports
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
-import {createCategoryType, getCategoryTypes} from "../../dao/categoryTypeDao";
+import {createCategoryType, getCategoryTypes, updateCategoryType} from "../../dao/categoryTypeDao";
 
 let router = new Router()
 
@@ -28,9 +28,12 @@ export type ActivityType = {
 
 router.put("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
-    let categoryid:string = ctx.params.categoryid
+    let categoryToUpdate = ctx.request.body as CategoryType
+    let {status, categoryType} = await updateCategoryType(userid, categoryToUpdate)
 
-    ctx.status = 200
+    ctx.status = status
+    ctx.set("Content-Type", "application/json")
+    ctx.body = JSON.stringify(categoryType)
 })
 
 /**
@@ -42,7 +45,13 @@ router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
     let {status, categoryTypes} = await getCategoryTypes(userid)
     ctx.status = status
     ctx.set("Content-Type", "application/json")
-    ctx.body = JSON.stringify(categoryTypes)
+    ctx.body = JSON.stringify(categoryTypes.map(categoryType => {
+        return {
+            categoryid: categoryType.categoryid,
+            color: categoryType.color,
+            name: categoryType.name
+        }
+    }))
 })
 
 /**

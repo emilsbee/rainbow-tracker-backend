@@ -28,10 +28,10 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
 
     if (user.length !== 0) {
         ctx.set("Content-Type", "application/json")
-        ctx.body = [{
+        ctx.body = JSON.stringify([{
             userid: user[0].userid,
             email: user[0].email
-        }]
+        }])
     }
 });
 
