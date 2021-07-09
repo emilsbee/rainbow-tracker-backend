@@ -35,13 +35,14 @@ services:
       - postgres
     restart: unless-stopped
 
-  app:
-    container_name: rainbow-tracker-backend
-    image: mrfinance/rainbow-tracker-backend
+  redis:
+    container_name: redis_container
+    image: redis
     ports:
-      - "3000:3000"
+      - "6379:6379"
     networks:
       - postgres
+    restart: unless-stopped
 
 networks:
   postgres:

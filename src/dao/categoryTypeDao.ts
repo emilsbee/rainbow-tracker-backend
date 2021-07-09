@@ -3,7 +3,7 @@ import {v4 as uuid} from "uuid";
 
 // Internal imports
 import {CategoryType} from "../routes/public/categoryType";
-import {Client} from "pg";
+import {PoolClient} from "pg";
 const db = require("../db")
 
 /**
@@ -13,7 +13,7 @@ const db = require("../db")
  * @param categoryid of the category to archive.
  */
 export const deleteCategoryType = async (userid:string, categoryid:string):Promise<number> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
 
     try {
         // Begin transaction
@@ -33,7 +33,7 @@ export const deleteCategoryType = async (userid:string, categoryid:string):Promi
         await client.query('ROLLBACK')
         return 400
     } finally {
-        await client.end()
+        client.release()
     }
 }
 

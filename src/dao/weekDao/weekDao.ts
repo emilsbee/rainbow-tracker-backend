@@ -1,5 +1,5 @@
 // External imports
-import {Client} from "pg";
+import {PoolClient} from "pg";
 import {v4 as uuid} from "uuid";
 
 // Internal imports
@@ -15,7 +15,7 @@ const db = require("../../db")
  * @return status code.
  */
 export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<number> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
     const updateWeekCategoriesQuery = 'UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND "weekDay"=$4 AND "categoryPosition"=$5 AND userid=$6'
 
     try {
@@ -32,7 +32,7 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
         await client.query('ROLLBACK')
         return 400
     } finally {
-        await client.end()
+        client.release()
     }
 }
 
@@ -44,7 +44,7 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
  * @return {{ status: number, category: FullWeek[] }}
  */
 export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[] }> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
     const values = [weekid, userid]
     const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2', values}
     const getWeekQuery = {name: 'fetch-week', text: 'SELECT * FROM week WHERE week.weekid = $1 AND week.userid = $2', values}
@@ -78,7 +78,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
             week: []
         }
     } finally {
-        await client.end()
+        client.release()
     }
 }
 
@@ -113,7 +113,7 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
  * @return {{status:number, category:FullWeek[]}}
  */
 export const createWeek = async (weekNr:number, weekYear:number, userid:string):Promise<{ status: number, week: FullWeek[] }> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
 
     try {
         // Begin transaction
@@ -158,6 +158,6 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         await client.query('ROLLBACK')
         return {status: 400, week: []}
     } finally {
-        await client.end()
+        client.release()
     }
 }

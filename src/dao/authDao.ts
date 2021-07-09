@@ -1,5 +1,5 @@
 // External imports
-import {Client, QueryResult} from "pg";
+import {PoolClient, QueryResult} from "pg";
 
 const crypto = require("crypto")
 
@@ -14,7 +14,7 @@ const db = require("../db/index")
  * @param password of the user to login.
  */
 export const login = async (email:string, password:string):Promise<{status:number, user:User[]}> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
 
     try {
         // Begin transaction
@@ -42,6 +42,6 @@ export const login = async (email:string, password:string):Promise<{status:numbe
     } catch (e) {
         return {status: 401, user:[]}
     } finally {
-        await client.end()
+        client.release()
     }
 }

@@ -1,6 +1,5 @@
 // External imports
-import {Client} from "pg";
-
+import {PoolClient} from "pg";
 const crypto = require("crypto")
 import {v4 as uuid} from "uuid";
 
@@ -53,7 +52,7 @@ export const createUser = async (email:string, password:string):Promise<{ status
  * @param userid of the user to delete.
  */
 export const deleteUser = async (userid:string):Promise<number> => {
-    const client:Client = await db.getClient()
+    const client:PoolClient = await db.getClient()
 
     try {
         // Begin transaction
@@ -75,6 +74,6 @@ export const deleteUser = async (userid:string):Promise<number> => {
         await client.query('ROLLBACK')
         return 400
     } finally {
-        await client.end()
+        client.release()
     }
 }
