@@ -1,5 +1,5 @@
 // External imports
-import {PoolClient, Query} from "pg";
+import {PoolClient, QueryResult} from "pg";
 
 const { Pool } = require('pg')
 
@@ -29,15 +29,21 @@ const pool = new Pool({
     port: pgport
 })
 
-module.exports = {
-    query: async (text:string, params:any[]):Promise<Query> => {
-        return await pool.query(text, params)
+
+
+export default {
+    query: async (text:string | {name:string, text:string, values:any[]}, params?:any[]):Promise<QueryResult> => {
+        return pool.query(text, params);
     },
 
     getClient: async ():Promise<PoolClient> => {
         return await pool.connect()
     }
 }
+
+
+
+
 
 
 

@@ -5,7 +5,7 @@ import {v4 as uuid} from "uuid";
 
 // Internal imports
 import {User} from "../routes/admin/user";
-const db = require("../db")
+import db from "../db"
 
 /**
  * Get user info.

@@ -4,7 +4,7 @@ import {v4 as uuid} from "uuid";
 // Internal imports
 import {CategoryType} from "../routes/public/categoryType";
 import {PoolClient} from "pg";
-const db = require("../db")
+import db from "../db"
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types

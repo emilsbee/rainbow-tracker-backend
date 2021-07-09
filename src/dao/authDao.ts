@@ -1,11 +1,10 @@
 // External imports
 import {PoolClient, QueryResult} from "pg";
-
 const crypto = require("crypto")
 
 // Internal imports
-import user, {User} from "../routes/admin/user"
-const db = require("../db/index")
+import {User} from "../routes/admin/user"
+import db from "../db/index"
 
 /**
  * Performs login by finding the appropriate user by email and then comparing the provided password
