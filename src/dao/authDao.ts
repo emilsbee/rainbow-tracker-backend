@@ -4,7 +4,7 @@ const crypto = require("crypto")
 
 // Internal imports
 import {User} from "../routes/admin/user"
-import db from "../db/index"
+import db from "../db/postgres"
 
 /**
  * Performs login by finding the appropriate user by email and then comparing the provided password
@@ -12,16 +12,17 @@ import db from "../db/index"
  * @param email of the user to login.
  * @param password of the user to login.
  */
-export const login = async (email:string, password:string):Promise<{status:number, user:User[]}> => {
+export const login = async (email:string, password:string):Promise<User[]> => {
     const client:PoolClient = await db.getClient()
+    let user:User[];
 
     try {
         // Begin transaction
         await client.query('BEGIN')
 
         // Fetches the provided user by email
-        const getUserPasswordQuery = "SELECT * FROM app_user WHERE email=$1"
-        let userPassResult:QueryResult = await client.query(getUserPasswordQuery, [email])
+        const getUserPasswordQuery = {name: "fetch-user", text: "SELECT * FROM app_user WHERE email=$1", values: [email]}
+        let userPassResult:QueryResult = await client.query(getUserPasswordQuery)
 
         if (userPassResult.rowCount !== 0) { // If the provided email exists in the database and has a password
 
@@ -29,17 +30,21 @@ export const login = async (email:string, password:string):Promise<{status:numbe
             let passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, "sha512").toString('hex') // Recreates the hashed password with salt
 
             if (userPassResult.rows[0].password === passwordHash) { // Passwords match
+                // Deleting these properties because they are not needed for client
                 delete userPassResult.rows[0].password
                 delete userPassResult.rows[0].salt
-                return {status: 200, user:userPassResult.rows}
+
+                user = userPassResult.rows
             } else { // Passwords don't match
-                return {status:401, user:[]}
+                user = []
             }
         } else { // The provided email doesn't exist in the db
-            return {status: 401, user:[]}
+            user = []
         }
+
+        return user
     } catch (e) {
-        return {status: 401, user:[]}
+        return []
     } finally {
         client.release()
     }

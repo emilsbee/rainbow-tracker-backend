@@ -5,7 +5,7 @@ import {v4 as uuid} from "uuid";
 
 // Internal imports
 import {User} from "../routes/admin/user";
-import db from "../db"
+import db from "../db/postgres"
 
 /**
  * Get user info.

@@ -38,6 +38,10 @@ services:
   redis:
     container_name: redis_container
     image: redis
+    volumes:
+      - type: bind
+        source: /data/redis-rainbow
+        target: /data
     ports:
       - "6379:6379"
     networks:

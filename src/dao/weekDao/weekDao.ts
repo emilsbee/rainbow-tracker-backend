@@ -5,7 +5,7 @@ import {v4 as uuid} from "uuid";
 // Internal imports
 import {Category, FullWeek, Note} from "../../routes/public/week";
 import {groupByDays} from "./helpers";
-import db from "../../db"
+import db from "../../db/postgres"
 
 /**
  * Updates a given week's categories for a user.

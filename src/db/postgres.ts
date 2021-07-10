@@ -1,6 +1,5 @@
 // External imports
 import {PoolClient, QueryResult} from "pg";
-
 const { Pool } = require('pg')
 
 // get the current environment
@@ -28,8 +27,6 @@ const pool = new Pool({
     database: pgdatabase,
     port: pgport
 })
-
-
 
 export default {
     query: async (text:string | {name:string, text:string, values:any[]}, params?:any[]):Promise<QueryResult> => {

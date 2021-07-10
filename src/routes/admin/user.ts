@@ -6,7 +6,6 @@ let Router = require('koa-router');
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
 import {createUser, deleteUser, getUserInfo} from "../../dao/userDao";
-import u from "koa-session/lib/util";
 
 let router = new Router(); // Initialize router
 
