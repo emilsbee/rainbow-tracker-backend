@@ -119,13 +119,13 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         // Begin transaction
         await client.query('BEGIN')
 
-        // Save category
+        // Save week
         const createWeekQuery = 'INSERT INTO week(weekid, userid, "weekNr", "weekYear") VALUES($1, $2, $3, $4);'
         let weekid = uuid()
         const values = [weekid, userid, weekNr, weekYear]
         await client.query(createWeekQuery, values)
 
-        // Save category's categories and notes
+        // Save weeks's categories and notes
         const categories:Category[] = []
         const notes:Note[] = []
         const createCategoryQuery:string = 'INSERT INTO category(weekid, "weekDay", "categoryPosition", userid) VALUES($1, $2, $3, $4);'
