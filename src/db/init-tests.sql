@@ -107,3 +107,5 @@ CREATE TABLE analytics_activity (
     CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
     CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
+
+INSERT INTO app_user VALUES ('42b573fb-cb3c-44fa-8935-43f5f90f10ff', 'emils@gmail.com', 'a1bcd1f55a03eebd53172cba5231ada6cef48551d121599f57b64e9db9d7a4b3ced4372708593672e999bbd34283673504ed', 'c8b35b68d7038857ed955ee38be6113a');

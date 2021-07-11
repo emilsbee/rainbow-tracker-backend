@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "3693b0e5-8e34-4b47-b814-787b07b5b327",
+		"name": "Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"item": [
+						{
+							"name": "Login success",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Login success status 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"const jsonData = pm.response.json();",
+											"pm.test(\"Login success response body correct\", function () {",
+											"    pm.expect(jsonData).to.have.length(1);",
+											"});",
+											"",
+											"pm.test(\"Cookie rainbow:session is present\", () => {",
+											"  pm.expect(pm.cookies.has('rainbow:session')).to.be.true;",
+											"});",
+											"",
+											"// Sets the userid environment variable ",
+											"if (jsonData.length > 0 && jsonData[0].userid) {",
+											"    pm.environment.set(\"userid\", jsonData[0].userid)   ",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"emils@gmail.com\",\n    \"password\": \"password\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/auth/login",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login failed with existing email but wrong password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Login failed with existing email but wrong password status 401\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"const jsonData = pm.response.json();",
+											"pm.test(\"Login failed with existing email but wrong password response body correct\", function () {",
+											"    pm.expect(jsonData).to.be.empty;",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"emils@gmail.com\",\n    \"password\": \"wrong\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/auth/login",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login failed with wrong email and password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Login failed with wrong email and password status 401\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"const jsonData = pm.response.json();",
+											"pm.test(\"Login failed with wrong email and password response body correct\", function () {",
+											"    pm.expect(jsonData).to.be.empty;",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"wrong@wrong.wrong\",\n    \"password\": \"wrong\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/auth/login",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Logout",
+					"item": [
+						{
+							"name": "Logout with being logged in",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Logout with being logged in status 204\", function () {",
+											"    pm.response.to.have.status(204);",
+											"});",
+											"",
+											"pm.test(\"Logout with being logged in cookie rainbow:session is removed\", () => {",
+											"  pm.expect(pm.cookies.has('rainbow:session')).to.be.false;",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/user/{{userid}}/auth/logout",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"user",
+										"{{userid}}",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout without being logged in",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Logout without being logged in status 401\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"pm.test(\"Logout without being logged in cookie rainbow:session is removed\", () => {",
+											"  pm.expect(pm.cookies.has('rainbow:session')).to.be.false;",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/user/{{userid}}/auth/logout",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"user",
+										"{{userid}}",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Category type",
+					"item": [
+						{
+							"name": "Create category success",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"color\": \"red\",\n    \"name\": \"CRIB\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/user/{{userid}}/category-types",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"user",
+										"{{userid}}",
+										"category-types"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,100 +1,109 @@
+DROP TABLE IF EXISTS app_user CASCADE;
+DROP TABLE IF EXISTS week CASCADE;
+DROP TABLE IF EXISTS note CASCADE;
+DROP TABLE IF EXISTS category_type CASCADE;
+DROP TABLE IF EXISTS activity_type CASCADE;
+DROP TABLE IF EXISTS category CASCADE;
+DROP TABLE IF EXISTS analytics_category CASCADE;
+DROP TABLE IF EXISTS analytics_activity CASCADE;
+
+
 CREATE TABLE app_user (
-	user_id VARCHAR(50),
+	userid VARCHAR(50),
 	email VARCHAR(320) UNIQUE NOT NULL,
-	password VARCHAR(50) NOT NULL,
-	role VARCHAR(3) NOT NULL,
-	PRIMARY KEY(user_id)
+	password VARCHAR(250) NOT NULL,
+	salt VARCHAR(50) NOT NULL,
+	PRIMARY KEY(userid)
 );
 
 CREATE TABLE week (
-    week_id VARCHAR(50),
-    user_id VARCHAR(50) NOT NULL,
-    week_number INT NOT NULL,
-    week_year INT NOT NULL,
-	PRIMARY KEY(week_id),
-	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
-	CONSTRAINT week_number CHECK (
-	    week_number > 0
+    weekid VARCHAR(50),
+    userid VARCHAR(50) NOT NULL,
+    "weekNr" INT NOT NULL,
+    "weekYear" INT NOT NULL,
+	PRIMARY KEY(weekid),
+	CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
+	CONSTRAINT "weekNr" CHECK (
+	    "weekNr" > 0
 	),
-	CONSTRAINT week_year CHECK (
-	    week_year > 0
+	CONSTRAINT "weekYear" CHECK (
+	    "weekYear" > 0
 	),
-	UNIQUE(user_id, week_number, week_year)
-
+	UNIQUE(userid, "weekNr", "weekYear")
 );
 
 CREATE TABLE note (
-    week_id VARCHAR(50) NOT NULL,
-    week_day INT NOT NULL,
-    note_position INT NOT NULL,
-    stack_id VARCHAR(50) NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
+    weekid VARCHAR(50) NOT NULL,
+    "weekDay" INT NOT NULL,
+    "notePosition" INT NOT NULL,
+    stackid VARCHAR(50) NOT NULL,
+    userid VARCHAR(50) NOT NULL,
     note VARCHAR,
-    PRIMARY KEY(week_id, week_day, note_position),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
-    CONSTRAINT week_day CHECK (
-        week_day > -1 AND week_day < 7
+    PRIMARY KEY(weekid, "weekDay", "notePosition"),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
+    CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
+    CONSTRAINT "weekDay" CHECK (
+        "weekDay" > -1 AND "weekDay" < 7
     )
 );
 
 CREATE TABLE category_type (
-    category_id VARCHAR(50),
-    user_id VARCHAR(50) NOT NULL,
+    categoryid VARCHAR(50),
+    userid VARCHAR(50) NOT NULL,
     color VARCHAR(50) NOT NULL,
     name VARCHAR(50) NOT NULL,
     archived BOOLEAN NOT NULL,
-    PRIMARY KEY(category_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+    PRIMARY KEY(categoryid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE activity_type (
-    activity_id VARCHAR(50),
-    category_id VARCHAR(50) NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
+    activityid VARCHAR(50),
+    categoryid VARCHAR(50) NOT NULL,
+    userid VARCHAR(50) NOT NULL,
     long VARCHAR(100) NOT NULL,
     short VARCHAR(2) NOT NULL,
     archived BOOLEAN NOT NULL,
-    PRIMARY KEY(activity_id),
-    CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+    PRIMARY KEY(activityid),
+    CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE category (
-    week_id VARCHAR(50),
-    week_day INT NOT NULL,
-    category_position INT NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    category_id VARCHAR(50),
-    activity_id VARCHAR(50),
-    PRIMARY KEY(week_id, week_day, category_position),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
-    CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
-    CONSTRAINT fk_activity FOREIGN KEY(activity_id) REFERENCES activity_type(activity_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id),
-    CONSTRAINT week_day CHECK (
-        week_day > -1 AND week_day < 7
+    weekid VARCHAR(50),
+    "weekDay" INT NOT NULL,
+    "categoryPosition" INT NOT NULL,
+    userid VARCHAR(50) NOT NULL,
+    categoryid VARCHAR(50),
+    activityid VARCHAR(50),
+    PRIMARY KEY(weekid, "weekDay", "categoryPosition"),
+    CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
+    CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
+    CONSTRAINT fk_activity FOREIGN KEY(activityid) REFERENCES activity_type(activityid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE,
+    CONSTRAINT "weekDay" CHECK (
+        "weekDay" > -1 AND "weekDay" < 7
     )
 );
 
 CREATE TABLE analytics_category (
-    category_id VARCHAR(50),
+    categoryid VARCHAR(50),
     freq INT NOT NULL,
-    week_id VARCHAR(50) NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    PRIMARY KEY(category_id),
-    CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category_type(category_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+    weekid VARCHAR(50) NOT NULL,
+    userid VARCHAR(50) NOT NULL,
+    PRIMARY KEY(categoryid),
+    CONSTRAINT fk_category FOREIGN KEY(categoryid) REFERENCES category_type(categoryid),
+    CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );
 
 CREATE TABLE analytics_activity (
-    activity_id VARCHAR(50),
+    activityid VARCHAR(50),
     freq INT NOT NULL,
-    week_id VARCHAR(50) NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    PRIMARY KEY(activity_id),
-    CONSTRAINT fk_activity FOREIGN KEY(activity_id) REFERENCES activity_type(activity_id),
-    CONSTRAINT fk_week FOREIGN KEY(week_id) REFERENCES week(week_id),
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+    weekid VARCHAR(50) NOT NULL,
+    userid VARCHAR(50) NOT NULL,
+    PRIMARY KEY(activityid),
+    CONSTRAINT fk_activity FOREIGN KEY(activityid) REFERENCES activity_type(activityid),
+    CONSTRAINT fk_week FOREIGN KEY(weekid) REFERENCES week(weekid),
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
 );

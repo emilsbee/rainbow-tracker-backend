@@ -5,12 +5,17 @@ const bodyParser = require('koa-bodyparser');
 import Router from "koa-router";
 
 // Internal imports
+import {initialize} from "./test";
 import loginRouter from "./routes/public/login"
 import userRouter from "./routes/admin/user"
 import authRouter from "./routes/public/auth"
 import weekRouter from "./routes/public/week"
 import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
+
+if (process.env.NODE_ENV === "test") {
+    (async () => await initialize((success:boolean) => console.log(success)))()
+}
 
 const app = new koa()
 

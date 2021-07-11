@@ -3,3 +3,5 @@ node_modules/
 **/.idea/workspace.xml
 **/.idea/tasks.xml
 dist/
+src/test/postman/environment.json
+src/test/reports
