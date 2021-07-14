@@ -12,7 +12,7 @@ import db from "../db/postgres"
  * @param email of the user to login.
  * @param password of the user to login.
  */
-export const login = async (email:string, password:string):Promise<User[]> => {
+export const login = async (email:string, password:string):Promise<{ user:User[], error:string }> => {
     const client:PoolClient = await db.getClient()
     let user:User[];
 
@@ -42,9 +42,9 @@ export const login = async (email:string, password:string):Promise<User[]> => {
             user = []
         }
 
-        return user
+        return {user, error: ""}
     } catch (e) {
-        return []
+        return {user: [], error: e.message}
     } finally {
         client.release()
     }

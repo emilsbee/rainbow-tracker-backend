@@ -12,14 +12,14 @@ import db from "../db/postgres"
  * @param userid of user for which to find info.
  * @return User object with password being null.
  */
-export const getUserInfo = async (userid:string):Promise<{ status:number, user:User[] }> => {
+export const getUserInfo = async (userid:string):Promise<{ status:number, user:User[], error:string }> => {
     const getUserInfoQuery = {name: "fetch-user-info", text: "SELECT email, userid FROM app_user WHERE userid=$1", values: [userid]}
     try {
         let user = await db.query(getUserInfoQuery)
 
-         return {status: 200, user: user.rows}
+         return {status: 200, user: user.rows, error: ""}
     } catch (e) {
-        return {status: 404, user: []}
+        return {status: 400, user: [], error: e.message}
     }
 }
 
@@ -28,7 +28,7 @@ export const getUserInfo = async (userid:string):Promise<{ status:number, user:U
  * @param email of the user.
  * @param password of the user.
  */
-export const createUser = async (email:string, password:string):Promise<{ status:number, user:User[] }> => {
+export const createUser = async (email:string, password:string):Promise<{ status:number, user:User[], error:string}> => {
     try {
         const createUserQuery = "INSERT INTO app_user(userid, email, password, salt) VALUES($1, $2, $3, $4);"
         let salt = crypto.randomBytes(16).toString('hex')
@@ -41,9 +41,9 @@ export const createUser = async (email:string, password:string):Promise<{ status
         }
         const values = [newUser.userid, email, passwordHash, salt]
         await db.query(createUserQuery, values)
-        return {status: 201, user:[newUser]}
+        return {status: 201, user:[newUser], error: ""}
     } catch (err) {
-        return {status: 422, user:[]}
+        return {status: 422, user:[], error: err.message}
     }
 }
 
@@ -51,7 +51,7 @@ export const createUser = async (email:string, password:string):Promise<{ status
  * Deletes all rows related to the given user in all tables.
  * @param userid of the user to delete.
  */
-export const deleteUser = async (userid:string):Promise<number> => {
+export const deleteUser = async (userid:string):Promise<{ status: number, error:string }> => {
     const client:PoolClient = await db.getClient()
 
     try {
@@ -69,10 +69,10 @@ export const deleteUser = async (userid:string):Promise<number> => {
         // Commit transaction
         await client.query('COMMIT')
 
-        return 204
+        return {status: 204, error: ""}
     } catch (e) {
         await client.query('ROLLBACK')
-        return 400
+        return {status: 400, error: e.message}
     } finally {
         client.release()
     }

@@ -22,15 +22,21 @@ export type User = {
 router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
     let userToCreate = ctx.request.body as User
 
-    let {status, user} = await createUser(userToCreate.email, userToCreate.password)
+    let {status, user, error} = await createUser(userToCreate.email, userToCreate.password)
+
+    if (status === 422) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
     ctx.status = status
 
     if (user.length !== 0) {
-        ctx.set("Content-Type", "application/json")
         ctx.body = JSON.stringify([{
             userid: user[0].userid,
             email: user[0].email
         }])
+    } else {
+        ctx.body = []
     }
 });
 
@@ -39,7 +45,12 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
  */
 router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
-    let status = await deleteUser(userid)
+    let {status, error} = await deleteUser(userid)
+
+    if (status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
     ctx.status = status
 })
 
@@ -50,9 +61,14 @@ router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) =>
 router.get("/users/:userid", protect.admin, async (ctx:Context) => {
     let userid:string = ctx.params.userid
 
-    let {status, user} = await getUserInfo(userid)
+    let {status, user, error} = await getUserInfo(userid)
+
+    if (status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
 
     ctx.status = status
+
     ctx.body = user
 })
 

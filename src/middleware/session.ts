@@ -29,10 +29,7 @@ export const session = async (ctx:Context, next:Next):Promise<void> => {
     let sessionid = ctx.cookies.get(SESSION_COOKIE_NAME)
 
     if (sessionid) { // If session cookie is present
-        let session:Session = await getSession(sessionid)
-
-        ctx[SESSION_CONTEXT_OBJECT_NAME] = session
-
+        ctx[SESSION_CONTEXT_OBJECT_NAME] = await getSession(sessionid)
     } else { // If the session cookie isn't present
         ctx[SESSION_CONTEXT_OBJECT_NAME] = unauthenticatedObject
     }
@@ -42,7 +39,11 @@ export const session = async (ctx:Context, next:Next):Promise<void> => {
     // Logout logic
     if (ctx[SESSION_CONTEXT_OBJECT_NAME] == null) { // Logout must've happened
         if (sessionid) {
-            await redisClient.del(sessionid)
+            try {
+                await redisClient.del(sessionid)
+            } catch (e) {
+                console.error(e)
+            }
         }
         ctx.cookies.set(SESSION_COOKIE_NAME, null)
     }
@@ -55,23 +56,23 @@ export const session = async (ctx:Context, next:Next):Promise<void> => {
  * @param sessionid of the session to check.
  */
 const getSession = async (sessionid:string):Promise<Session> => {
-    let session:Session | null // The return object
+    let session:Session // The return object
     let redisRes; // The redis return object
 
     try {
         redisRes  = await redisClient.get(sessionid) as unknown as string | null // Check in redis if the sessionid exists
-    } catch (e) {
-        console.error(e)
-    }
 
-    if (redisRes) { // If the user is logged in under that sessionid
-        await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  redisRes)
-        session = {
-            isNew: false,
-            userid: JSON.parse(redisRes).userid
+        if (redisRes) { // If the user is logged in under that sessionid
+            await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  redisRes)
+            session = {
+                isNew: false,
+                userid: JSON.parse(redisRes).userid
+            }
+        } else { // If the user is not logged in under that sessionid
+            session = unauthenticatedObject
         }
-    } else { // If the user is not logged in under that sessionid
-        session = unauthenticatedObject
+    } catch (e) {
+        return unauthenticatedObject
     }
 
     return session

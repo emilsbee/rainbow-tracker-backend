@@ -24,7 +24,6 @@ export async function initialize (cb: (success:boolean) => void):Promise<void> {
             }
         }
     } catch (e) {
-        console.error(e)
         cb(false)
     }
 

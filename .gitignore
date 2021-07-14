@@ -4,4 +4,5 @@ node_modules/
 **/.idea/tasks.xml
 dist/
 src/test/postman/environment.json
-src/test/reports
+src/test/reports/
+logs/

@@ -14,7 +14,7 @@ import db from "../../db/postgres"
  * @param categories the new categories to update the week with.
  * @return status code.
  */
-export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<number> => {
+export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<{ status:number, error:string }> => {
     const client:PoolClient = await db.getClient()
     const updateWeekCategoriesQuery = 'UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND "weekDay"=$4 AND "categoryPosition"=$5 AND userid=$6'
 
@@ -27,10 +27,10 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
             await client.query(updateWeekCategoriesQuery, updateWeekCategoriesQueryValues)
         }
 
-        return 204
+        return {status: 204, error: ""}
     } catch (e) {
         await client.query('ROLLBACK')
-        return 400
+        return {status: 400, error: e.message}
     } finally {
         client.release()
     }
@@ -43,7 +43,7 @@ export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string,
  * @param userid of category to fetch.
  * @return {{ status: number, category: FullWeek[] }}
  */
-export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[] }> => {
+export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[], error:string }> => {
     const client:PoolClient = await db.getClient()
     const values = [weekid, userid]
     const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2', values}
@@ -68,14 +68,16 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
                 weekYear: week.rows[0].weekYear,
                 categories: groupByDays(categories.rows),
                 notes: groupByDays(notes.rows)
-            }]
+            }],
+            error: ""
         }
     } catch (e) {
 
         await client.query('ROLLBACK')
         return {
             status: 400,
-            week: []
+            week: [],
+            error: e.message
         }
     } finally {
         client.release()
@@ -88,7 +90,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
  * @param weekYear of the week.
  * @param userid or null if no week found.
  */
-export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<string | null> => {
+export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<{weekid: string | null, error:string}> => {
     let weekidQueryValues = [userid, weekNr, weekYear]
     const getWeekidQuery = {name: "fetch-weekid", text: 'SELECT weekid FROM week WHERE week.userid=$1 AND week."weekNr"=$2 AND week."weekYear"=$3', values: weekidQueryValues}
 
@@ -96,12 +98,12 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
         let weekid = await db.query(getWeekidQuery)
 
         if (weekid.rowCount === 0) {
-            return null
+            return {weekid: null, error: `Week ${weekNr}, ${weekYear} was not found for user ${userid}.`}
         } else {
-            return weekid.rows[0].weekid
+            return {weekid: weekid.rows[0].weekid, error: ""}
         }
     } catch (e) {
-        return null
+        return {weekid: null, error: e.message}
     }
 }
 
@@ -112,7 +114,7 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
  * @param userid of the user for which to create the week.
  * @return {{status:number, category:FullWeek[]}}
  */
-export const createWeek = async (weekNr:number, weekYear:number, userid:string):Promise<{ status: number, week: FullWeek[] }> => {
+export const createWeek = async (weekNr:number, weekYear:number, userid:string):Promise<{ status: number, week: FullWeek[], error:string }> => {
     const client:PoolClient = await db.getClient()
 
     try {
@@ -153,10 +155,14 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         // Commit transaction
         await client.query('COMMIT')
 
-        return {status: 201, week: [{weekid, userid: userid, weekNr:weekNr, weekYear:weekYear, notes:groupByDays(notes), categories:groupByDays(categories)}]}
+        return {
+            status: 201,
+            week: [{weekid, userid: userid, weekNr:weekNr, weekYear:weekYear, notes:groupByDays(notes), categories:groupByDays(categories)}],
+            error: ""
+        }
     } catch (e) {
         await client.query('ROLLBACK')
-        return {status: 400, week: []}
+        return {status: 400, week: [], error: e.message}
     } finally {
         client.release()
     }

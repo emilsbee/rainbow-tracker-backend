@@ -21,28 +21,28 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context, next:Next) => {
     const {email, password} = ctx.request.body as {email:string, password:string}
     let status:number;
 
-    let user = await login(email, password)
+    let {user, error} = await login(email, password)
 
-    if (user.length !== 0 && ctx[SESSION_CONTEXT_OBJECT_NAME]) { // If a user was found and the session context was initialized
+    if (user.length !== 0) { // If a user was found and the session context was initialized
         ctx[SESSION_CONTEXT_OBJECT_NAME].userid = user[0].userid
 
+        // Create a new session
         let sessionid = uuid()
         ctx.cookies.set(SESSION_COOKIE_NAME, sessionid)
 
+        // Save the session information in Redis
         try {
             await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  JSON.stringify({userid: user[0].userid }))
             status = 200
         } catch (e) {
-            console.error(e)
-            status = 401
+            ctx.throw(500, 'Redis could not save sessionid.', {path: __filename})
         }
 
     } else { // If no user was found in login or the session context wasn't initialized
-        status = 401
+        ctx.throw(401, error.length === 0 ? `Authentication failed for ${email}` : error, {path: __filename})
     }
 
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
     ctx.body = user
 })
 

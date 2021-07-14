@@ -34,7 +34,11 @@ router.delete("/category-type/:categoryid", protect.user, async (ctx:Context) =>
     const userid = ctx.params.userid
     const categoryid = ctx.params.categoryid
 
-    let status = await deleteCategoryType(userid, categoryid)
+    let {status, error} = await deleteCategoryType(userid, categoryid)
+
+    if (status === 400 || status === 404) {
+        ctx.throw(status, error, {path: __filename})
+    }
 
     ctx.status = status
 })
@@ -45,12 +49,22 @@ router.delete("/category-type/:categoryid", protect.user, async (ctx:Context) =>
  */
 router.patch("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
+    const categoryid = ctx.params.categoryid
     let categoryToUpdate = ctx.request.body as CategoryType
-    let {status, categoryType} = await updateCategoryType(userid, categoryToUpdate)
+
+    let {status, categoryType, error} = await updateCategoryType(userid, categoryToUpdate, categoryid)
+
+    if (status === 404 || status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
 
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
-    ctx.body = JSON.stringify(categoryType)
+
+    ctx.body = [{
+        categoryid: categoryType[0].categoryid,
+        color: categoryType[0].color,
+        name: categoryType[0].name
+    }]
 })
 
 /**
@@ -59,16 +73,21 @@ router.patch("/category-type/:categoryid", protect.user, async (ctx:Context, nex
  */
 router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
-    let {status, categoryTypes} = await getCategoryTypes(userid)
+    let {status, categoryTypes, error} = await getCategoryTypes(userid)
+
+    if (status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
-    ctx.body = JSON.stringify(categoryTypes.map(categoryType => {
+
+    ctx.body = categoryTypes.map(categoryType => {
         return {
             categoryid: categoryType.categoryid,
             color: categoryType.color,
             name: categoryType.name
         }
-    }))
+    })
 })
 
 /**
@@ -79,20 +98,20 @@ router.post("/category-types", contentType.JSON, protect.user, async (ctx:Contex
     const userid = ctx.params.userid
     let categoryTypeToCreate = ctx.request.body as CategoryType
 
-    let color = categoryTypeToCreate.color
-    let name = categoryTypeToCreate.name
+    let {status, categoryType, error} = await createCategoryType(userid, categoryTypeToCreate.color, categoryTypeToCreate.name)
 
-    let {status, categoryType} = await createCategoryType(userid, color, name)
+    if (status === 422) {
+        ctx.throw(status, error, {path: __filename})
+    }
 
     ctx.status = status
 
-    if (categoryType != null) {
-        ctx.set("Content-Type", "application/json")
-        ctx.body = JSON.stringify([{
+    if (categoryType.length !== 0) {
+        ctx.body = [{
             categoryid: categoryType[0].categoryid,
             name: categoryType[0].name,
             color: categoryType[0].color
-        }])
+        }]
     }
 })
 

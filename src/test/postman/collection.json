@@ -45,7 +45,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"emils@gmail.com\",\n    \"password\": \"password\"\n}",
+									"raw": "{\n    \"email\": \"{{valid_email}}\",\n    \"password\": \"{{valid_pass}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -76,9 +76,8 @@
 											"    pm.response.to.have.status(401);",
 											"});",
 											"",
-											"const jsonData = pm.response.json();",
 											"pm.test(\"Login failed with existing email but wrong password response body correct\", function () {",
-											"    pm.expect(jsonData).to.be.empty;",
+											"    pm.expect(pm.response.text()).to.be.a(\"string\");",
 											"});",
 											""
 										],
@@ -122,9 +121,8 @@
 											"    pm.response.to.have.status(401);",
 											"});",
 											"",
-											"const jsonData = pm.response.json();",
 											"pm.test(\"Login failed with wrong email and password response body correct\", function () {",
-											"    pm.expect(jsonData).to.be.empty;",
+											"    pm.expect(pm.response.text()).to.be.a(\"string\");",
 											"});",
 											""
 										],
@@ -212,6 +210,10 @@
 											"",
 											"pm.test(\"Logout without being logged in cookie rainbow:session is removed\", () => {",
 											"  pm.expect(pm.cookies.has('rainbow:session')).to.be.false;",
+											"});",
+											"",
+											"pm.test(\"Logout without being logged in response body correct\", function () {",
+											"    pm.expect(pm.response.text()).to.be.a(\"string\");",
 											"});"
 										],
 										"type": "text/javascript"
@@ -242,32 +244,268 @@
 					"name": "Category type",
 					"item": [
 						{
-							"name": "Create category success",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"color\": \"red\",\n    \"name\": \"CRIB\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+							"name": "Create category type",
+							"item": [
+								{
+									"name": "Create category type success",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Make sure to login before test",
+													"pm.sendRequest({",
+													"    url: pm.environment.get(\"url\") + \"/auth/login\",",
+													"    header: {",
+													"        'content-type': 'application/json',",
+													"    },",
+													"    method: 'POST',",
+													"    body: {",
+													"        mode: 'raw',",
+													"        raw: JSON.stringify({ email: pm.environment.get(\"valid_email\"), password: pm.environment.get(\"valid_pass\") })",
+													"    }",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Create category type success status 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});",
+													"",
+													"const jsonData = pm.response.json();",
+													"pm.test(\"Create category type success response body correct\", function () {",
+													"    pm.expect(jsonData).to.have.length(1);",
+													"    pm.expect(jsonData[0].categoryid).to.be.a(\"string\")",
+													"    pm.expect(jsonData[0].color).to.eql(pm.environment.get(\"category_color\"))",
+													"    pm.expect(jsonData[0].name).to.eql(pm.environment.get(\"category_name\"))",
+													"});",
+													"",
+													"// Sets the categoryid environment variable ",
+													"if (jsonData.length > 0 && jsonData[0].categoryid) {",
+													"    pm.environment.set(\"categoryid\", jsonData[0].categoryid)   ",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									}
-								},
-								"url": {
-									"raw": "{{url}}/user/{{userid}}/category-types",
-									"host": [
-										"{{url}}"
 									],
-									"path": [
-										"user",
-										"{{userid}}",
-										"category-types"
-									]
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"color\": \"{{category_color}}\",\n    \"name\": \"{{category_name}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/user/{{userid}}/category-types",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"user",
+												"{{userid}}",
+												"category-types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create category type failed with missing property",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Create category failed with missing property status 422\", function () {",
+													"    pm.response.to.have.status(422);",
+													"});",
+													"",
+													"pm.test(\"Create category failed with missing property response body correct\", function () {",
+													"    pm.expect(pm.response.text()).to.be.a(\"string\");",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"{{category_name}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/user/{{userid}}/category-types",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"user",
+												"{{userid}}",
+												"category-types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create category type failed without being logged in",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Logout before test {{url}}/user/{{userid}}/auth/logout",
+													"pm.sendRequest({",
+													"    url: pm.environment.get(\"url\") + \"/user/\" + pm.environment.get(\"userid\") + \"/auth/logout\",",
+													"    method: 'GET'",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Create category failed without being logged in status 401\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"pm.test(\"Create category failed without being logged in response body correct\", function () {",
+													"    pm.expect(pm.response.text()).to.be.a(\"string\");",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"color\": \"{{category_color}}\",\n    \"name\": \"{{category_name}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/user/{{userid}}/category-types",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"user",
+												"{{userid}}",
+												"category-types"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "Update category type",
+							"item": [
+								{
+									"name": "Update category type success",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Make sure to login before test",
+													"pm.sendRequest({",
+													"    url: pm.environment.get(\"url\") + \"/auth/login\",",
+													"    header: {",
+													"        'content-type': 'application/json',",
+													"    },",
+													"    method: 'POST',",
+													"    body: {",
+													"        mode: 'raw',",
+													"        raw: JSON.stringify({ email: pm.environment.get(\"valid_email\"), password: pm.environment.get(\"valid_pass\") })",
+													"    }",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Update category type success status 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"const jsonData = pm.response.json();",
+													"pm.test(\"Update category type success response body correct\", function () {",
+													"    pm.expect(jsonData).to.have.length(1);",
+													"    pm.expect(jsonData[0].categoryid).to.be.a(\"string\")",
+													"    pm.expect(jsonData[0].color).to.eql(pm.environment.get(\"category_update_color\"))",
+													"    pm.expect(jsonData[0].name).to.eql(pm.environment.get(\"category_update_name\"))",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"color\": \"{{category_update_color}}\",\n    \"name\": \"{{category_update_name}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/user/{{userid}}/category-type/{{categoryid}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"user",
+												"{{userid}}",
+												"category-type",
+												"{{categoryid}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				}

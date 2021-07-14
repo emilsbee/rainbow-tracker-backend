@@ -44,10 +44,14 @@ export type FullWeek = Week & {categories:Category[][], notes:Note[][]}
 router.post("/weeks", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
     let {weekNr, weekYear} = ctx.request.body as Week
-    let {status, week} = await createWeek(weekNr, weekYear, userid)
+    let {status, week, error} = await createWeek(weekNr, weekYear, userid)
+
+    if (status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
     ctx.status = status
-    ctx.set("Content-Type", "application/json")
-    ctx.body = JSON.stringify(week)
+    ctx.body = week
 })
 
 /**
@@ -57,7 +61,13 @@ router.put("/week/:weekid/categories", contentType.JSON, protect.user, async (ct
     const userid = ctx.params.userid
     let weekid = ctx.params.weekid
     let week = ctx.request.body as {categories:Category[]}
-    ctx.status = await updateWeekCategoriesByWeekid(weekid, userid, week.categories)
+    let {status, error} = await updateWeekCategoriesByWeekid(weekid, userid, week.categories)
+
+    if (status === 400) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
 })
 
 /**
@@ -69,18 +79,19 @@ router.get("/week", protect.user, async (ctx:Context, next:Next) => {
     let weekNr = ctx.request.query.week_number as string
     let weekYear = ctx.request.query.week_year as string
 
-    let weekid = null;
-    if (weekNr && weekYear) {
-        weekid = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid)
-    }
+    let {weekid, error} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid)
 
     if (weekid == null) {
-        ctx.status = 404
+        ctx.throw(404, error, {path: __filename})
     } else {
-        let week:{status:number, week:FullWeek[]} = await getWeekByWeekid(weekid, userid)
-        ctx.status = week.status
-        ctx.set("Content-Type", "application/json")
-        ctx.body = JSON.stringify(week.week)
+        let {week, status, error} = await getWeekByWeekid(weekid, userid)
+
+        if (status === 400) {
+            ctx.throw(status, error, {path: __filename})
+        }
+
+        ctx.status = status
+        ctx.body = week
     }
 })
 

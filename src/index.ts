@@ -1,8 +1,8 @@
 // External imports
+import koa, {Context, Next} from "koa";
 require('dotenv').config()
-const koa = require("koa")
-const bodyParser = require('koa-bodyparser');
-import Router from "koa-router";
+import bodyParser from 'koa-bodyparser'
+import router from "koa-router";
 
 // Internal imports
 import {initialize} from "./test";
@@ -12,16 +12,28 @@ import authRouter from "./routes/public/auth"
 import weekRouter from "./routes/public/week"
 import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
+import {errorHandler, errorMiddleware} from "./middleware/error";
 
 if (process.env.NODE_ENV === "test") {
-    (async () => await initialize((success:boolean) => console.log(success)))()
+    (async () => await initialize((success:boolean) => {
+        if (success) {
+            process.exit(0)
+        } else {
+            process.exit(1)
+        }
+    }))()
 }
 
+/**
+ * Initialize a koa application.
+ */
 const app = new koa()
 
 /**
  * Middleware
  */
+app.use(errorMiddleware)
+app.on("error", errorHandler)
 app.use(bodyParser());
 app.use(session)
 
@@ -29,12 +41,12 @@ app.use(session)
  * Routers
  */
 // Admin router is for endpoints only accessible by someone with an admin access token.
-const adminRouter = new Router()
+const adminRouter = new router()
 adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods())
 
 // Public router is for endpoints accessible by anyone. They only give data about the account that made the
 // request.
-const publicRouter = new Router()
+const publicRouter = new router()
 publicRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
 publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
