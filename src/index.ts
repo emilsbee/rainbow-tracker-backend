@@ -1,5 +1,6 @@
 // External imports
-import koa, {Context, Next} from "koa";
+import koa from "koa";
+
 require('dotenv').config()
 import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
@@ -15,7 +16,7 @@ import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";
 
 if (process.env.NODE_ENV === "test") {
-    (async () => await initialize((success:boolean) => {
+    (async () => await initialize((success: boolean) => {
         if (success) {
             process.exit(0)
         } else {
@@ -50,6 +51,7 @@ const publicRouter = new router()
 publicRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
 publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
+// publicRouter.use('/user/:userid/week/:weekid/day/:day', categoryRouter.routes(), categoryRouter.allowedMethods())
 
 // Assigning all the routes to the app instance
 app.use(adminRouter.routes()).use(adminRouter.allowedMethods())
@@ -60,6 +62,6 @@ app.use(loginRouter.routes()).use(loginRouter.allowedMethods())
  * Start server
  */
 app.listen(process.env.PORT, () => {
-    console.log("Listening on port "+process.env.PORT)
+    console.log("Listening on port " + process.env.PORT)
 })
 

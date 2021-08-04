@@ -20,7 +20,7 @@ services:
 
   pgadmin:
     container_name: pgadmin_container
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:5.5
     environment:
       PGADMIN_DEFAULT_EMAIL: emils@gmail.com
       PGADMIN_DEFAULT_PASSWORD: 911

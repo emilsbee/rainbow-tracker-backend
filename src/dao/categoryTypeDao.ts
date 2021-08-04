@@ -12,8 +12,8 @@ import db from "../db/postgres"
  * @param userid for which to archive the category type.
  * @param categoryid of the category to archive.
  */
-export const deleteCategoryType = async (userid:string, categoryid:string):Promise<{ status: number, error:string }> => {
-    const client:PoolClient = await db.getClient()
+export const deleteCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string }> => {
+    const client: PoolClient = await db.getClient()
 
     try {
         // Begin transaction
@@ -28,7 +28,7 @@ export const deleteCategoryType = async (userid:string, categoryid:string):Promi
         // Commit transaction
         await client.query('COMMIT')
 
-        if (activityRes.rowCount === 0 || categoryRes.rowCount === 0) {
+        if (categoryRes.rowCount === 0) {
             return {status: 404, error: `Category ${categoryid} does not exist in the database.`}
         } else {
             return {status: 204, error: ""}
@@ -47,7 +47,7 @@ export const deleteCategoryType = async (userid:string, categoryid:string):Promi
  * @param newCategoryType to update with.
  * @param categoryid of category to update.
  */
-export const updateCategoryType = async (userid:string, newCategoryType:CategoryType, categoryid:string):Promise<{ status:number, categoryType:CategoryType[], error:string }> => {
+export const updateCategoryType = async (userid: string, newCategoryType: CategoryType, categoryid: string): Promise<{ status: number, categoryType: CategoryType[], error: string }> => {
 
     try {
         const updateCategoryTypeQuery = "UPDATE category_type SET color=$1, name=$2 WHERE userid=$3 AND categoryid=$4;"
@@ -61,11 +61,19 @@ export const updateCategoryType = async (userid:string, newCategoryType:Category
             }
         } else {
             return {
-                status: 200, categoryType: [{categoryid, name:newCategoryType.name, color: newCategoryType.color, archived: false, userid}], error: ""
+                status: 200,
+                categoryType: [{
+                    categoryid,
+                    name: newCategoryType.name,
+                    color: newCategoryType.color,
+                    archived: false,
+                    userid
+                }],
+                error: ""
             }
         }
     } catch (e) {
-        return {status: 400, categoryType:[], error: e.message}
+        return {status: 400, categoryType: [], error: e.message}
     }
 }
 
@@ -73,15 +81,15 @@ export const updateCategoryType = async (userid:string, newCategoryType:Category
  * Fetches all category types for a given user.
  * @param userid of the user for which to fetch the category types.
  */
-export const getCategoryTypes = async (userid:string):Promise<{ status:number, categoryTypes:CategoryType[], error:string }> => {
+export const getCategoryTypes = async (userid: string): Promise<{ status: number, categoryTypes: CategoryType[], error: string }> => {
     try {
         const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false"
         let newCategoryTypes = await db.query(getCategoryTypesQuery, [userid])
         return {
-            status:200, categoryTypes: newCategoryTypes.rows, error: ""
+            status: 200, categoryTypes: newCategoryTypes.rows, error: ""
         }
     } catch (e) {
-        return {status: 400, categoryTypes:[], error: e.message}
+        return {status: 400, categoryTypes: [], error: e.message}
     }
 }
 
@@ -91,13 +99,13 @@ export const getCategoryTypes = async (userid:string):Promise<{ status:number, c
  * @param color of the category type to create.
  * @param name of the category type to create.
  */
-export const createCategoryType = async (userid:string, color:string, name:string):Promise<{ status:number, categoryType:CategoryType[], error:string }> => {
+export const createCategoryType = async (userid: string, color: string, name: string): Promise<{ status: number, categoryType: CategoryType[], error: string }> => {
     try {
         const createUserQuery = "INSERT INTO category_type(categoryid, userid, color, name, archived) VALUES($1, $2, $3, $4, $5);"
         let categoryid = uuid()
         const values = [categoryid, userid, color, name, false]
         await db.query(createUserQuery, values)
-        return {status: 201, categoryType:[{userid, categoryid, name, color, archived: false}], error: ""}
+        return {status: 201, categoryType: [{userid, categoryid, name, color, archived: false}], error: ""}
     } catch (err) {
         return {status: 422, categoryType: [], error: err.message}
     }

@@ -8,35 +8,6 @@ import {groupByDays} from "./helpers";
 import db from "../../db/postgres"
 
 /**
- * Updates a given week's categories for a user.
- * @param weekid of the week to update.
- * @param userid of the user for which to update the week.
- * @param categories the new categories to update the week with.
- * @return status code.
- */
-export const updateWeekCategoriesByWeekid = async (weekid:string, userid:string, categories:Category[]):Promise<{ status:number, error:string }> => {
-    const client:PoolClient = await db.getClient()
-    const updateWeekCategoriesQuery = 'UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND "weekDay"=$4 AND "categoryPosition"=$5 AND userid=$6'
-
-    try {
-        // Begin transaction
-        await client.query('BEGIN')
-
-        for (let i = 0; i < categories.length; i++) {
-            let updateWeekCategoriesQueryValues = [categories[i].categoryid, categories[i].activityid, weekid, categories[i].weekDay, categories[i].categoryPosition, userid]
-            await client.query(updateWeekCategoriesQuery, updateWeekCategoriesQueryValues)
-        }
-
-        return {status: 204, error: ""}
-    } catch (e) {
-        await client.query('ROLLBACK')
-        return {status: 400, error: e.message}
-    } finally {
-        client.release()
-    }
-}
-
-/**
  * Fetches a week by a given weekid for a given user. The week returned is a full week,
  * meaning it includes the categories and notes.
  * @param weekid of category to fetch.
