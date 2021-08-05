@@ -10,7 +10,7 @@ import {initialize} from "./test";
 import loginRouter from "./routes/public/login"
 import userRouter from "./routes/admin/user"
 import authRouter from "./routes/public/auth"
-import weekRouter from "./routes/public/week"
+import weekRouter from "./routes/public/week/week"
 import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";

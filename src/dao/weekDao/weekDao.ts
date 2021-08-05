@@ -3,7 +3,7 @@ import {PoolClient} from "pg";
 import {v4 as uuid} from "uuid";
 
 // Internal imports
-import {Category, FullWeek, Note} from "../../routes/public/week";
+import {Category, FullWeek, Note} from "../../routes/public/week/week";
 import {groupByDays} from "./helpers";
 import db from "../../db/postgres"
 
