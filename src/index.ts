@@ -7,6 +7,7 @@ import router from "koa-router";
 
 // Internal imports
 import {initialize} from "./test";
+import activityTypeRouter from "./routes/public/activityType"
 import loginRouter from "./routes/public/login"
 import userRouter from "./routes/admin/user"
 import authRouter from "./routes/public/auth"
@@ -55,7 +56,7 @@ const publicRouter = new router()
 publicRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
 publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
-// publicRouter.use('/user/:userid/week/:weekid/day/:day', categoryRouter.routes(), categoryRouter.allowedMethods())
+publicRouter.use("/user/:userid", activityTypeRouter.routes(), activityTypeRouter.allowedMethods())
 
 // Assigning all the routes to the app instance
 app.use(adminRouter.routes()).use(adminRouter.allowedMethods())

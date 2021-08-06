@@ -17,15 +17,6 @@ export type CategoryType = {
     archived:boolean
 }
 
-export type ActivityType = {
-    activityid:string,
-    categoryid:string,
-    userid:string,
-    long:string,
-    short:string,
-    archived:boolean
-}
-
 /**
  * Route for archiving a category type, including all the activity types
  * of that category type.
@@ -96,9 +87,9 @@ router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
  */
 router.post("/category-types", contentType.JSON, protect.user, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
-    let categoryTypeToCreate = ctx.request.body as CategoryType
+    const categoryTypeToCreate = ctx.request.body as CategoryType
 
-    let {status, categoryType, error} = await createCategoryType(userid, categoryTypeToCreate.color, categoryTypeToCreate.name)
+    const {status, categoryType, error} = await createCategoryType(userid, categoryTypeToCreate.color, categoryTypeToCreate.name)
 
     if (status === 422) {
         ctx.throw(status, error, {path: __filename})
@@ -106,13 +97,11 @@ router.post("/category-types", contentType.JSON, protect.user, async (ctx:Contex
 
     ctx.status = status
 
-    if (categoryType.length !== 0) {
-        ctx.body = [{
-            categoryid: categoryType[0].categoryid,
-            name: categoryType[0].name,
-            color: categoryType[0].color
-        }]
-    }
+    ctx.body = [{
+        categoryid: categoryType[0].categoryid,
+        name: categoryType[0].name,
+        color: categoryType[0].color
+    }]
 })
 
 export default router
