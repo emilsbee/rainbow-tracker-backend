@@ -1,6 +1,6 @@
 // External imports
 import koa from "koa";
-
+import cors from "@koa/cors"
 require('dotenv').config()
 import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
@@ -37,6 +37,10 @@ app.use(errorMiddleware)
 app.on("error", errorHandler)
 app.use(bodyParser());
 app.use(session)
+app.use(cors({
+    origin: process.env.ACCESS_CONTROL_ALLOW_ORIGIN,
+    credentials: true
+}))
 
 /**
  * Routers

@@ -16,4 +16,11 @@ router.get("/auth/logout", protect.user, async (ctx:Context) => {
     ctx.status = 204
 })
 
+/**
+ * Route for checking whether a user is currently logged in.
+ */
+router.get("/auth/is-logged-in", protect.user, async (ctx:Context) => {
+    ctx.status = 204
+})
+
 export default router
