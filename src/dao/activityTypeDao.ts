@@ -5,6 +5,11 @@ import {v4 as uuid} from "uuid";
 import db from "../db/postgres";
 import {ActivityType} from "../routes/public/activityType";
 
+/**
+ * Queries
+ */
+export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false"
+
 
 /**
  * Fetches all category types for a given user.

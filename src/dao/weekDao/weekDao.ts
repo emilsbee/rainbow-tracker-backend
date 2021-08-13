@@ -17,9 +17,9 @@ import db from "../../db/postgres"
 export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[], error:string }> => {
     const client:PoolClient = await db.getClient()
     const values = [weekid, userid]
-    const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2', values}
+    const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2 ORDER BY note."notePosition" ASC', values}
     const getWeekQuery = {name: 'fetch-week', text: 'SELECT * FROM week WHERE week.weekid = $1 AND week.userid = $2', values}
-    const getWeekCategories = {name: 'fetch-categories', text:'SELECT * FROM category WHERE category.weekid = $1 AND category.userid = $2', values}
+    const getWeekCategories = {name: 'fetch-categories', text:'SELECT * FROM category WHERE category.weekid = $1 AND category.userid = $2 ORDER BY category."categoryPosition" ASC', values}
 
     try {
         // Begin transaction

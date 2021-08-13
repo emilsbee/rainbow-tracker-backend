@@ -5,7 +5,13 @@ let Router = require('koa-router');
 // Internal imports
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
-import {createCategoryType, deleteCategoryType, getCategoryTypes, updateCategoryType} from "../../dao/categoryTypeDao";
+import {
+    createCategoryType,
+    deleteCategoryType,
+    getCategoryTypes,
+    getCategoryTypesFull,
+    updateCategoryType
+} from "../../dao/categoryTypeDao";
 
 let router = new Router()
 
@@ -16,6 +22,22 @@ export type CategoryType = {
     name:string,
     archived:boolean
 }
+
+/**
+ * Route for getting all user's category types and all activity types.
+ */
+router.get("/category-types-full", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+
+    let {status, categoryTypes, activityTypes, error} = await getCategoryTypesFull(userid)
+
+    if (error && error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = [{categoryTypes, activityTypes}]
+})
 
 /**
  * Route for archiving a category type, including all the activity types
@@ -51,11 +73,7 @@ router.patch("/category-type/:categoryid", protect.user, async (ctx:Context, nex
 
     ctx.status = status
 
-    ctx.body = [{
-        categoryid: categoryType[0].categoryid,
-        color: categoryType[0].color,
-        name: categoryType[0].name
-    }]
+    ctx.body = categoryType
 })
 
 /**
@@ -72,13 +90,7 @@ router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {
 
     ctx.status = status
 
-    ctx.body = categoryTypes.map(categoryType => {
-        return {
-            categoryid: categoryType.categoryid,
-            color: categoryType.color,
-            name: categoryType.name
-        }
-    })
+    ctx.body = categoryTypes
 })
 
 /**

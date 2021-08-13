@@ -30,7 +30,7 @@ export const updateWeekDayCategories = async (weekid: string, userid: string, ca
                 return {status: 404, error: "Category not found."}
             }
         }
-
+        await client.query("COMMIT")
         return {status: 204, error: ""}
     } catch (e) {
         await client.query('ROLLBACK')

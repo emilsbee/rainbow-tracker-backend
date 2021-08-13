@@ -5,6 +5,16 @@ import {v4 as uuid} from "uuid";
 import {CategoryType} from "../routes/public/categoryType";
 import {PoolClient} from "pg";
 import db from "../db/postgres"
+import {ActivityType} from "../routes/public/activityType";
+import {getActivityTypesQuery} from "./activityTypeDao";
+
+
+/**
+ * Queries
+ */
+export const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false"
+
+
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
@@ -90,6 +100,29 @@ export const getCategoryTypes = async (userid: string): Promise<{ status: number
         }
     } catch (e) {
         return {status: 400, categoryTypes: [], error: e.message}
+    }
+}
+
+/**
+ * Fetches all category types and all activity types for a given user.
+ * @param userid of the user for which to fetch the category and activity types.
+ */
+export const getCategoryTypesFull = async (userid: string): Promise<{status: number, categoryTypes: CategoryType[], activityTypes: ActivityType[], error: string}> => {
+    const client: PoolClient = await db.getClient()
+
+    try {
+        // Begin transaction
+        await client.query('BEGIN')
+
+        const categoryTypes = await client.query(getCategoryTypesQuery, [userid])
+        const activityTypes = await client.query(getActivityTypesQuery, [userid])
+
+        return {status: 200, categoryTypes: categoryTypes.rows, activityTypes: activityTypes.rows, error: ""}
+    } catch (e) {
+        await client.query('ROLLBACK')
+        return {status: 400, categoryTypes: [], activityTypes: [], error: e.message}
+    } finally {
+        client.release()
     }
 }
 

@@ -1,6 +1,7 @@
 // External imports
 import {Context, Next} from "koa";
-let Router = require('koa-router');
+import Router from "koa-router"
+import fs from "fs"
 
 // Internal imports
 import contentType from "../../../middleware/contentType";
