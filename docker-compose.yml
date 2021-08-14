@@ -20,7 +20,7 @@ services:
 
   pgadmin:
     container_name: pgadmin_container
-    image: dpage/pgadmin4:5.5
+    image: dpage/pgadmin4:5.6
     environment:
       PGADMIN_DEFAULT_EMAIL: emils@gmail.com
       PGADMIN_DEFAULT_PASSWORD: 911
@@ -37,7 +37,7 @@ services:
 
   redis:
     container_name: redis_container
-    image: redis
+    image: redis:6.2.5
     volumes:
       - type: bind
         source: /data/redis-rainbow

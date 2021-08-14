@@ -34,7 +34,7 @@ export const updateWeekDayCategories = async (weekid: string, userid: string, ca
         return {status: 204, error: ""}
     } catch (e) {
         await client.query('ROLLBACK')
-        return {status: 400, error: e}
+        return {status: 400, error: e.message}
     } finally {
         client.release()
     }

@@ -60,7 +60,7 @@ router.delete("/category-type/:categoryid", protect.user, async (ctx:Context) =>
  * Route for updating a category type.
  * @return categoryType[]
  */
-router.patch("/category-type/:categoryid", protect.user, async (ctx:Context, next:Next) => {
+router.patch("/category-type/:categoryid", protect.user, contentType.JSON, async (ctx:Context, next:Next) => {
     const userid = ctx.params.userid
     const categoryid = ctx.params.categoryid
     let categoryToUpdate = ctx.request.body as CategoryType
