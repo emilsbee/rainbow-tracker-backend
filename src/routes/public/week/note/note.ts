@@ -10,6 +10,12 @@ import {updateWeekDayNotes} from "../../../../dao/noteDao";
 
 let router = new Router(); // Initialize router
 
+/**
+ * Route for updating a given week day's notes. So all notes from a specific week
+ * and a specific day are updated. To be more specific, the aspect of notes that is
+ * updated is the note text itself . However, all the information of a note has to
+ * be provided like the notePosition, weekid, etc.
+ */
 router.patch("/notes", contentType.JSON, protect.user, async (ctx:Context) => {
     let weekid = ctx.params.weekid
     let userid = ctx.params.userid
