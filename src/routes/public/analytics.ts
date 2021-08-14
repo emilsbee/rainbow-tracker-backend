@@ -8,6 +8,9 @@ import {getTotalPerWeek} from "../../dao/analytics";
 
 const router = new Router()
 
+/**
+ * Route for fetching the total time for each category, activity type in a given week.
+ */
 router.get("/analytics/total-per-week/week/:weekid", protect.user, async (ctx:Context) => {
     const userid = ctx.params.userid
     const weekid = ctx.params.weekid
