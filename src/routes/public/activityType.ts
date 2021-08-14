@@ -1,11 +1,11 @@
 // External imports
-import {Context, Next} from "koa";
+import {Context} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import contentType from "../../middleware/contentType";
-import protect from "../../middleware/auth";
 import {createActivityType, getActivityTypes} from "../../dao/activityTypeDao";
+import protect from "../../middleware/auth";
+import contentType from "../../middleware/contentType";
 
 let router = new Router()
 
@@ -18,8 +18,10 @@ export type ActivityType = {
     archived:boolean
 }
 
-
-router.get("/activity-types", async (ctx: Context) => {
+/**
+ * Route for fetching all unarchived activity types for a user.
+ */
+router.get("/activity-types", protect.user, contentType.JSON,async (ctx: Context) => {
     const userid = ctx.params.userid
 
     let {status, activityTypes, error} = await getActivityTypes(userid)
@@ -40,7 +42,10 @@ router.get("/activity-types", async (ctx: Context) => {
     })
 })
 
-router.post("/activity-types", async (ctx: Context) => {
+/**
+ * Route for creating an activity type for a user.
+ */
+router.post("/activity-types", protect.user, contentType.JSON, async (ctx: Context) => {
     const userid = ctx.params.userid
     const activityTypeToCreate = ctx.request.body as ActivityType
 
