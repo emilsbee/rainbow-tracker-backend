@@ -46,8 +46,8 @@ export type Week = {
 export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
 
 /**
- * Route for creating a week with a given week_number and week_year. Also, generates the week's
- * categories and notes.
+ * Route for creating a week with a given query parameters week_number and week_year.
+ * Also, generates the week's categories and notes.
  * @return week with notes and categories organized in days.
  */
 router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context, next: Next) => {
