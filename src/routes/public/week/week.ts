@@ -1,7 +1,6 @@
 // External imports
 import {Context, Next} from "koa";
 import Router from "koa-router"
-import fs from "fs"
 
 // Internal imports
 import contentType from "../../../middleware/contentType";
@@ -24,7 +23,8 @@ export type Note = {
     notePosition: number,
     stackid: string,
     userid: string,
-    note: string
+    note: string,
+    weekDayDate: string
 }
 
 export type Category = {
@@ -33,7 +33,8 @@ export type Category = {
     categoryPosition: number,
     userid: string,
     categoryid: string | null,
-    activityid: string | null
+    activityid: string | null,
+    weekDayDate: string
 }
 
 export type Week = {
@@ -50,7 +51,7 @@ export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
  * Also, generates the week's categories and notes.
  * @return week with notes and categories organized in days.
  */
-router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context, next: Next) => {
+router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context) => {
     const userid = ctx.params.userid
     let {weekNr, weekYear} = ctx.request.body as Week
     let {status, week, error} = await createWeek(weekNr, weekYear, userid)
@@ -67,7 +68,7 @@ router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context, next:
  * Fetches a week and its categories and notes by a given weekNr and weekYear.
  * @return week with notes and categories organized in days.
  */
-router.get("/week", protect.user, async (ctx: Context, next: Next) => {
+router.get("/week", protect.user, async (ctx: Context) => {
     let userid = ctx.params.userid
     let weekNr = ctx.request.query.week_number as string
     let weekYear = ctx.request.query.week_year as string

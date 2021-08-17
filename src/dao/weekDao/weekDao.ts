@@ -6,6 +6,7 @@ import {v4 as uuid} from "uuid";
 import {Category, FullWeek, Note} from "../../routes/public/week/week";
 import {groupByDays} from "./helpers";
 import db from "../../db/postgres"
+import {DateTime} from "luxon";
 
 /**
  * Fetches a week by a given weekid for a given user. The week returned is a full week,
@@ -19,7 +20,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
     const values = [weekid, userid]
     const getWeekNotes = {name: 'fetch-notes', text: 'SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2 ORDER BY note."notePosition" ASC', values}
     const getWeekQuery = {name: 'fetch-week', text: 'SELECT * FROM week WHERE week.weekid = $1 AND week.userid = $2', values}
-    const getWeekCategories = {name: 'fetch-categories', text:'SELECT * FROM category WHERE category.weekid = $1 AND category.userid = $2 ORDER BY category."categoryPosition" ASC', values}
+    const getWeekCategories = {name: 'fetch-categories', text:'SELECT *, to_char("weekDayDate", \'YYYY-MM-DD\') as "weekDayDate" FROM category WHERE category.weekid = $1 AND category.userid = $2 ORDER BY category."categoryPosition" ASC', values}
 
     try {
         // Begin transaction
@@ -30,6 +31,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
         let notes = await client.query(getWeekNotes)
         let categories = await client.query(getWeekCategories)
 
+        console.log(categories.rows[0])
         return {
             status: 200,
             week: [{
@@ -101,23 +103,25 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         // Save weeks's categories and notes
         const categories:Category[] = []
         const notes:Note[] = []
-        const createCategoryQuery:string = 'INSERT INTO category(weekid, "weekDay", "categoryPosition", userid) VALUES($1, $2, $3, $4);'
-        const createNoteQuery:string = 'INSERT INTO note(weekid, "weekDay", "notePosition", stackid, userid, note) VALUES($1, $2, $3, $4, $5, $6);'
+        const createCategoryQuery:string = 'INSERT INTO category(weekid, "weekDay", "categoryPosition", userid, "weekDayDate") VALUES($1, $2, $3, $4, $5);'
+        const createNoteQuery:string = 'INSERT INTO note(weekid, "weekDay", "notePosition", stackid, userid, note, "weekDayDate") VALUES($1, $2, $3, $4, $5, $6, $7);'
 
         for (let dayIndex:number = 0; dayIndex < 7; dayIndex++) {
             for (let pos:number = 1; pos < 97; pos++) {
                 // Save category
-                let categoryValues = [weekid, dayIndex, pos,  userid]
+                let weekDayDate: string = DateTime.fromISO(`${weekYear}-W${String(weekNr).padStart(2, '0')}-${dayIndex+1}`).toISODate()
+
+                let categoryValues = [weekid, dayIndex, pos,  userid, weekDayDate]
                 categories.push({
-                    weekid, weekDay:dayIndex, categoryPosition:pos, userid, categoryid:null, activityid:null
+                    weekid, weekDay:dayIndex, categoryPosition:pos, userid, categoryid:null, activityid:null, weekDayDate
                 })
                 await client.query(createCategoryQuery, categoryValues)
 
                 // Save note
                 let stackid = uuid()
-                let noteValues = [weekid, dayIndex, pos, stackid, userid, ""]
+                let noteValues = [weekid, dayIndex, pos, stackid, userid, "", weekDayDate]
                 notes.push({
-                    weekid, weekDay:dayIndex, notePosition:pos, stackid, userid, note: ""
+                    weekid, weekDay:dayIndex, notePosition:pos, stackid, userid, note: "", weekDayDate
                 })
                 await client.query(createNoteQuery, noteValues)
             }

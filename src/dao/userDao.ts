@@ -59,7 +59,7 @@ export const deleteUser = async (userid:string):Promise<{ status: number, error:
         await client.query('BEGIN')
 
         const deleteUserRowsQuery = "DELETE FROM : WHERE userid = $1;"
-        const tablesToDeleteFrom = ["category", "note", "activity_type", "analytics_activity", "analytics_category", "category_type", "week", "app_user"]
+        const tablesToDeleteFrom = ["category", "note", "activity_type", "category_type", "week", "app_user"]
 
         for (let i = 0; i < tablesToDeleteFrom.length; i++) {
             let newQuery = deleteUserRowsQuery.replace(":", tablesToDeleteFrom[i])
