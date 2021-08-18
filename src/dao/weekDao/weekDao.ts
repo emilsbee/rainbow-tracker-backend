@@ -31,7 +31,6 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
         let notes = await client.query(getWeekNotes)
         let categories = await client.query(getWeekCategories)
 
-        console.log(categories.rows[0])
         return {
             status: 200,
             week: [{
