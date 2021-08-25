@@ -4,7 +4,7 @@ let Router = require('koa-router');
 
 // Internal imports
 import protect from "../../middleware/auth";
-import {getTotalPerWeek} from "../../dao/analytics";
+import {getAvailableDates, getTotalPerWeek} from "../../dao/analytics";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()
@@ -31,6 +31,23 @@ router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
         ctx.status = status
         ctx.body = totalPerWeek
     }
+})
+
+/**
+ * Route for fetching the years and weeks which the user has populated. So if the user only has one
+ * week created which is week 32, 2020, then an object containing week 32 and year 2020 will be returned.
+ */
+router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+
+    const {status, error, availableDates} = await getAvailableDates(userid)
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = availableDates
 })
 
 export default router

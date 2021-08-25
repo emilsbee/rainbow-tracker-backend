@@ -1,6 +1,7 @@
 // External imports
 import {Context, Next} from "koa";
 import fs from "fs"
+import {DateTime} from "luxon";
 
 // Internal imports
 
@@ -32,5 +33,5 @@ export const errorHandler = async (err:{path:string, message:string}, ctx:Contex
 
     let stream = fs.createWriteStream('logs/errors.log', {flags: 'a'})
 
-    stream.write(`${(new Date()).toISOString()} ${err.path} ${err.message} ${ctx.req.url} \n`)
+    stream.write(`${DateTime.now().toLocaleString(DateTime.DATETIME_MED)} ${err.path} ${err.message} ${ctx.req.url} \n`)
 }

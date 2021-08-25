@@ -1,9 +1,9 @@
 // External imports
 import koa from "koa";
 import cors from "@koa/cors"
-require('dotenv').config()
 import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
+require('dotenv').config()
 
 // Internal imports
 import {initialize} from "./test";
@@ -16,6 +16,7 @@ import weekRouter from "./routes/public/week/week"
 import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";
+import {logger} from "./middleware/logger";
 
 if (process.env.NODE_ENV === "test") {
     (async () => await initialize((success: boolean) => {
@@ -36,6 +37,7 @@ const app = new koa()
  * Middleware
  */
 app.use(errorMiddleware)
+app.use(logger)
 app.on("error", errorHandler)
 app.use(bodyParser());
 app.use(session)
