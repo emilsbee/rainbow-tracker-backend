@@ -1,8 +1,10 @@
 // External imports
 import koa from "koa";
-import cors from "@koa/cors"
+import send from "koa-send"
 import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
+import koaStatic from "koa-static"
+
 require('dotenv').config()
 
 // Internal imports
@@ -41,10 +43,6 @@ app.use(logger)
 app.on("error", errorHandler)
 app.use(bodyParser());
 app.use(session)
-app.use(cors({
-    origin: process.env.ACCESS_CONTROL_ALLOW_ORIGIN,
-    credentials: true
-}))
 
 /**
  * Routers
@@ -61,10 +59,25 @@ publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods
 publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
 publicRouter.use("/user/:userid", activityTypeRouter.routes(), activityTypeRouter.allowedMethods())
 publicRouter.use("/user/:userid", analyticsRouter.routes(), analyticsRouter.allowedMethods())
+
+// API preset
+const apiPresetRouter = new router()
+apiPresetRouter.use("/api", adminRouter.routes(), adminRouter.allowedMethods())
+apiPresetRouter.use("/api", publicRouter.routes(), publicRouter.allowedMethods())
+apiPresetRouter.use("/api", loginRouter.routes(), loginRouter.allowedMethods())
+
 // Assigning all the routes to the app instance
-app.use(adminRouter.routes()).use(adminRouter.allowedMethods())
-app.use(publicRouter.routes()).use(publicRouter.allowedMethods())
-app.use(loginRouter.routes()).use(loginRouter.allowedMethods())
+app.use(apiPresetRouter.routes()).use(apiPresetRouter.allowedMethods())
+
+// Serving the react front-end
+app.use(koaStatic("./build"))
+// Catch-all route for the react front-end
+app.use(async function (ctx, next) {
+        return send(ctx, '/index.html', {
+            root: "./build"
+        }).then(() => next())
+    }
+)
 
 /**
  * Start server
