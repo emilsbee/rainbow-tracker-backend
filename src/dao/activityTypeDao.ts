@@ -22,7 +22,7 @@ export const getActivityTypes = async (userid: string): Promise<{ status: number
         return {
             status: 200, activityTypes: activityTypes.rows, error: ""
         }
-    } catch (e) {
+    } catch (e: any) {
         return {status: 400, activityTypes: [], error: e.message}
     }
 }
@@ -42,7 +42,7 @@ export const createActivityType = async (userid: string, categoryid: string, lon
         await db.query(createActivityTypeQuery, values)
 
         return {status: 201, activityType: [{activityid, categoryid, userid, long, short, archived: false}], error: ""}
-    } catch (e) {
+    } catch (e: any) {
         return {status: 422, activityType:[], error: e.message}
     }
 }

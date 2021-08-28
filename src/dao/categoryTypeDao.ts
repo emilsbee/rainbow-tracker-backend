@@ -43,7 +43,7 @@ export const deleteCategoryType = async (userid: string, categoryid: string): Pr
         } else {
             return {status: 204, error: ""}
         }
-    } catch (e) {
+    } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, error: e.message}
     } finally {
@@ -82,7 +82,7 @@ export const updateCategoryType = async (userid: string, newCategoryType: Catego
                 error: ""
             }
         }
-    } catch (e) {
+    } catch (e: any) {
         return {status: 400, categoryType: [], error: e.message}
     }
 }
@@ -98,7 +98,7 @@ export const getCategoryTypes = async (userid: string): Promise<{ status: number
         return {
             status: 200, categoryTypes: newCategoryTypes.rows, error: ""
         }
-    } catch (e) {
+    } catch (e: any) {
         return {status: 400, categoryTypes: [], error: e.message}
     }
 }
@@ -118,7 +118,7 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
         const activityTypes = await client.query(getActivityTypesQuery, [userid])
 
         return {status: 200, categoryTypes: categoryTypes.rows, activityTypes: activityTypes.rows, error: ""}
-    } catch (e) {
+    } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, categoryTypes: [], activityTypes: [], error: e.message}
     } finally {
@@ -139,7 +139,7 @@ export const createCategoryType = async (userid: string, color: string, name: st
         const values = [categoryid, userid, color, name, false]
         await db.query(createCategoryTypeQuery, values)
         return {status: 201, categoryType: [{userid, categoryid, name, color, archived: false}], error: ""}
-    } catch (err) {
+    } catch (err: any) {
         return {status: 422, categoryType: [], error: err.message}
     }
 }

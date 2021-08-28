@@ -4,6 +4,7 @@ import send from "koa-send"
 import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
 import koaStatic from "koa-static"
+import fs from "fs";
 
 require('dotenv').config()
 
@@ -69,12 +70,21 @@ apiPresetRouter.use("/api", loginRouter.routes(), loginRouter.allowedMethods())
 // Assigning all the routes to the app instance
 app.use(apiPresetRouter.routes()).use(apiPresetRouter.allowedMethods())
 
+// Checks that the frontendBuild folder is present
+if (process.env.NODE_ENV === "production") {
+    fs.access("logs", (e) => {
+        if (e) {
+            throw new Error("You must have frontendBuild folder at the project root.")
+        }
+    })
+}
+
 // Serving the react front-end
-app.use(koaStatic("./build"))
+app.use(koaStatic("./frontendBuild"))
 // Catch-all route for the react front-end
 app.use(async function (ctx, next) {
         return send(ctx, '/index.html', {
-            root: "./build"
+            root: "./frontendBuild"
         }).then(() => next())
     }
 )

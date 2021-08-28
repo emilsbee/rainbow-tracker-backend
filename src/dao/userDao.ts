@@ -18,7 +18,7 @@ export const getUserInfo = async (userid:string):Promise<{ status:number, user:U
         let user = await db.query(getUserInfoQuery)
 
          return {status: 200, user: user.rows, error: ""}
-    } catch (e) {
+    } catch (e: any) {
         return {status: 400, user: [], error: e.message}
     }
 }
@@ -42,7 +42,7 @@ export const createUser = async (email:string, password:string):Promise<{ status
         const values = [newUser.userid, email, passwordHash, salt]
         await db.query(createUserQuery, values)
         return {status: 201, user:[newUser], error: ""}
-    } catch (err) {
+    } catch (err: any) {
         return {status: 422, user:[], error: err.message}
     }
 }
@@ -70,7 +70,7 @@ export const deleteUser = async (userid:string):Promise<{ status: number, error:
         await client.query('COMMIT')
 
         return {status: 204, error: ""}
-    } catch (e) {
+    } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, error: e.message}
     } finally {

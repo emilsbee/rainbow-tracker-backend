@@ -43,7 +43,7 @@ export const getAvailableDates = async (userid: string): Promise<{ status: numbe
             error: "",
             availableDates
         }
-    } catch (e) {
+    } catch (e: any) {
         await client.query("ROLLBACK")
         return {status: 400, error: e.message, availableDates: []}
     } finally {
@@ -104,7 +104,7 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
                 activityTypes: totalPerWeekActivityTypes.rows
             }
         }
-    } catch (e) {
+    } catch (e: any) {
         await client.query("ROLLBACK")
         return {status: 400, error: e.message, totalPerWeek: {
                 categoryTypes: [],

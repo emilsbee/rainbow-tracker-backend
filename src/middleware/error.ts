@@ -13,7 +13,7 @@ import {DateTime} from "luxon";
 export const errorMiddleware = async (ctx:Context, next:Next):Promise<void> => {
     try {
         await next()
-    } catch (e) {
+    } catch (e: any) {
         ctx.status = e.status || 500
         ctx.app.emit('error', e, ctx)
     }

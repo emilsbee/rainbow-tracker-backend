@@ -42,8 +42,12 @@ export const login = async (email:string, password:string):Promise<{ user:User[]
             user = []
         }
 
+        await client.query('COMMIT')
+
         return {user, error: ""}
-    } catch (e) {
+    } catch (e: any) {
+        await client.query('ROLLBACK')
+
         return {user: [], error: e.message}
     } finally {
         client.release()

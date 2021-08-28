@@ -32,7 +32,7 @@ export const updateWeekDayCategories = async (weekid: string, userid: string, ca
         }
         await client.query("COMMIT")
         return {status: 204, error: ""}
-    } catch (e) {
+    } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, error: e.message}
     } finally {

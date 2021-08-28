@@ -4,7 +4,7 @@ let Router = require('koa-router');
 
 // Internal imports
 import protect from "../../middleware/auth";
-import {getAvailableDates, getTotalPerWeek} from "../../dao/analytics";
+import {getAvailableDates, getTotalPerWeek} from "../../dao/analyticsDao";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()

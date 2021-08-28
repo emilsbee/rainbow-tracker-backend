@@ -43,7 +43,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
             }],
             error: ""
         }
-    } catch (e) {
+    } catch (e: any) {
 
         await client.query('ROLLBACK')
         return {
@@ -74,7 +74,7 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
         } else {
             return {weekid: weekid.rows[0].weekid, error: ""}
         }
-    } catch (e) {
+    } catch (e: any) {
         return {weekid: null, error: e.message}
     }
 }
@@ -134,7 +134,7 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
             week: [{weekid, userid: userid, weekNr:weekNr, weekYear:weekYear, notes:groupByDays(notes), categories:groupByDays(categories)}],
             error: ""
         }
-    } catch (e) {
+    } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, week: [], error: e.message}
     } finally {

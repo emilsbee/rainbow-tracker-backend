@@ -6,8 +6,6 @@ import path from "path"
 // Internal imports
 import db from "../db/postgres"
 
-let initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/init-tests.sql")).toString();
-
 /**
  * Initializes database by running the init-tests.sql file which contains all the queries
  * necessary to prepare database structure and data for testing. Not only does it generate
@@ -15,6 +13,8 @@ let initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/init-tests.
  * After completing the database initialization it calls runTests function to run tests.
  */
 export async function initialize (cb: (success:boolean) => void):Promise<void> {
+    let initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/init-tests.sql")).toString();
+
     try {
         let queries:string[] = initializeDatabase.split(";")
 

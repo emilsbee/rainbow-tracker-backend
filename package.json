@@ -7,10 +7,11 @@
   "author": "Emils Bernhards",
   "license": "ISC",
   "scripts": {
-    "test": "export NODE_ENV=test && ts-node src/index.ts",
-    "dev": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
-    "start": "export NODE_ENV=production && ts-node src/index.ts",
-    "debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts"
+    "start:test": "export NODE_ENV=test && ts-node src/index.ts",
+    "start:dev": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
+    "start:prod": "export NODE_ENV=production && node dist/index.js",
+    "start:debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "dotenv": "^10.0.0",
@@ -31,14 +32,14 @@
     "@types/koa-router": "^7.4.4",
     "@types/koa-send": "^4.1.3",
     "@types/koa-static": "^4.0.2",
-    "@types/luxon": "^2.0.0",
+    "@types/luxon": "^2.0.1",
     "@types/newman": "^5.1.4",
-    "@types/node": "^16.7.1",
+    "@types/node": "^16.7.4",
     "@types/pg": "^8.6.1",
     "@types/redis": "^2.8.31",
     "@types/uuid": "^8.3.1",
     "nodemon": "^2.0.12",
     "ts-node": "^10.2.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.2"
   }
 }
