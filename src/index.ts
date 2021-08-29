@@ -74,6 +74,7 @@ app.use(apiPresetRouter.routes()).use(apiPresetRouter.allowedMethods())
 if (process.env.NODE_ENV === "production") {
     fs.access("frontendBuild", (e) => {
         if (e) {
+            console.log(e)
             throw new Error("You must have frontendBuild folder at the project root.")
         }
     })
