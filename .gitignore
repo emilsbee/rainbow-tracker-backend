@@ -7,4 +7,3 @@ dist/
 src/test/postman/environment.json
 src/test/reports/
 logs/
-frontendBuild/
