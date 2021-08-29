@@ -20,6 +20,7 @@ import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";
 import {logger} from "./middleware/logger";
+import path from "path";
 
 if (process.env.NODE_ENV === "test") {
     (async () => await initialize((success: boolean) => {
@@ -72,7 +73,7 @@ app.use(apiPresetRouter.routes()).use(apiPresetRouter.allowedMethods())
 
 // Checks that the frontendBuild folder is present
 if (process.env.NODE_ENV === "production") {
-    fs.access("frontendBuild", (e) => {
+    fs.access(path.join(__dirname, "../frontendBuild"), (e) => {
         if (e) {
             console.log(e)
             throw new Error("You must have frontendBuild folder at the project root.")
