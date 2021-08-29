@@ -2,13 +2,13 @@
 Description=Rainbow tracker
 
 [Service]
-ExecStart=/home/emils/Documents/code/rainbow/rainbow-tracker-backend/dist/index.js
+ExecStart=/home/emils/code/rainbow-tracker-backend/dist/index.js
 Restart=always
 User=emils
 Group=emils
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
-WorkingDirectory=/home/emils/Documents/code/rainbow/rainbow-tracker-backend
+WorkingDirectory=/home/emils/code/rainbow-tracker-backend
 
 [Install]
 WantedBy=multi-user.target
