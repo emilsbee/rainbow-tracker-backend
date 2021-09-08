@@ -114,3 +114,77 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
         client.release()
     }
 }
+
+/**
+ * This type is specific to the function below.
+ */
+type TotalPerDay = {
+    weekDay: number
+    categories: {
+        categoryid: string | null
+        count: number
+    }[]
+    activities: {
+        activityid: string | null
+        count: number
+    }[]
+}
+/**
+ * Fetches the amount of time spent on each category type and activity type
+ * for a given week in each day. In the return type, amount symbolizes the amount of 15
+ * minute intervals.
+ * @param userid of the user for which to find the total per day.
+ * @param weekid of the week for which to find the total per day.
+ */
+export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerDay: TotalPerDay[] }> => {
+    const client: PoolClient = await db.getClient()
+    const totalPerDay: TotalPerDay[] = [
+        {weekDay: 0, categories: [], activities: []},
+        {weekDay: 1, categories: [], activities: []},
+        {weekDay: 2, categories: [], activities: []},
+        {weekDay: 3, categories: [], activities: []},
+        {weekDay: 4, categories: [], activities: []},
+        {weekDay: 5, categories: [], activities: []},
+        {weekDay: 6, categories: [], activities: []}
+    ]
+
+    const getTotalPerDayCategoriesQuery = 'SELECT categoryid, COUNT("weekDay")::int\n' +
+        'FROM category \n' +
+        'WHERE userid=$1 \n' +
+        'AND weekid=$2\n' +
+        'AND "weekDay"=$3\n' +
+        'GROUP BY categoryid'
+
+    const getTotalPerDayActivitiesQuery = 'SELECT activityid, COUNT("weekDay")::int\n' +
+        'FROM category \n' +
+        'WHERE userid=$1 \n' +
+        'AND weekid=$2\n' +
+        'AND "weekDay"=$3\n' +
+        'GROUP BY activityid'
+
+    try {
+        // Begin transaction
+        await client.query("BEGIN")
+
+        for (let i = 0; i < totalPerDay.length; i++) {
+            let totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, weekid, i])
+            let totalPerDayActivities = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i])
+
+            totalPerDay[i].categories = totalPerDayCategories.rows
+            totalPerDay[i].activities = totalPerDayActivities.rows
+        }
+
+        await client.query("COMMIT")
+
+        return {
+            status: 200,
+            error: "",
+            totalPerDay
+        }
+    } catch (e: any) {
+        await client.query("ROLLBACK")
+        return {status: 400, error: e.message, totalPerDay}
+    } finally {
+        client.release()
+    }
+}

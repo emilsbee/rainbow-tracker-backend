@@ -4,10 +4,34 @@ let Router = require('koa-router');
 
 // Internal imports
 import protect from "../../middleware/auth";
-import {getAvailableDates, getTotalPerWeek} from "../../dao/analyticsDao";
+import {getAvailableDates, getTotalPerDay, getTotalPerWeek} from "../../dao/analyticsDao";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()
+
+/**
+ * Route for fetching the total per day for categories and activities.
+ */
+router.get("/analytics/total-per-day", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+    const weekNr = ctx.request.query.week_number as string
+    const weekYear = ctx.request.query.week_year as string
+
+    const weekidRes: {weekid: string | null, error: string} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid)
+
+    if (weekidRes.weekid == null) {
+        ctx.throw(404, weekidRes.error, {path: __filename})
+    } else {
+        const {status, error, totalPerDay} = await getTotalPerDay(userid, weekidRes.weekid)
+
+        if (error.length > 0) {
+            ctx.throw(status, error, {path: __filename})
+        }
+
+        ctx.status = status
+        ctx.body = totalPerDay
+    }
+})
 
 /**
  * Route for fetching the total time for each category, activity type in a given week by week number and year.
