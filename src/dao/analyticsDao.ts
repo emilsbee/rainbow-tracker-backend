@@ -123,17 +123,20 @@ type TotalPerDay = {
     categories: {
         categoryid: string | null
         count: number
+        weekDay: number
+        name: string
     }[]
     activities: {
         activityid: string | null
         count: number
+        weekDay: number
     }[]
 }
 /**
  * Fetches the amount of time spent on each category type and activity type
  * for a given week in each day. In the return type, amount symbolizes the amount of 15
  * minute intervals.
- * @param userid of the user for which to find the total per day.
+ * @param userid of the user for which to find the total  per day.
  * @param weekid of the week for which to find the total per day.
  */
 export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerDay: TotalPerDay[] }> => {
@@ -148,12 +151,13 @@ export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ 
         {weekDay: 6, categories: [], activities: []}
     ]
 
-    const getTotalPerDayCategoriesQuery = 'SELECT categoryid, COUNT("weekDay")::int\n' +
-        'FROM category \n' +
-        'WHERE userid=$1 \n' +
-        'AND weekid=$2\n' +
-        'AND "weekDay"=$3\n' +
-        'GROUP BY categoryid'
+    const getTotalPerDayCategoriesQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name\n' +
+        'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
+        'WHERE category.userid=$2 \n' +
+        'AND category.weekid=$3\n' +
+        'AND category."weekDay"=$4\n' +
+        'AND "categoryType".categoryid=category.categoryid \n' +
+        'GROUP BY category.categoryid, "categoryType".name'
 
     const getTotalPerDayActivitiesQuery = 'SELECT activityid, COUNT("weekDay")::int\n' +
         'FROM category \n' +
@@ -162,16 +166,19 @@ export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ 
         'AND "weekDay"=$3\n' +
         'GROUP BY activityid'
 
+
     try {
         // Begin transaction
         await client.query("BEGIN")
 
         for (let i = 0; i < totalPerDay.length; i++) {
-            let totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, weekid, i])
+            let totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i])
             let totalPerDayActivities = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i])
 
             totalPerDay[i].categories = totalPerDayCategories.rows
+            totalPerDay[i].categories.forEach(category => category.weekDay = i)
             totalPerDay[i].activities = totalPerDayActivities.rows
+            totalPerDay[i].activities.forEach(activity => activity.weekDay = i)
         }
 
         await client.query("COMMIT")

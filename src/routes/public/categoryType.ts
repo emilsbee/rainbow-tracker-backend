@@ -36,7 +36,7 @@ router.get("/category-types-full", protect.user, async (ctx: Context) => {
     }
 
     ctx.status = status
-    ctx.body = [{categoryTypes, activityTypes}]
+    ctx.body = {categoryTypes, activityTypes}
 })
 
 /**
