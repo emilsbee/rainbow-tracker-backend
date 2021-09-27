@@ -3,7 +3,7 @@ import {Context} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import {createActivityType, getActivityTypes} from "../../dao/activityTypeDao";
+import {createActivityType, deleteActivityType, getActivityTypes} from "../../dao/activityTypeDao";
 import protect from "../../middleware/auth";
 import contentType from "../../middleware/contentType";
 
@@ -21,7 +21,7 @@ export type ActivityType = {
 /**
  * Route for fetching all unarchived activity types for a user.
  */
-router.get("/activity-types", protect.user, contentType.JSON,async (ctx: Context) => {
+router.get("/activity-types", protect.user,async (ctx: Context) => {
     const userid = ctx.params.userid
 
     let {status, activityTypes, error} = await getActivityTypes(userid)
@@ -63,6 +63,22 @@ router.post("/activity-types", protect.user, contentType.JSON, async (ctx: Conte
         long: activityType[0].long,
         short: activityType[0].short,
     }]
+})
+
+/**
+ * Route for deleting an activity type.
+ */
+router.delete("/activity-type/:activityid", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+    const activityid = ctx.params.activityid
+
+    const {status, error} = await deleteActivityType(userid, activityid)
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
 })
 
 export default router

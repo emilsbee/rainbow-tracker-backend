@@ -10,6 +10,25 @@ import {ActivityType} from "../routes/public/activityType";
  */
 export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false"
 
+/**
+ * Deletes given activity by activityid.
+ * @param userid
+ * @param activityid
+ */
+export const deleteActivityType = async (userid: string, activityid: string): Promise<{ status: number, error: string }> => {
+    try {
+        const archiveActivityTypeQuery = "UPDATE activity_type SET archived=true WHERE activityid=$1 AND userid=$2"
+        let activityRes = await db.query(archiveActivityTypeQuery, [activityid, userid])
+
+        if (activityRes.rowCount === 0) {
+            return {status: 404, error: `Activity ${activityid} does not exist in the database.`}
+        } else {
+            return {status: 204, error: ""}
+        }
+    } catch (e: any) {
+        return {status: 400, error: e.message}
+    }
+}
 
 /**
  * Fetches all category types for a given user.
