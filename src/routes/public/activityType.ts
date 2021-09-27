@@ -3,9 +3,10 @@ import {Context} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import {createActivityType, deleteActivityType, getActivityTypes} from "../../dao/activityTypeDao";
+import {createActivityType, deleteActivityType, getActivityTypes, updateActivityType} from "../../dao/activityTypeDao";
 import protect from "../../middleware/auth";
 import contentType from "../../middleware/contentType";
+import {CategoryType} from "./categoryType";
 
 let router = new Router()
 
@@ -17,6 +18,24 @@ export type ActivityType = {
     short:string,
     archived:boolean
 }
+
+/**
+ * Route for updating an activity type.
+ */
+router.patch("/activity-type/:activityid", protect.user, contentType.JSON, async (ctx: Context) => {
+    const userid = ctx.params.userid
+    const activityid = ctx.params.activityid
+    let activityToUpdate = ctx.request.body as ActivityType
+
+    const {status, error, activityType} = await updateActivityType(userid, activityToUpdate, activityid)
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = activityType
+})
 
 /**
  * Route for fetching all unarchived activity types for a user.

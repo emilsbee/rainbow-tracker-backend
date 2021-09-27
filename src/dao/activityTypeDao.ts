@@ -4,11 +4,43 @@ import {v4 as uuid} from "uuid";
 // Internal imports
 import db from "../db/postgres";
 import {ActivityType} from "../routes/public/activityType";
+import user from "../routes/admin/user";
 
 /**
  * Queries
  */
 export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false"
+
+/**
+ * Update given activity by activityid.
+ * @param userid
+ * @param activityType
+ * @param activityid
+ */
+export const updateActivityType = async (userid: string, activityType: ActivityType, activityid: string): Promise<{ status: number, error: string, activityType:ActivityType[] }> => {
+    try {
+        const updateActivityTypeQuery = "UPDATE activity_type SET long=$1, short=$2 WHERE userid=$3 AND activityid=$4;"
+        let updatedActivity = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, userid, activityid])
+
+        if (updatedActivity.rowCount === 0) {
+            return {
+                status: 404,
+                error: `Activity ${activityid} does not exist in the database.`,
+                activityType: []
+            }
+        } else {
+            return {
+                status: 200,
+                error: "",
+                activityType: [{...activityType, archived: false, userid}]
+            }
+        }
+
+    } catch (e: any) {
+        return {status: 400, error: e.message, activityType:[]}
+    }
+
+}
 
 /**
  * Deletes given activity by activityid.
@@ -36,7 +68,6 @@ export const deleteActivityType = async (userid: string, activityid: string): Pr
  */
 export const getActivityTypes = async (userid: string): Promise<{ status: number, activityTypes: ActivityType[], error: string }> => {
     try {
-        const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false"
         let activityTypes = await db.query(getActivityTypesQuery, [userid])
         return {
             status: 200, activityTypes: activityTypes.rows, error: ""
