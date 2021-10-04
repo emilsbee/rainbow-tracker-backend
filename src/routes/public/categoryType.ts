@@ -103,17 +103,17 @@ router.post("/category-types", contentType.JSON, protect.user, async (ctx:Contex
 
     const {status, categoryType, error} = await createCategoryType(userid, categoryTypeToCreate.color, categoryTypeToCreate.name)
 
-    if (status === 422) {
+    if (error.length > 0) {
         ctx.throw(status, error, {path: __filename})
     }
 
     ctx.status = status
 
-    ctx.body = [{
+    ctx.body = {
         categoryid: categoryType[0].categoryid,
         name: categoryType[0].name,
         color: categoryType[0].color
-    }]
+    }
 })
 
 export default router
