@@ -6,15 +6,6 @@ import {CategoryType} from "../routes/public/categoryType";
 import {PoolClient} from "pg";
 import db from "../db/postgres"
 import {ActivityType} from "../routes/public/activityType";
-import {getActivityTypesQuery} from "./activityTypeDao";
-
-
-/**
- * Queries
- */
-export const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false"
-
-
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
@@ -114,6 +105,8 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
         // Begin transaction
         await client.query('BEGIN')
 
+        const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1"
+        const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1"
         const categoryTypes = await client.query(getCategoryTypesQuery, [userid])
         const activityTypes = await client.query(getActivityTypesQuery, [userid])
 
