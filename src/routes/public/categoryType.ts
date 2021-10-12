@@ -7,11 +7,12 @@ import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
 import {
     createCategoryType,
-    deleteCategoryType,
+    archiveCategoryType,
     getCategoryTypes,
-    getCategoryTypesFull,
+    getCategoryTypesFull, restoreCategoryType,
     updateCategoryType
 } from "../../dao/categoryTypeDao";
+import user from "../admin/user";
 
 let router = new Router()
 
@@ -24,7 +25,24 @@ export type CategoryType = {
 }
 
 /**
- * Route for getting all user's category types and all activity types.
+ * Route for restoring a category type and its activities from being archived.
+ */
+router.patch("/category-type/restore/:categoryid", protect.user, async (ctx:Context) => {
+    const userid = ctx.params.userid
+    const categoryid = ctx.params.categoryid
+
+    const {status, error} = await restoreCategoryType(userid, categoryid)
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+})
+
+/**
+ * Route for getting all user's category types and all activity types. Important to note
+ * that this returns all category and activity types, including archived ones.
  */
 router.get("/category-types-full", protect.user, async (ctx: Context) => {
     const userid = ctx.params.userid
@@ -47,7 +65,7 @@ router.delete("/category-type/:categoryid", protect.user, async (ctx:Context) =>
     const userid = ctx.params.userid
     const categoryid = ctx.params.categoryid
 
-    let {status, error} = await deleteCategoryType(userid, categoryid)
+    let {status, error} = await archiveCategoryType(userid, categoryid)
 
     if (status === 400 || status === 404) {
         ctx.throw(status, error, {path: __filename})
@@ -77,7 +95,7 @@ router.patch("/category-type/:categoryid", protect.user, contentType.JSON, async
 })
 
 /**
- * Route for fetching the category types for a user.
+ * Route for fetching the category types for a user. Important to note it returns only non-archived category types.
  * @return categoryType[] array of the category types.
  */
 router.get("/category-types", protect.user, async (ctx:Context, next:Next) => {

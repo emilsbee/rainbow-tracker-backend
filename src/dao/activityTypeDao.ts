@@ -12,12 +12,32 @@ import user from "../routes/admin/user";
 export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false"
 
 /**
+ * Restore given activity type from being archived.
+ * @param userid
+ * @param activityid
+ */
+export const restoreActivityType = async (userid: string, activityid: string): Promise<{ status: number, error: string }> => {
+    try {
+        const archiveActivityTypeQuery = "UPDATE activity_type SET archived=false WHERE userid=$1 AND activityid=$2;"
+        const archivedActivityType = await db.query(archiveActivityTypeQuery, [userid, activityid])
+
+        if (archivedActivityType.rowCount === 0) {
+            return {status: 404, error: `Activity type with id ${activityid} was not found.`}
+        }
+
+        return {status: 200, error: ""}
+    } catch (e: any) {
+        return {status: 400, error: e.message}
+    }
+}
+
+/**
  * Update given activity by activityid.
  * @param userid
  * @param activityType
  * @param activityid
  */
-export const updateActivityType = async (userid: string, activityType: ActivityType, activityid: string): Promise<{ status: number, error: string, activityType:ActivityType[] }> => {
+export const updateActivityType = async (userid: string, activityType: ActivityType, activityid: string): Promise<{ status: number, error: string, activityType:ActivityType }> => {
     try {
         const updateActivityTypeQuery = "UPDATE activity_type SET long=$1, short=$2 WHERE userid=$3 AND activityid=$4;"
         let updatedActivity = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, userid, activityid])
@@ -26,18 +46,18 @@ export const updateActivityType = async (userid: string, activityType: ActivityT
             return {
                 status: 404,
                 error: `Activity ${activityid} does not exist in the database.`,
-                activityType: []
+                activityType: {} as ActivityType
             }
         } else {
             return {
                 status: 200,
                 error: "",
-                activityType: [{...activityType, archived: false, userid}]
+                activityType: activityType
             }
         }
 
     } catch (e: any) {
-        return {status: 400, error: e.message, activityType:[]}
+        return {status: 400, error: e.message, activityType: {} as ActivityType}
     }
 
 }
@@ -47,7 +67,7 @@ export const updateActivityType = async (userid: string, activityType: ActivityT
  * @param userid
  * @param activityid
  */
-export const deleteActivityType = async (userid: string, activityid: string): Promise<{ status: number, error: string }> => {
+export const archiveActivityType = async (userid: string, activityid: string): Promise<{ status: number, error: string }> => {
     try {
         const archiveActivityTypeQuery = "UPDATE activity_type SET archived=true WHERE activityid=$1 AND userid=$2"
         let activityRes = await db.query(archiveActivityTypeQuery, [activityid, userid])

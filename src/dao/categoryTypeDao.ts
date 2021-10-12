@@ -3,9 +3,11 @@ import {v4 as uuid} from "uuid";
 
 // Internal imports
 import {CategoryType} from "../routes/public/categoryType";
-import {PoolClient} from "pg";
+import {PoolClient, QueryResult} from "pg";
 import db from "../db/postgres"
 import {ActivityType} from "../routes/public/activityType";
+import user from "../routes/admin/user";
+import {sortCategoryTypesByArchived} from "./categoryTypeDao/helpers";
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
@@ -13,7 +15,7 @@ import {ActivityType} from "../routes/public/activityType";
  * @param userid for which to archive the category type.
  * @param categoryid of the category to archive.
  */
-export const deleteCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string }> => {
+export const archiveCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string }> => {
     const client: PoolClient = await db.getClient()
 
     try {
@@ -110,7 +112,9 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
         const categoryTypes = await client.query(getCategoryTypesQuery, [userid])
         const activityTypes = await client.query(getActivityTypesQuery, [userid])
 
-        return {status: 200, categoryTypes: categoryTypes.rows, activityTypes: activityTypes.rows, error: ""}
+        await client.query("COMMIT")
+
+        return {status: 200, categoryTypes: sortCategoryTypesByArchived(categoryTypes.rows), activityTypes: activityTypes.rows, error: ""}
     } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, categoryTypes: [], activityTypes: [], error: e.message}
@@ -134,5 +138,38 @@ export const createCategoryType = async (userid: string, color: string, name: st
         return {status: 201, categoryType: [{userid, categoryid, name, color, archived: false}], error: ""}
     } catch (err: any) {
         return {status: 422, categoryType: [], error: err.message}
+    }
+}
+
+/**
+ * Restores category type from being archived as well as all its activties.
+ * @param userid
+ * @param categoryid
+ */
+export const restoreCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string}> => {
+    const client: PoolClient = await db.getClient()
+
+    try {
+        // Begin transaction
+        await client.query('BEGIN')
+
+        const restoreCategoryTypeQuery = "UPDATE category_type SET archived=false WHERE userid=$1 AND categoryid=$2;"
+        const restoreActivityTypesQuery = "UPDATE activity_type SET archived=false WHERE userid=$1 AND categoryid=$2;"
+
+        const restoredCategoryType:QueryResult = await client.query(restoreCategoryTypeQuery, [userid, categoryid])
+        await client.query(restoreActivityTypesQuery, [userid, categoryid])
+
+        if (restoredCategoryType.rowCount === 0) {
+            return {status: 404, error: `Could not find given category with categoryid: ${categoryid}.`}
+        }
+
+        await client.query("COMMIT")
+
+        return {status: 200, error: ""}
+    } catch (e: any) {
+        await client.query('ROLLBACK')
+        return {status: 400, error: e.message}
+    } finally {
+        client.release()
     }
 }
