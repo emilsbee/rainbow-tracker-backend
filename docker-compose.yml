@@ -10,8 +10,8 @@ services:
       POSTGRES_DB: rainbow
     volumes:
       - type: bind
-        source: /data/postgres-rainbow
-        target: /var/lib/postgresql/data
+        source: ./src/db/init
+        target: /docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:

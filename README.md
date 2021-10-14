@@ -1,19 +1,24 @@
 ## Backend REST API for rainbow-tracker.
 
-### Development setup   
-The development environment (postgres and pgadmin4) can be quickly setup using the docker-compose.yml file provided.
-Before starting up containers, you should create two folders on host for pgadmin4 and postgres to have persistent data.
-The folders are /data/pgadmin4 and /data/postgres-rainbow respectively. You should adjust the access to pgadmin4 folder using the following command
-`sudo chown -R 5050:5050 <host_directory>`.
-Then run `docker-compose up -d` and head to localhost:5050 to login to pgadmin4. Use credentials:    
+### Development setup
+1. `git clone https://github.com/emilsbee/rainbow-tracker-backend`
+2. `yarn install`
+3. Make sure you have folders `/data/postgres-rainbow`, `/data/pgadmin4`, `/data/redis-rainbow`. If setting up
+   the development environment from scratch, and you already have these folders, make sure to remove any data from them. 
+   Furthermore, make sure to run `sudo chown -R 5050:5050 /data/pgadmin4` to give permission.
+4. Create a `.env` file at the root of the project. Move everything from `.env.example` to the `.env` file.
+5. Run `docker-compose up -d` from the root of the project to start up the containers specified in `docker-compose.yaml`.
+6. Pgadmin4 is available on `localhost:5050`. Use login: 
 - email: emils@gmail.com
-- password: 911     
-
-Then in pgadmin4 connect to postgres     
+- password: 911    
+        
+Then, add a new server within Pgadmin4 using the following credentials:
 - host: postgres
 - port: 5432
 - maintenance database: rainbow
 - username: rainbow
-- password: 911      
+- password: 911
 
-Of course most of this can be changed in the docker-compose.yml file.
+7. A user is automatically created with credentials
+- email: test@test.com
+- password: password
