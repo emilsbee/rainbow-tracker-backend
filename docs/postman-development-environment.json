@@ -1,0 +1,24 @@
+{
+	"id": "afe89d8e-959b-4327-a185-e165d04b3b8b",
+	"name": "Development",
+	"values": [
+		{
+			"key": "url",
+			"value": "http://localhost:3000/api",
+			"enabled": true
+		},
+		{
+			"key": "userid",
+			"value": "",
+			"enabled": true
+		},
+		{
+			"key": "adminToken",
+			"value": "7eQ9ZGpvmMNuiq",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2021-10-14T13:29:28.320Z",
+	"_postman_exported_using": "Postman/7.36.5"
+}
