@@ -114,7 +114,7 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
 
             totalPerWeekActivityTypes.push(emptyActivity)
         }
-        
+
         return {
             status: 200,
             error: "",
