@@ -115,6 +115,17 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
             totalPerWeekActivityTypes.push(emptyActivity)
         }
 
+        if (totalPerWeekCategoryTypesRows.rowCount === 0) {
+            return {
+                status: 404,
+                error: `This week has no analytics.`,
+                totalPerWeek: {
+                    categoryTypes: [],
+                    activityTypes: []
+                }
+            }
+        }
+
         return {
             status: 200,
             error: "",
@@ -125,7 +136,6 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
         }
     } catch (e: any) {
         await client.query("ROLLBACK")
-        console.log(e.message)
         return {status: 400, error: e.message, totalPerWeek: {
                 categoryTypes: [],
                 activityTypes: []
