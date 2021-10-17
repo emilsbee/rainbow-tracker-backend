@@ -4,7 +4,6 @@ import {v4 as uuid} from "uuid";
 // Internal imports
 import db from "../db/postgres";
 import {ActivityType} from "../routes/public/activityType";
-import {QueryResult} from "pg";
 
 /**
  * Queries
