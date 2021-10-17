@@ -64,20 +64,14 @@ router.post("/activity-types", protect.user, contentType.JSON, async (ctx: Conte
     const userid = ctx.params.userid
     const activityTypeToCreate = ctx.request.body as ActivityType
 
-    const {status, activityType, error} = await createActivityType(userid, activityTypeToCreate.categoryid, activityTypeToCreate.long, activityTypeToCreate.short)
+    const {status, activityType, error} = await createActivityType(userid, activityTypeToCreate)
 
-    if (status === 422) {
+    if (error.length > 0) {
         ctx.throw(status, error, {path: __filename})
     }
 
     ctx.status = status
-
-    ctx.body = [{
-        activityid: activityType[0].activityid,
-        categoryid: activityType[0].categoryid,
-        long: activityType[0].long,
-        short: activityType[0].short,
-    }]
+    ctx.body = activityType
 })
 
 

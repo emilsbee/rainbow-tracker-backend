@@ -4,6 +4,7 @@ import {v4 as uuid} from "uuid";
 // Internal imports
 import db from "../db/postgres";
 import {ActivityType} from "../routes/public/activityType";
+import {QueryResult} from "pg";
 
 /**
  * Queries
@@ -60,19 +61,28 @@ export const getActivityTypes = async (userid: string): Promise<{ status: number
 /**
  * Creates an activity type for a user.
  * @param userid of user for which to create the activity type.
- * @param categoryid  of the category for which to create the activity type.
- * @param long explanation of the activity type to create.
- * @param short 2 letter abbreviation of the activity type to create.
+ * @param activityType
  */
-export const createActivityType = async (userid: string, categoryid: string, long: string, short: string):Promise<{ status: number, activityType: ActivityType[], error: string }> => {
+export const createActivityType = async (userid: string, activityType: ActivityType):Promise<{ status: number, activityType: ActivityType, error: string }> => {
     try {
         const createActivityTypeQuery = "INSERT INTO activity_type(activityid, categoryid, userid, long, short, archived) VALUES($1, $2, $3, $4, $5, $6)"
         const activityid = uuid()
-        const values = [activityid, categoryid, userid, long, short, false]
+        const values = [activityid, activityType.categoryid, userid, activityType.long, activityType.short, activityType.archived]
         await db.query(createActivityTypeQuery, values)
 
-        return {status: 201, activityType: [{activityid, categoryid, userid, long, short, archived: false}], error: ""}
+        return {
+            status: 201,
+            activityType: {
+                activityid,
+                categoryid: activityType.categoryid,
+                userid,
+                long: activityType.long,
+                short: activityType.short,
+                archived: activityType.archived
+            },
+            error: ""
+        }
     } catch (e: any) {
-        return {status: 422, activityType:[], error: e.message}
+        return {status: 422, activityType: {} as ActivityType, error: e.message}
     }
 }
