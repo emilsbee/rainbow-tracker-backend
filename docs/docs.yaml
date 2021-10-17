@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: Rainbow Tracker API
+  description: The documentation of [Rainbow Tracker's](https://github.com/emilsbee/rainbow-tracker) REST API.
+  version: 0.0.1
+servers:
+  - url: https://rainbow.emils.xyz/api
+    description: Production server API.
+paths:
+  /user/{userid}/activity-types:
+    get:
+      summary: Gets all unarchived activity types.
+      description: Returns all unarchived activity types for a given user.
+      security:
+        - cookieAuth: []
+      tags:
+        - Activity type
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          description: The userid of user for which to get the activity types.
+          schema:
+            type : string
+        - $ref: '#/components/parameters/session'
+      responses:
+        '200':
+          description: Succesfully returns an array of activity types. It is possible that the array is empty, hence status code 404 is never returned.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/activity-type'
+        '400':
+          description: The query failed to correctly execute. No fault of the user.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      summary: Creates an activity type.
+      description: Creates an activity type for a given user and returns it.
+      security:
+        - cookieAuth: []
+      tags:
+        - Activity type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoryid:
+                  type: string
+                  example: someid
+                long:
+                  type: string
+                  example: Long explanation of activity
+                short:
+                  type: string
+                  example: le
+                userid:
+                  type: string
+                  example: userid
+                archived:
+                  type: boolean
+                  example: false
+            
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          description: The userid of user for which to get the activity types.
+          schema:
+            type : string
+        - $ref: '#/components/parameters/session'
+      responses:
+        '201':
+          description: Succesfully created an activity type for the given user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/activity-type'
+        '422':
+          description: One of the required properties were not given so activity type couldn't be created.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Unprocessable Entity
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /user/{userid}/activity-type/{activityid}:
+    patch:
+      summary: Updates an activity type.
+      description: Updates an activity type for a given user.
+      tags:
+        - Activity type
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          description: The userid of user for which to get the activity types.
+          schema:
+            type : string
+        - name: activityid
+          in: path
+          required: true
+          description: The activityid of activity type to update.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/session'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/activity-type'
+      responses:
+        '200':
+          description: Succesfully updated the activity type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/activity-type'
+        '404':
+          description: Activity type with the activityid given in path does not exist.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Not Found
+                  
+        '400':
+          description: The query failed to correctly execute. No fault of the user.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad Request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          
+  /auth/login:
+    post:
+      summary: Log in.
+      description: Performs login with the given credentials and returns session token in cookie if succesful.
+      tags:
+        - Auth
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: 
+                  type: string
+                  example: test@test.com
+                password:
+                  type: string
+                  example: password
+              
+      responses:
+        '200':
+          description: Succesfully updated the activity type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/activity-type'
+          headers:
+            Cookie:
+              schema:
+                type: string
+              description: Contains the rainbow:session token.
+components:
+  parameters:
+    session:
+      in: cookie
+      name: rainbow:session
+      required: true
+      schema:
+        type: string
+    
+  responses:
+    Unauthorized:
+      description: User making the request has not authenticated. In other words, the session token passed in cookie is not a valid session token.
+      content:
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/unauthorized'
+    Forbidden:
+      description: User making the request is not authorized to access that resource. In other words, the session token passed in cookie is a valid session token, but is trying to access resources not belonging to them.
+      content:
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/forbidden'
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: rainbow:session
+  schemas:
+    forbidden:
+      type: string
+      example: Forbidden
+    unauthorized:
+      type: string
+      example: Unauthorized
+    activity-type:
+      properties:
+        activityid:
+          type: string
+        categoryid:
+          type: string
+        userid:
+          type: string
+        long:
+          type: string
+        short: 
+          type: string
+        archived:
+          type: boolean
+          default: false
+          
+tags:
+  - name: Activity type
+    description: All operations regarding activity types.
+  - name: Auth
+    description: All operations regarding authentication.
