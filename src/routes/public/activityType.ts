@@ -4,15 +4,12 @@ let Router = require('koa-router');
 
 // Internal imports
 import {
-    restoreActivityType,
     createActivityType,
-    archiveActivityType,
     getActivityTypes,
     updateActivityType
 } from "../../dao/activityTypeDao";
 import protect from "../../middleware/auth";
 import contentType from "../../middleware/contentType";
-import {CategoryType} from "./categoryType";
 
 let router = new Router()
 
@@ -25,21 +22,6 @@ export type ActivityType = {
     archived:boolean
 }
 
-/**
- * Route for restoring an activity type from being archived.
- */
-router.patch("/activity-type/restore/:activityid", protect.user, async (ctx:Context) => {
-    const userid = ctx.params.userid
-    const activityid = ctx.params.activityid
-
-    const {status, error} = await restoreActivityType(userid, activityid)
-
-    if (error.length > 0) {
-        ctx.throw(status, error, {path: __filename})
-    }
-
-    ctx.status = status
-})
 
 /**
  * Route for updating an activity type.
@@ -106,20 +88,5 @@ router.post("/activity-types", protect.user, contentType.JSON, async (ctx: Conte
     }]
 })
 
-/**
- * Route for deleting an activity type.
- */
-router.delete("/activity-type/:activityid", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid
-    const activityid = ctx.params.activityid
-
-    const {status, error} = await archiveActivityType(userid, activityid)
-
-    if (error.length > 0) {
-        ctx.throw(status, error, {path: __filename})
-    }
-
-    ctx.status = status
-})
 
 export default router

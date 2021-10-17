@@ -6,8 +6,7 @@ import {CategoryType} from "../routes/public/categoryType";
 import {PoolClient, QueryResult} from "pg";
 import db from "../db/postgres"
 import {ActivityType} from "../routes/public/activityType";
-import user from "../routes/admin/user";
-import {sortCategoryTypesByArchived} from "./categoryTypeDao/helpers";
+import {sortActivityTypesByArchived, sortCategoryTypesByArchived} from "./categoryTypeDao/helpers";
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
@@ -23,7 +22,7 @@ export const archiveCategoryType = async (userid: string, categoryid: string): P
         await client.query('BEGIN')
 
         const archiveActivityTypeQuery = "UPDATE activity_type SET archived=true WHERE categoryid=$1 AND userid=$2"
-        let activityRes = await client.query(archiveActivityTypeQuery, [categoryid, userid])
+        await client.query(archiveActivityTypeQuery, [categoryid, userid])
 
         const archiveCategoryTypeQuery = "UPDATE category_type SET archived=true WHERE categoryid=$1 AND userid=$2"
         let categoryRes = await client.query(archiveCategoryTypeQuery, [categoryid, userid])
@@ -50,7 +49,7 @@ export const archiveCategoryType = async (userid: string, categoryid: string): P
  * @param newCategoryType to update with.
  * @param categoryid of category to update.
  */
-export const updateCategoryType = async (userid: string, newCategoryType: CategoryType, categoryid: string): Promise<{ status: number, categoryType: CategoryType[], error: string }> => {
+export const updateCategoryType = async (userid: string, newCategoryType: CategoryType, categoryid: string): Promise<{ status: number, categoryType: CategoryType, error: string }> => {
 
     try {
         const updateCategoryTypeQuery = "UPDATE category_type SET color=$1, name=$2 WHERE userid=$3 AND categoryid=$4;"
@@ -59,24 +58,24 @@ export const updateCategoryType = async (userid: string, newCategoryType: Catego
         if (updatedCategory.rowCount === 0) {
             return {
                 status: 404,
-                categoryType: [],
+                categoryType: {} as CategoryType,
                 error: `Category type ${categoryid} for update was not found.`
             }
         } else {
             return {
                 status: 200,
-                categoryType: [{
+                categoryType: {
                     categoryid,
                     name: newCategoryType.name,
                     color: newCategoryType.color,
                     archived: false,
                     userid
-                }],
+                },
                 error: ""
             }
         }
     } catch (e: any) {
-        return {status: 400, categoryType: [], error: e.message}
+        return {status: 400, categoryType: {} as CategoryType, error: e.message}
     }
 }
 
@@ -114,7 +113,7 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
 
         await client.query("COMMIT")
 
-        return {status: 200, categoryTypes: sortCategoryTypesByArchived(categoryTypes.rows), activityTypes: activityTypes.rows, error: ""}
+        return {status: 200, categoryTypes: sortCategoryTypesByArchived(categoryTypes.rows), activityTypes: sortActivityTypesByArchived(activityTypes.rows), error: ""}
     } catch (e: any) {
         await client.query('ROLLBACK')
         return {status: 400, categoryTypes: [], activityTypes: [], error: e.message}
@@ -142,7 +141,7 @@ export const createCategoryType = async (userid: string, color: string, name: st
 }
 
 /**
- * Restores category type from being archived as well as all its activties.
+ * Restores category type from being archived as well as all its activities.
  * @param userid
  * @param categoryid
  */
