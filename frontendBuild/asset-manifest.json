@@ -1,31 +1,31 @@
 {
   "files": {
-    "main.css": "/static/css/main.cb1aa4b2.chunk.css",
-    "main.js": "/static/js/main.fd2bd9db.chunk.js",
-    "main.js.map": "/static/js/main.fd2bd9db.chunk.js.map",
+    "main.css": "/static/css/main.c6cea3d7.chunk.css",
+    "main.js": "/static/js/main.7e0892d5.chunk.js",
+    "main.js.map": "/static/js/main.7e0892d5.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.fd1ff9e7.js",
     "runtime-main.js.map": "/static/js/runtime-main.fd1ff9e7.js.map",
-    "static/js/2.107ddedc.chunk.js": "/static/js/2.107ddedc.chunk.js",
-    "static/js/2.107ddedc.chunk.js.map": "/static/js/2.107ddedc.chunk.js.map",
+    "static/js/2.454993be.chunk.js": "/static/js/2.454993be.chunk.js",
+    "static/js/2.454993be.chunk.js.map": "/static/js/2.454993be.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/main.cb1aa4b2.chunk.css.map": "/static/css/main.cb1aa4b2.chunk.css.map",
-    "static/js/2.107ddedc.chunk.js.LICENSE.txt": "/static/js/2.107ddedc.chunk.js.LICENSE.txt",
+    "static/css/main.c6cea3d7.chunk.css.map": "/static/css/main.c6cea3d7.chunk.css.map",
+    "static/js/2.454993be.chunk.js.LICENSE.txt": "/static/js/2.454993be.chunk.js.LICENSE.txt",
     "static/media/add.c6f2e133.svg": "/static/media/add.c6f2e133.svg",
     "static/media/analytics.ff560169.svg": "/static/media/analytics.ff560169.svg",
     "static/media/back.46f9b388.svg": "/static/media/back.46f9b388.svg",
     "static/media/close.17a94979.svg": "/static/media/close.17a94979.svg",
     "static/media/dashboard.c12a24ec.svg": "/static/media/dashboard.c12a24ec.svg",
+    "static/media/edit.8c602a7f.svg": "/static/media/edit.8c602a7f.svg",
     "static/media/list.f71c5377.svg": "/static/media/list.f71c5377.svg",
     "static/media/logout.4c3a4716.svg": "/static/media/logout.4c3a4716.svg",
     "static/media/next.e69630ed.svg": "/static/media/next.e69630ed.svg",
     "static/media/settings.f3f15426.svg": "/static/media/settings.f3f15426.svg",
-    "static/media/spinner.7894654c.svg": "/static/media/spinner.7894654c.svg",
-    "static/media/undo.c7fb953c.svg": "/static/media/undo.c7fb953c.svg"
+    "static/media/spinner.7894654c.svg": "/static/media/spinner.7894654c.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.fd1ff9e7.js",
-    "static/js/2.107ddedc.chunk.js",
-    "static/css/main.cb1aa4b2.chunk.css",
-    "static/js/main.fd2bd9db.chunk.js"
+    "static/js/2.454993be.chunk.js",
+    "static/css/main.c6cea3d7.chunk.css",
+    "static/js/main.7e0892d5.chunk.js"
   ]
 }
