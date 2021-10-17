@@ -54,15 +54,7 @@ router.get("/activity-types", protect.user,async (ctx: Context) => {
     }
 
     ctx.status = status
-
-    ctx.body = activityTypes.map(activityType => {
-        return {
-            activityid: activityType.activityid,
-            categoryid: activityType.categoryid,
-            long: activityType.long,
-            short: activityType.short,
-        }
-    })
+    ctx.body = activityTypes
 })
 
 /**
