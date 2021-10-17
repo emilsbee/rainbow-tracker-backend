@@ -29,7 +29,7 @@ export type ActivityType = {
 router.patch("/activity-type/:activityid", protect.user, contentType.JSON, async (ctx: Context) => {
     const userid = ctx.params.userid
     const activityid = ctx.params.activityid
-    let activityToUpdate = ctx.request.body as ActivityType
+    const activityToUpdate = ctx.request.body as ActivityType
 
     const {status, error, activityType} = await updateActivityType(userid, activityToUpdate, activityid)
 
@@ -47,7 +47,7 @@ router.patch("/activity-type/:activityid", protect.user, contentType.JSON, async
 router.get("/activity-types", protect.user,async (ctx: Context) => {
     const userid = ctx.params.userid
 
-    let {status, activityTypes, error} = await getActivityTypes(userid)
+    const {status, activityTypes, error} = await getActivityTypes(userid)
 
     if (status === 400) {
         ctx.throw(status, error, {path: __filename})

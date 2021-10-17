@@ -20,7 +20,7 @@ export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$
 export const updateActivityType = async (userid: string, activityType: ActivityType, activityid: string): Promise<{ status: number, error: string, activityType:ActivityType }> => {
     try {
         const updateActivityTypeQuery = "UPDATE activity_type SET long=$1, short=$2, archived=$3 WHERE userid=$4 AND activityid=$5;"
-        let updatedActivity = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, activityType.archived, userid, activityid])
+        const updatedActivity = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, activityType.archived, userid, activityid])
 
         if (updatedActivity.rowCount === 0) {
             return {
@@ -48,7 +48,7 @@ export const updateActivityType = async (userid: string, activityType: ActivityT
  */
 export const getActivityTypes = async (userid: string): Promise<{ status: number, activityTypes: ActivityType[], error: string }> => {
     try {
-        let activityTypes = await db.query(getActivityTypesQuery, [userid])
+        const activityTypes = await db.query(getActivityTypesQuery, [userid])
         return {
             status: 200, activityTypes: activityTypes.rows, error: ""
         }
