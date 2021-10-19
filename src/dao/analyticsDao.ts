@@ -225,3 +225,96 @@ export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ 
         client.release()
     }
 }
+
+type AvailableMonth = {
+    year: number
+    month: number // 1-12
+    weekNr: number
+}
+
+export const getAvailableMonths = async (userid: string):Promise<{ status: number, error: string, availableMonths: AvailableMonth[] }> => {
+    try {
+        const getAvailableMonthsQuery = "SELECT DISTINCT date_part('month', \"weekDayDate\") AS \"month\", date_part('year', \"weekDayDate\") AS \"year\", date_part('week', \"weekDayDate\") as \"weekNr\" \n" +
+            "FROM category \n" +
+            "WHERE userid=$1 " +
+            "ORDER BY \"year\" DESC;"
+
+        const availableMonths:QueryResult = await db.query(getAvailableMonthsQuery, [userid])
+
+        return { status: 200, error: "", availableMonths: availableMonths.rows }
+    } catch (e:any) {
+        return {status: 400, error: e.message, availableMonths:[]}
+    }
+}
+
+type TotalPerMonthActivityType = ActivityType & { count: number }
+type TotalPerMonthCategoryType = CategoryType & {count: number }
+export type TotalPerMonth = {
+    categoryTypes: TotalPerMonthCategoryType[],
+    activityTypes: TotalPerMonthActivityType[]
+}
+
+export const getTotalPerMonth = async (userid: string, month: number, year: number):Promise<{ status: number, error: string, totalPerMonth: TotalPerMonth}> => {
+    const client: PoolClient = await db.getClient()
+
+    const getTotalPerMonthCategoryQuery = 'SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived ' +
+        'FROM category, category_type ' +
+        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
+        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
+        'category.userid=$3 AND ' +
+        'category_type.userid=category.userid AND ' +
+        'category.categoryid=category_type.categoryid ' +
+        'GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;'
+
+    const getTotalPerMonthActivityQuery = 'SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived ' +
+        'FROM category, activity_type ' +
+        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
+        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
+        'category.activityid=activity_type.activityid AND ' +
+        'category.userid=$3 AND ' +
+        'category.userid=activity_type.userid ' +
+        'GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived'
+
+    try {
+        // Begin transaction
+        await client.query("BEGIN")
+
+        const totalPerMonthCategoryRows:QueryResult = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid])
+        const totalPerMonthActivityRows:QueryResult = await client.query(getTotalPerMonthActivityQuery, [month, year, userid])
+
+        await client.query("COMMIT")
+
+        const totalPerMonthCategory = totalPerMonthCategoryRows.rows as unknown as TotalPerMonth["categoryTypes"]
+        const totalPerMonthActivity = totalPerMonthActivityRows.rows as unknown as TotalPerMonth["activityTypes"]
+
+        // Creating empty activities
+        for (let i = 0; i < totalPerMonthCategory.length; i++) {
+            let categoryTotal:number = findTotalCountForCategory(totalPerMonthCategory, totalPerMonthCategory[i].categoryid)
+            let activityTotal:number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid)
+
+            let emptyActivity:TotalPerWeekActivityType = {
+                activityid: "Empty", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal-activityTotal, long: "Empty", short: "ep", userid: totalPerMonthCategory[i].userid
+            }
+
+            totalPerMonthActivity.push(emptyActivity)
+        }
+
+        if (totalPerMonthCategoryRows.rowCount === 0) {
+            return {
+                status: 404,
+                error: `This week has no analytics.`,
+                totalPerMonth: {
+                    categoryTypes: [],
+                    activityTypes: []
+                }
+            }
+        }
+
+        return {status: 200, error: "", totalPerMonth: {categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity}}
+    } catch (e: any) {
+        await client.query("ROLLBACK")
+        return {status: 400, error: e.message, totalPerMonth: {} as TotalPerMonth}
+    } finally {
+        client.release()
+    }
+}

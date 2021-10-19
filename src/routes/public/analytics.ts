@@ -4,7 +4,13 @@ let Router = require('koa-router');
 
 // Internal imports
 import protect from "../../middleware/auth";
-import {getAvailableDates, getTotalPerDay, getTotalPerWeek} from "../../dao/analyticsDao";
+import {
+    getAvailableDates,
+    getAvailableMonths,
+    getTotalPerDay,
+    getTotalPerMonth,
+    getTotalPerWeek
+} from "../../dao/analyticsDao";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()
@@ -72,6 +78,34 @@ router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
 
     ctx.status = status
     ctx.body = availableDates
+})
+
+router.get("/analytics/available-months", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+
+    const {status, error, availableMonths} = await getAvailableMonths(userid)
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = availableMonths
+})
+
+router.get("/analytics/total-per-month", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+    const month = ctx.request.query.month as string
+    const year = ctx.request.query.year as string
+
+    const {status, error, totalPerMonth} = await getTotalPerMonth(userid, parseInt(month), parseInt(year))
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = totalPerMonth
 })
 
 export default router
