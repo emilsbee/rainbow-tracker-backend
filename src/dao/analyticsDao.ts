@@ -109,7 +109,7 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
             let activityTotal:number = findActivityAggregateCount(totalPerWeekActivityTypes, totalPerWeekCategoryTypes[i].categoryid)
 
             let emptyActivity:TotalPerWeekActivityType = {
-                activityid: "Empty", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal-activityTotal, long: "Empty", short: "ep", userid: totalPerWeekCategoryTypes[i].userid
+                activityid: "Other", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal-activityTotal, long: "Other", short: "o", userid: totalPerWeekCategoryTypes[i].userid
             }
 
             totalPerWeekActivityTypes.push(emptyActivity)
@@ -293,7 +293,7 @@ export const getTotalPerMonth = async (userid: string, month: number, year: numb
             let activityTotal:number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid)
 
             let emptyActivity:TotalPerWeekActivityType = {
-                activityid: "Empty", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal-activityTotal, long: "Empty", short: "ep", userid: totalPerMonthCategory[i].userid
+                activityid: "Other", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal-activityTotal, long: "Other", short: "o", userid: totalPerMonthCategory[i].userid
             }
 
             totalPerMonthActivity.push(emptyActivity)
