@@ -7,13 +7,32 @@ import protect from "../../middleware/auth";
 import {
     getAvailableDates,
     getAvailableMonths,
-    getTotalPerDay,
+    getTotalPerDay, getTotalPerDaySpecific,
     getTotalPerMonth,
     getTotalPerWeek
 } from "../../dao/analyticsDao";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()
+
+/**
+ * Route for fetching analytics for a single specific day.
+ */
+router.get("/analytics/total-per-day/:day", protect.user, async (ctx: Context) => {
+    const userid = ctx.params.userid
+    const day = ctx.params.day
+    const weekNr = ctx.request.query.week_number as string
+    const weekYear = ctx.request.query.week_year as string
+
+    const {status, error, totalPerDaySpecific} = await getTotalPerDaySpecific(userid, parseInt(day), parseInt(weekNr), parseInt(weekYear))
+
+    if (error.length > 0) {
+        ctx.throw(status, error, {path: __filename})
+    }
+
+    ctx.status = status
+    ctx.body = totalPerDaySpecific
+})
 
 /**
  * Route for fetching the total per day for categories and activities.

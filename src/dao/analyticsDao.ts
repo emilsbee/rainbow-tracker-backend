@@ -318,3 +318,36 @@ export const getTotalPerMonth = async (userid: string, month: number, year: numb
         client.release()
     }
 }
+
+type TotalPerDaySpecific = {
+    weekDay: number
+    categories: {
+        categoryid: string | null
+        count: number
+        name: string
+        color: string
+    }[]
+}
+
+export const getTotalPerDaySpecific = async (userid: string, day: number, weekNr: number, year: number):Promise<{ status: number, error: string, totalPerDaySpecific: TotalPerDaySpecific }> => {
+    try {
+        const getTotalPerDaySpecificQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name, "categoryType".color \n' +
+            'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
+            'WHERE category.userid=$2 \n' +
+            'AND date_part(\'year\', category."weekDayDate")=$3\n' +
+            'AND date_part(\'week\', category."weekDayDate")=$4 \n' +
+            'AND category."weekDay"=$5\n' +
+            'AND "categoryType".categoryid=category.categoryid \n' +
+            'GROUP BY category.categoryid, "categoryType".name, "categoryType".color'
+
+        const totalPerDaySpecific = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day])
+
+        if (totalPerDaySpecific.rowCount === 0) {
+            return {status: 404, error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, totalPerDaySpecific: {} as TotalPerDaySpecific}
+        }
+
+        return {status: 200, error: "", totalPerDaySpecific: {weekDay: day, categories: totalPerDaySpecific.rows}}
+    } catch (e: any) {
+        return {status: 400, error: e.message, totalPerDaySpecific: {} as TotalPerDaySpecific}
+    }
+}
