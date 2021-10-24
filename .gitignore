@@ -4,6 +4,6 @@ node_modules/
 **/.idea/tasks.xml
 .idea/
 dist/
-src/test/postman/environment.json
-src/test/reports/
+src/tests/postman/environment.json
+src/tests/reports/
 logs/

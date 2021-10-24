@@ -5,11 +5,11 @@ import bodyParser from 'koa-bodyparser'
 import router from "koa-router";
 import koaStatic from "koa-static"
 import fs from "fs";
+import path from "path";
 
 require('dotenv').config()
 
 // Internal imports
-import {initialize} from "./test";
 import analyticsRouter from "./routes/public/analytics"
 import activityTypeRouter from "./routes/public/activityType"
 import loginRouter from "./routes/public/login"
@@ -20,17 +20,6 @@ import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";
 import {logger} from "./middleware/logger";
-import path from "path";
-
-if (process.env.NODE_ENV === "test") {
-    (async () => await initialize((success: boolean) => {
-        if (success) {
-            process.exit(0)
-        } else {
-            process.exit(1)
-        }
-    }))()
-}
 
 /**
  * Initialize a koa application.
@@ -91,10 +80,13 @@ app.use(async function (ctx, next) {
     }
 )
 
+app.on("error", e => console.log(e))
+
 /**
  * Start server
  */
-app.listen(process.env.PORT, () => {
-    console.log("Listening on port " + process.env.PORT)
+export default app.listen(process.env.PORT, () => {
+    if (process.env.NODE_ENV !== "test") {
+        console.log("Listening on port " + process.env.PORT)
+    }
 })
-
