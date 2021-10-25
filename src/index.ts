@@ -80,8 +80,6 @@ app.use(async function (ctx, next) {
     }
 )
 
-app.on("error", e => console.log(e))
-
 /**
  * Start server
  */
