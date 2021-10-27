@@ -12,9 +12,10 @@ import db from "../db/postgres"
  * @param email of the user to login.
  * @param password of the user to login.
  */
-export const login = async (email:string, password:string):Promise<{ user:User[], error:string }> => {
+export const login = async (email:string, password:string):Promise<{ user:User, error:string }> => {
     const client:PoolClient = await db.getClient()
-    let user:User[];
+    let user:User;
+    let error:string;
 
     try {
         // Begin transaction
@@ -23,7 +24,7 @@ export const login = async (email:string, password:string):Promise<{ user:User[]
         // Fetches the provided user by email
         const getUserPasswordQuery = {name: "fetch-user", text: "SELECT * FROM app_user WHERE email=$1", values: [email]}
         let userPassResult:QueryResult = await client.query(getUserPasswordQuery)
-
+        console.log(userPassResult.rows)
         if (userPassResult.rowCount !== 0) { // If the provided email exists in the database and has a password
 
             let salt = userPassResult.rows[0].salt
@@ -34,21 +35,24 @@ export const login = async (email:string, password:string):Promise<{ user:User[]
                 delete userPassResult.rows[0].password
                 delete userPassResult.rows[0].salt
 
-                user = userPassResult.rows
+                user = userPassResult.rows[0]
+                error = ""
             } else { // Passwords don't match
-                user = []
+                user = {} as User
+                error = `Wrong password for user ${email}.`
             }
         } else { // The provided email doesn't exist in the db
-            user = []
+            user = {} as User
+            error = `No user with email ${email} found.`
         }
 
         await client.query('COMMIT')
 
-        return {user, error: ""}
+        return {user, error}
     } catch (e: any) {
         await client.query('ROLLBACK')
 
-        return {user: [], error: e.message}
+        return {user: {} as User, error: e.message}
     } finally {
         client.release()
     }
