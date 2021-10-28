@@ -2,10 +2,10 @@
 import {PoolClient, QueryResult} from "pg";
 
 // Internal imports
-import db from "../db/postgres"
-import {ActivityType} from "../routes/public/activityType";
-import {findActivityAggregateCount, findTotalCountForCategory} from "./analyticsDao/helpers";
-import {CategoryType} from "../routes/public/categoryType";
+import db from "../../db/postgres"
+import {ActivityType} from "../../routes/public/activityType";
+import {findActivityAggregateCount, findTotalCountForCategory} from "./helpers";
+import {CategoryType} from "../../routes/public/categoryType";
 
 /**
  * This type is specific to the function below.

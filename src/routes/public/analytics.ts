@@ -10,7 +10,7 @@ import {
     getTotalPerDay, getTotalPerDaySpecific,
     getTotalPerMonth,
     getTotalPerWeek
-} from "../../dao/analyticsDao";
+} from "../../dao/analyticsDao/analyticsDao";
 import {getWeekId} from "../../dao/weekDao/weekDao";
 
 const router = new Router()

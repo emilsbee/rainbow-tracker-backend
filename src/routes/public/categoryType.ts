@@ -11,7 +11,7 @@ import {
     getCategoryTypes,
     getCategoryTypesFull, restoreCategoryType,
     updateCategoryType
-} from "../../dao/categoryTypeDao";
+} from "../../dao/categoryTypeDao/categoryTypeDao";
 import user from "../admin/user";
 
 let router = new Router()

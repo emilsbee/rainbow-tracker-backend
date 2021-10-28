@@ -2,11 +2,11 @@
 import {v4 as uuid} from "uuid";
 
 // Internal imports
-import {CategoryType} from "../routes/public/categoryType";
+import {CategoryType} from "../../routes/public/categoryType";
 import {PoolClient, QueryResult} from "pg";
-import db from "../db/postgres"
-import {ActivityType} from "../routes/public/activityType";
-import {sortActivityTypesByArchived, sortCategoryTypesByArchived} from "./categoryTypeDao/helpers";
+import db from "../../db/postgres"
+import {ActivityType} from "../../routes/public/activityType";
+import {sortActivityTypesByArchived, sortCategoryTypesByArchived} from "./helpers";
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
