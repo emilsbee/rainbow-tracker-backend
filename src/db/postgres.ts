@@ -1,6 +1,5 @@
 // External imports
-import {PoolClient, QueryResult} from "pg";
-const { Pool } = require('pg')
+import {PoolClient, QueryResult, Pool} from "pg";
 
 // get the current environment
 let env = process.env.NODE_ENV
@@ -18,7 +17,13 @@ let pgpassword = process.env['PGPASSWORD_' + envString]
 let pguser = process.env['PGUSER_' + envString]
 let pghost = process.env['PGHOST_' + envString]
 let pgdatabase = process.env['PGDATABASE_' + envString]
-let pgport = process.env['PGPORT_' + envString]
+let pgport: string | undefined | number = process.env['PGPORT_' + envString]
+
+if (pgport) {
+    pgport = parseInt(pgport)
+} else {
+    throw new Error("Port provided for postgres is not valid.")
+}
 
 const pool = new Pool({
     password: pgpassword,

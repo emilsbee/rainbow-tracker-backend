@@ -12,7 +12,7 @@ require('dotenv').config()
 // Internal imports
 import analyticsRouter from "./routes/public/analytics"
 import activityTypeRouter from "./routes/public/activityType"
-import loginRouter from "./routes/public/login"
+import loginRouter from "./routes/public/login/login"
 import userRouter from "./routes/admin/user"
 import authRouter from "./routes/public/auth"
 import weekRouter from "./routes/public/week/week"
@@ -83,8 +83,11 @@ app.use(async function (ctx, next) {
 /**
  * Start server
  */
-export default app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
     if (process.env.NODE_ENV !== "test") {
         console.log("Listening on port " + process.env.PORT)
     }
 })
+
+export default server
+

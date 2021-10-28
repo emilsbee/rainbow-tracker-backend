@@ -24,7 +24,7 @@ export const login = async (email:string, password:string):Promise<{ user:User, 
         // Fetches the provided user by email
         const getUserPasswordQuery = {name: "fetch-user", text: "SELECT * FROM app_user WHERE email=$1", values: [email]}
         let userPassResult:QueryResult = await client.query(getUserPasswordQuery)
-        console.log(userPassResult.rows)
+
         if (userPassResult.rowCount !== 0) { // If the provided email exists in the database and has a password
 
             let salt = userPassResult.rows[0].salt

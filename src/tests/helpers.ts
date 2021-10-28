@@ -22,9 +22,8 @@ export async function initialize ():Promise<void> {
                 await db.query(queries[i]+";")
             }
         }
-    } catch (e) {
-        console.error("Initializing test database failed.")
-        process.exit(1)
+    } catch (e: any) {
+        console.error(e.message)
     }
 }
 

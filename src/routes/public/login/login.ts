@@ -1,13 +1,13 @@
 // External imports
-import {Context, Next} from "koa";
+import {Context} from "koa";
 let Router = require('koa-router');
 import {v4 as uuid} from "uuid";
 
 // Internal
-import contentType from "../../middleware/contentType";
-import {login} from "../../dao/authDao";
-import {SESSION_CONTEXT_OBJECT_NAME, SESSION_COOKIE_NAME, SESSION_EXPIRE_TIME_SECONDS} from "../../middleware/session";
-import redisClient from "../../db/redis";
+import contentType from "../../../middleware/contentType";
+import {login} from "../../../dao/authDao";
+import {SESSION_CONTEXT_OBJECT_NAME, SESSION_COOKIE_NAME, SESSION_EXPIRE_TIME_SECONDS} from "../../../middleware/session";
+import redisClient from "../../../db/redis";
 
 let router = new Router();
 
@@ -17,7 +17,7 @@ let router = new Router();
  * saves the sessionid of the cookie in redis.
  * @return user
  */
-router.post("/auth/login", contentType.JSON, async (ctx:Context, next:Next) => {
+router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
     const {email, password} = ctx.request.body as {email:string, password:string}
     let status:number;
 
