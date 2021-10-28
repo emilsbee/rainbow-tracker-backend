@@ -19,8 +19,8 @@ describe("Route /auth/login tests", () => {
         expect(response.statusCode).toBe(200)
 
         expect(response.body).toMatchObject(    {
-            userid: "81823c86-ef44-4885-9933-929ed75e0876",
-            email: "test@test.com"
+            userid: testUser.userid,
+            email: testUser.email
         })
 
         expect(response.get("Set-Cookie")).toHaveLength(1)
