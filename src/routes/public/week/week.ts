@@ -6,16 +6,11 @@ import Router from "koa-router"
 import contentType from "../../../middleware/contentType";
 import protect from "../../../middleware/auth";
 import {createWeek, getWeekByWeekid, getWeekId} from "../../../dao/weekDao/weekDao";
-import categoryRouter from "./category/category"
-import noteRouter from "./note/note"
+import categoryRouter from "../category/category"
+import noteRouter from "../note/note"
 
 let router = new Router(); // Initialize router
 
-/**
- *  Sets up weekRoute's children routes.
- */
-router.use("/week/:weekid/day/:day", categoryRouter.routes(), categoryRouter.allowedMethods())
-router.use("/week/:weekid/day/:day", noteRouter.routes(), noteRouter.allowedMethods())
 
 export type Note = {
     weekid: string,

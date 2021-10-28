@@ -3,10 +3,10 @@ import {Context} from "koa";
 let Router = require('koa-router');
 
 // Internal imports
-import contentType from "../../../../middleware/contentType";
-import protect from "../../../../middleware/auth";
-import {updateWeekDayCategories} from "../../../../dao/categoryDao";
-import {Category} from "../week";
+import contentType from "../../../middleware/contentType";
+import protect from "../../../middleware/auth";
+import {updateWeekDayCategories} from "../../../dao/categoryDao";
+import {Category} from "../week/week";
 
 let router = new Router(); // Initialize router
 
@@ -16,7 +16,7 @@ let router = new Router(); // Initialize router
  * updated are the categoryid and activityid. However, all the information of a category has to
  * be provided like the categoryPosition, weekid, etc.
  */
-router.patch("/categories", contentType.JSON, protect.user, async (ctx: Context) => {
+router.patch("/week/:weekid/day/:day/categories", contentType.JSON, protect.user, async (ctx: Context) => {
     let weekid = ctx.params.weekid
     let userid = ctx.params.userid
     let day = ctx.params.day

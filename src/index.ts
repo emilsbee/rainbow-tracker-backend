@@ -10,6 +10,7 @@ import path from "path";
 require('dotenv').config()
 
 // Internal imports
+import noteRouter from "./routes/public/note/note"
 import analyticsRouter from "./routes/public/analytics"
 import activityTypeRouter from "./routes/public/activityType"
 import loginRouter from "./routes/public/login/login"
@@ -20,6 +21,7 @@ import categoryTypeRouter from "./routes/public/categoryType"
 import {session} from "./middleware/session";
 import {errorHandler, errorMiddleware} from "./middleware/error";
 import {logger} from "./middleware/logger";
+import categoryRouter from "./routes/public/category/category";
 
 /**
  * Initialize a koa application.
@@ -45,6 +47,8 @@ adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods())
 // Public router is for endpoints accessible by anyone. They only give data about the account that made the
 // request.
 const publicRouter = new router()
+publicRouter.use("/user/:userid", noteRouter.routes(), noteRouter.allowedMethods())
+publicRouter.use("/user/:userid", categoryRouter.routes(), categoryRouter.allowedMethods())
 publicRouter.use("/user/:userid", categoryTypeRouter.routes(), categoryTypeRouter.allowedMethods())
 publicRouter.use("/user/:userid", weekRouter.routes(), weekRouter.allowedMethods())
 publicRouter.use("/user/:userid", authRouter.routes(), authRouter.allowedMethods())
