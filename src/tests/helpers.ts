@@ -12,9 +12,9 @@ import db from "../db/postgres"
  * After completing the database initialization it calls runTests function to run tests.
  */
 export async function initialize ():Promise<void> {
-    let initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/init-tests.sql")).toString();
-
     try {
+        let initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/init-tests.sql")).toString();
+
         let queries:string[] = initializeDatabase.split(";")
 
         for (let i = 0; i < queries.length; i++) {
