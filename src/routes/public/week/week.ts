@@ -1,13 +1,11 @@
 // External imports
-import {Context, Next} from "koa";
+import {Context} from "koa";
 import Router from "koa-router"
 
 // Internal imports
 import contentType from "../../../middleware/contentType";
 import protect from "../../../middleware/auth";
 import {createWeek, getWeekByWeekid, getWeekId} from "../../../dao/weekDao/weekDao";
-import categoryRouter from "../category/category"
-import noteRouter from "../note/note"
 
 let router = new Router(); // Initialize router
 
