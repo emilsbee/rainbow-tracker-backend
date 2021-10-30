@@ -90,7 +90,7 @@ app.use(async function (ctx, next) {
  */
 const server = app.listen(process.env.PORT, () => {
     if (process.env.NODE_ENV !== "test") {
-        console.log("Listening on porth " + process.env.PORT)
+        console.log("Listening on port " + process.env.PORT)
     }
 })
 
