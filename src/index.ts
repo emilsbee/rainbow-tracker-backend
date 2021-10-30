@@ -44,6 +44,7 @@ app.use(session)
 const adminRouter = new router()
 adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods())
 
+
 // Public router is for endpoints accessible by anyone. They only give data about the account that made the
 // request.
 const publicRouter = new router()
