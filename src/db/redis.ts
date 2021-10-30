@@ -28,6 +28,10 @@ const redisClient:RedisClient = redis.createClient({
     port: redisPort
 });
 
+redisClient.on("error", () => {
+    throw new Error("Could not connect to redis.")
+})
+
 redisClient.set = util.promisify(redisClient.set).bind(redisClient);
 redisClient.get = util.promisify(redisClient.get).bind(redisClient);
 redisClient.del = util.promisify(redisClient.del).bind(redisClient)
