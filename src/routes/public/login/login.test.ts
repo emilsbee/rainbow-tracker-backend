@@ -1,5 +1,5 @@
 // External imports
-import * as request from "supertest"
+import request from "supertest"
 
 // Internal imports
 import server from "../../../index"
