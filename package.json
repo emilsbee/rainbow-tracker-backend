@@ -11,7 +11,7 @@
     "start:dev": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
     "start:prod": "export NODE_ENV=production && node dist/index.js",
     "start:debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts",
-    "test": "jest --runInBand",
+    "test": "CI=true ./node_modules/.bin/jest --runInBand",
     "build": "tsc"
   },
   "dependencies": {

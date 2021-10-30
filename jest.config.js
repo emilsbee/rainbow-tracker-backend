@@ -13,5 +13,5 @@ module.exports = {
         },
     },
     // globalSetup: '<rootDir>/tests/global-setup.ts',
-    globalTeardown: './src/tests/global-teardown.ts',
+    // globalTeardown: './src/tests/global-teardown.ts',
 }
