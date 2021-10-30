@@ -17,18 +17,19 @@ let router = new Router(); // Initialize router
  * be provided like the categoryPosition, weekid, etc.
  */
 router.patch("/week/:weekid/day/:day/categories", contentType.JSON, protect.user, async (ctx: Context) => {
-    let weekid = ctx.params.weekid
-    let userid = ctx.params.userid
-    let day = ctx.params.day
-    let categories = ctx.request.body as unknown as Category[]
+    const weekid = ctx.params.weekid
+    const userid = ctx.params.userid
+    const day = ctx.params.day
+    const categoriesToUpdate = ctx.request.body as unknown as Category[]
 
-    let {status, error} = await updateWeekDayCategories(weekid, userid, categories, day)
+    let {status, error, categories} = await updateWeekDayCategories(weekid, userid, categoriesToUpdate, day)
 
-    if (status === 400 || status === 404) {
+    if (error.length > 0) {
         ctx.throw(status, error, {path: __filename})
     }
 
     ctx.status = status
+    ctx.body = categories
 })
 
 export default router

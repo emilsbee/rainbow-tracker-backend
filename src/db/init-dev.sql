@@ -88,4 +88,6 @@ CREATE TABLE category (
     )
 );
 
+CREATE DATABASE "rainbow-test" WITH OWNER = rainbow;
+
 INSERT INTO app_user(userid, email, password, salt) VALUES('81823c86-ef44-4885-9933-929ed75e0876', 'test@test.com', '09e323bac42cbcdcd27a1f0e060c0ac2cd35b9a34b233975b30997fa096f5836b39aa083dc139a12ea123809c212c70d49aa', '6c605af47e13bf6b51bd3b6bc0b26eff');

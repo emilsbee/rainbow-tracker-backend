@@ -4,8 +4,6 @@ import {PoolClient, QueryResult} from "pg";
 // Internal imports
 import {Category} from "../routes/public/week/week";
 import db from "../db/postgres"
-import {DAY_TIME_SLOTS} from "../constants/constants";
-
 
 /**
  * Updates a given week day's categories for a user.
@@ -14,7 +12,7 @@ import {DAY_TIME_SLOTS} from "../constants/constants";
  * @param categories the new categories to update the week with.
  * @param day for which to update given categories.
  */
-export const updateWeekDayCategories = async (weekid: string, userid: string, categories: Category[], day: number): Promise<{ status: number, error: string }> => {
+export const updateWeekDayCategories = async (weekid: string, userid: string, categories: Category[], day: number): Promise<{ status: number, error: string, categories: Category[] }> => {
     const client: PoolClient = await db.getClient()
     const updateWeekDayCategoriesQuery = 'UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND "weekDay"=$4 AND "categoryPosition"=$5 AND userid=$6'
 
@@ -22,19 +20,22 @@ export const updateWeekDayCategories = async (weekid: string, userid: string, ca
         // Begin transaction
         await client.query('BEGIN')
 
-        for (let i = 0; i < DAY_TIME_SLOTS; i++) {
+        for (let i = 0; i < categories.length; i++) {
             let updateWeekDayCategoriesQueryValues = [categories[i].categoryid, categories[i].activityid, weekid, day, categories[i].categoryPosition, userid]
             let res: QueryResult = await client.query(updateWeekDayCategoriesQuery, updateWeekDayCategoriesQueryValues)
+            categories[i].userid = userid
 
             if (res.rowCount < 1) {
-                return {status: 404, error: "Category not found."}
+                await client.query("COMMIT")
+                return {status: 404, error: `Category not found for week ${weekid}.`, categories: []}
             }
         }
+
         await client.query("COMMIT")
-        return {status: 204, error: ""}
+        return {status: 200, error: "", categories}
     } catch (e: any) {
         await client.query('ROLLBACK')
-        return {status: 400, error: e.message}
+        return {status: 400, error: e.message, categories: []}
     } finally {
         client.release()
     }

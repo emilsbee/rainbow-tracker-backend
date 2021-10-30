@@ -4,7 +4,7 @@ import {PoolClient, QueryResult, Pool} from "pg";
 // get the current environment
 let env = process.env.NODE_ENV
 
-// convert to uppercase
+// convert to uppercase to compare against env variables
 let envString:string
 if (env) {
     envString = env.toUpperCase()
@@ -12,7 +12,7 @@ if (env) {
     throw new Error("You must have the environment variable NODE_ENV")
 }
 
-// access the environment variables for this environment
+// access the environment variables for current environment
 let pgpassword = process.env['PGPASSWORD_' + envString]
 let pguser = process.env['PGUSER_' + envString]
 let pghost = process.env['PGHOST_' + envString]

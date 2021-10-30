@@ -3,7 +3,7 @@
 ### Development setup
 1. `git clone https://github.com/emilsbee/rainbow-tracker-backend`
 2. `yarn install`
-3. Make sure you have folders `/data/postgres-rainbow`, `/data/pgadmin4`, `/data/redis-rainbow`. If setting up
+3. Make sure you have folders `/data/postgres-rainbow`, `/data/pgadmin4`, `/data/redis-rainbow`, `/data/redis-rainbow-test`. If setting up
    the development environment from scratch, and you already have these folders, make sure to remove any data from them. 
    Furthermore, make sure to run `sudo chown -R 5050:5050 /data/pgadmin4` to give permission.
 4. Create a `.env` file at the root of the project. Move everything from `.env.example` to the `.env` file.
