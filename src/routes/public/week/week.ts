@@ -39,6 +39,7 @@ export type Week = {
 
 export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
 
+
 /**
  * Route for creating a week with a given query parameters week_number and week_year.
  * Also, generates the week's categories and notes.
