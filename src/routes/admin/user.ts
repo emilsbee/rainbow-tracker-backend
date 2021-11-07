@@ -13,7 +13,7 @@ router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
 
     const { status, data: user, error } = await createUser(userToCreate.email, userToCreate.password);
 
-    if (status === 422) {
+    if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
     }
 
@@ -33,7 +33,7 @@ router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid = ctx.params.userid;
     const { status, error } = await deleteUser(userid);
 
-    if (status === 400) {
+    if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
     }
 
@@ -45,7 +45,7 @@ router.get("/users/:userid", protect.admin, async (ctx:Context) => {
 
     const { status, data, error } = await getUserInfo(userid);
 
-    if (status === 400) {
+    if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
     }
 
