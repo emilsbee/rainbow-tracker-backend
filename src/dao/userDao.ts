@@ -1,5 +1,5 @@
 import * as i from "types";
-import { PoolClient, QueryConfig, QueryResult } from "pg";
+import { PoolClient, QueryResult } from "pg";
 const crypto = require("crypto");
 import { v4 as uuid } from "uuid";
 
