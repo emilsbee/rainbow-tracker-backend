@@ -1,9 +1,8 @@
-// External imports
+import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 const crypto = require("crypto");
 
 // Internal imports
-import { User } from "../routes/admin/user";
 import db from "../db/postgres";
 
 /**
@@ -12,9 +11,9 @@ import db from "../db/postgres";
  * @param email of the user to login.
  * @param password of the user to login.
  */
-export const login = async (email:string, password:string):Promise<{ status: number, user:User, error:string }> => {
+export const login = async (email:string, password:string):Promise<i.DaoResponse<i.User>> => {
     const client:PoolClient = await db.getClient();
-    let user: User;
+    let user: i.User = {} as i.User;
     let error: string;
 
     try {
@@ -41,24 +40,24 @@ export const login = async (email:string, password:string):Promise<{ status: num
                 error = "";
             } else { // Passwords don't match
                 return {
-                    user: {} as User,
+                    data: user,
                     error: `Wrong password for user ${email}.`,
                     status: 401,
                 };
             }
         } else { // The provided email doesn't exist in the db
             return {
-                user: {} as User,
+                data: user,
                 error: `No user with email ${email} found.`,
                 status: 404,
             };
         }
 
-        return { user, error, status: 200 };
+        return { data: user, error, status: 200 };
     } catch (e: any) {
         await client.query("ROLLBACK");
 
-        return { status: 400, user: {} as User, error: e.message };
+        return { status: 400, data: user, error: e.message };
     } finally {
         client.release();
     }

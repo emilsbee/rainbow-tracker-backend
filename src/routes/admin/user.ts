@@ -1,4 +1,4 @@
-// External imports
+import * as i from "types";
 import { Context, Next } from "koa";
 const Router = require("koa-router");
 
@@ -9,20 +9,13 @@ import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
 
 const router = new Router(); // Initialize router
 
-export type User = {
-    userid:string,
-    email:string,
-    password:string,
-    salt:string
-}
-
 /**
  * Create a user with given userid, email, password.
  */
 router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
-    const userToCreate = ctx.request.body as User;
+    const userToCreate = ctx.request.body as i.User;
 
-    const { status, user, error } = await createUser(userToCreate.email, userToCreate.password);
+    const { status, data: user, error } = await createUser(userToCreate.email, userToCreate.password);
 
     if (status === 422) {
         ctx.throw(status, error, { path: __filename });
@@ -61,7 +54,7 @@ router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) =>
 router.get("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid:string = ctx.params.userid;
 
-    const { status, user, error } = await getUserInfo(userid);
+    const { status, data, error } = await getUserInfo(userid);
 
     if (status === 400) {
         ctx.throw(status, error, { path: __filename });
@@ -69,7 +62,7 @@ router.get("/users/:userid", protect.admin, async (ctx:Context) => {
 
     ctx.status = status;
 
-    ctx.body = user;
+    ctx.body = data;
 });
 
 export default router;

@@ -1,5 +1,11 @@
-export type DaoError = string;
-
 export type DaoResponse<T> = {
-    error: DaoError;
-}
+    error: string;
+    status: number;
+    data: T;
+};
+
+export type QueryType = {
+    name: string;
+    text: string;
+    values: any[];
+};

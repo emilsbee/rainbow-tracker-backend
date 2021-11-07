@@ -20,12 +20,12 @@ const router = new Router();
 router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body as {email:string, password:string};
 
-    const { status, user, error } = await login(email, password);
+    const { status, data, error } = await login(email, password);
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
     } else {
-        ctx[SESSION_CONTEXT_OBJECT_NAME].userid = user.userid;
+        ctx[SESSION_CONTEXT_OBJECT_NAME].userid = data.userid;
 
         // Create a new session
         const sessionid = uuid();
@@ -33,14 +33,14 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
 
         // Save the session information in Redis
         try {
-            await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  JSON.stringify({ userid: user.userid }));
+            await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  JSON.stringify({ userid: data.userid }));
         } catch (e) {
             ctx.throw(500, "Redis could not save sessionid.", { path: __filename });
         }
     }
 
     ctx.status = status;
-    ctx.body = user;
+    ctx.body = data;
 });
 
 export  default router;
