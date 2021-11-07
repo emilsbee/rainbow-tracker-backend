@@ -2,16 +2,12 @@ import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-// Internal
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
 import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
 
 const router = new Router(); // Initialize router
 
-/**
- * Create a user with given userid, email, password.
- */
 router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
     const userToCreate = ctx.request.body as i.User;
 
@@ -33,9 +29,6 @@ router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
     }
 });
 
-/**
- * Delete a user with given userid.
- */
 router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid = ctx.params.userid;
     const { status, error } = await deleteUser(userid);
@@ -47,10 +40,6 @@ router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     ctx.status = status;
 });
 
-/**
- * Get information about the user.
- * @return User
- */
 router.get("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid:string = ctx.params.userid;
 
