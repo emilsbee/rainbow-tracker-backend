@@ -1,1 +1,1 @@
-export const DAY_TIME_SLOTS = 96
+export const DAY_TIME_SLOTS = 96;

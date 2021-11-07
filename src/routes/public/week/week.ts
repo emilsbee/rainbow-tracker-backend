@@ -1,13 +1,13 @@
 // External imports
-import {Context} from "koa";
-import Router from "koa-router"
+import { Context } from "koa";
+import Router from "koa-router";
 
 // Internal imports
 import contentType from "../../../middleware/contentType";
 import protect from "../../../middleware/auth";
-import {createWeek, getWeekByWeekid, getWeekId} from "../../../dao/weekDao/weekDao";
+import { createWeek, getWeekByWeekid, getWeekId } from "../../../dao/weekDao/weekDao";
 
-let router = new Router(); // Initialize router
+const router = new Router(); // Initialize router
 
 
 export type Note = {
@@ -46,41 +46,41 @@ export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
  * @return week with notes and categories organized in days.
  */
 router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid
-    let {weekNr, weekYear} = ctx.request.body as Week
-    let {status, week, error} = await createWeek(weekNr, weekYear, userid)
+    const userid = ctx.params.userid;
+    const { weekNr, weekYear } = ctx.request.body as Week;
+    const { status, week, error } = await createWeek(weekNr, weekYear, userid);
 
     if (status === 400) {
-        ctx.throw(status, error, {path: __filename})
+        ctx.throw(status, error, { path: __filename });
     }
 
-    ctx.status = status
-    ctx.body = week
-})
+    ctx.status = status;
+    ctx.body = week;
+});
 
 /**
  * Fetches a week and its categories and notes by a given weekNr and weekYear.
  * @return week with notes and categories organized in days.
  */
 router.get("/week", protect.user, async (ctx: Context) => {
-    let userid = ctx.params.userid
-    let weekNr = ctx.request.query.week_number as string
-    let weekYear = ctx.request.query.week_year as string
+    const userid = ctx.params.userid;
+    const weekNr = ctx.request.query.week_number as string;
+    const weekYear = ctx.request.query.week_year as string;
 
-    let {weekid, error} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid)
+    const { weekid, error } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
 
     if (weekid == null) {
-        ctx.throw(404, error, {path: __filename})
+        ctx.throw(404, error, { path: __filename });
     } else {
-        let {week, status, error} = await getWeekByWeekid(weekid, userid)
+        const { week, status, error } = await getWeekByWeekid(weekid, userid);
 
         if (status === 400) {
-            ctx.throw(status, error, {path: __filename})
+            ctx.throw(status, error, { path: __filename });
         }
 
-        ctx.status = status
-        ctx.body = week
+        ctx.status = status;
+        ctx.body = week;
     }
-})
+});
 
-export default router
+export default router;

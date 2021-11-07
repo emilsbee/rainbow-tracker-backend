@@ -1,11 +1,11 @@
 // External imports
-import {PoolClient, QueryResult} from "pg";
+import { PoolClient, QueryResult } from "pg";
 
 // Internal imports
-import db from "../../db/postgres"
-import {ActivityType} from "../../routes/public/activityType";
-import {findActivityAggregateCount, findTotalCountForCategory} from "./helpers";
-import {CategoryType} from "../../routes/public/categoryType";
+import db from "../../db/postgres";
+import { ActivityType } from "../../routes/public/activityType";
+import { findActivityAggregateCount, findTotalCountForCategory } from "./helpers";
+import { CategoryType } from "../../routes/public/categoryType";
 
 /**
  * This type is specific to the function below.
@@ -20,39 +20,39 @@ type AvailableDate = {
  * @param userid for which to fetch available dates.
  */
 export const getAvailableDates = async (userid: string): Promise<{ status: number, error: string, availableDates: AvailableDate[] }> => {
-    const client: PoolClient = await db.getClient()
+    const client: PoolClient = await db.getClient();
 
     try {
         // Begin transaction
-        await client.query("BEGIN")
+        await client.query("BEGIN");
 
-        const getAvailableYearsQuery = 'SELECT DISTINCT "weekYear" FROM week WHERE userid=$1 ORDER BY "weekYear" DESC;'
-        const getAvailableWeeksOfYearQuery = 'SELECT "weekNr" FROM week WHERE userid=$1 AND "weekYear"=$2 ORDER BY "weekNr" DESC;'
+        const getAvailableYearsQuery = "SELECT DISTINCT \"weekYear\" FROM week WHERE userid=$1 ORDER BY \"weekYear\" DESC;";
+        const getAvailableWeeksOfYearQuery = "SELECT \"weekNr\" FROM week WHERE userid=$1 AND \"weekYear\"=$2 ORDER BY \"weekNr\" DESC;";
 
-        const yearRes = await client.query(getAvailableYearsQuery, [userid])
+        const yearRes = await client.query(getAvailableYearsQuery, [userid]);
 
-        let availableDates: AvailableDate[] = []
+        const availableDates: AvailableDate[] = [];
         if (yearRes.rowCount !== 0) {
             for (let i = 0; i < yearRes.rowCount; i++) {
-                let weekRes = await client.query(getAvailableWeeksOfYearQuery, [userid, yearRes.rows[i].weekYear])
-                availableDates.push({year: yearRes.rows[i].weekYear, weeks: weekRes.rows.flatMap(availableDate => availableDate.weekNr)})
+                const weekRes = await client.query(getAvailableWeeksOfYearQuery, [userid, yearRes.rows[i].weekYear]);
+                availableDates.push({ year: yearRes.rows[i].weekYear, weeks: weekRes.rows.flatMap((availableDate) => availableDate.weekNr) });
             }
         }
 
-        await client.query("COMMIT")
+        await client.query("COMMIT");
 
         return {
             status: 200,
             error: "",
-            availableDates
-        }
+            availableDates,
+        };
     } catch (e: any) {
-        await client.query("ROLLBACK")
-        return {status: 400, error: e.message, availableDates: []}
+        await client.query("ROLLBACK");
+        return { status: 400, error: e.message, availableDates: [] };
     } finally {
-        client.release()
+        client.release();
     }
-}
+};
 
 
 /**
@@ -73,57 +73,57 @@ export type TotalPerWeek = {
  * @param weekid of the week for which to find the total per week.
  */
 export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerWeek: TotalPerWeek }> => {
-    const client: PoolClient = await db.getClient()
+    const client: PoolClient = await db.getClient();
 
-    const getTotalPerWeekCategoryTypesQuery = 'SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived ' +
-        'FROM category, category_type ' +
-        'WHERE category.weekid=$1 AND ' +
-        'category.userid=$2 AND ' +
-        'category_type.userid=category.userid AND ' +
-        'category.categoryid=category_type.categoryid ' +
-        'GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;'
+    const getTotalPerWeekCategoryTypesQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
+        "FROM category, category_type " +
+        "WHERE category.weekid=$1 AND " +
+        "category.userid=$2 AND " +
+        "category_type.userid=category.userid AND " +
+        "category.categoryid=category_type.categoryid " +
+        "GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;";
 
-    const getTotalPerWeekActivityTypesQuery = 'SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived ' +
-        'FROM category, activity_type ' +
-        'WHERE category.weekid=$1 AND ' +
-        'category.activityid=activity_type.activityid AND ' +
-        'category.userid=$2 AND ' +
-        'category.userid=activity_type.userid ' +
-        'GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived'
+    const getTotalPerWeekActivityTypesQuery = "SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived " +
+        "FROM category, activity_type " +
+        "WHERE category.weekid=$1 AND " +
+        "category.activityid=activity_type.activityid AND " +
+        "category.userid=$2 AND " +
+        "category.userid=activity_type.userid " +
+        "GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived";
 
     try {
         // Begin transaction
-        await client.query("BEGIN")
+        await client.query("BEGIN");
 
-        const totalPerWeekCategoryTypesRows: QueryResult = await client.query(getTotalPerWeekCategoryTypesQuery, [weekid, userid])
-        const totalPerWeekActivityTypesRows: QueryResult = await client.query(getTotalPerWeekActivityTypesQuery, [weekid, userid])
+        const totalPerWeekCategoryTypesRows: QueryResult = await client.query(getTotalPerWeekCategoryTypesQuery, [weekid, userid]);
+        const totalPerWeekActivityTypesRows: QueryResult = await client.query(getTotalPerWeekActivityTypesQuery, [weekid, userid]);
 
-        await client.query("COMMIT")
+        await client.query("COMMIT");
 
-        const totalPerWeekCategoryTypes = totalPerWeekCategoryTypesRows.rows as unknown as TotalPerWeek["categoryTypes"]
-        const totalPerWeekActivityTypes = totalPerWeekActivityTypesRows.rows as unknown as TotalPerWeek["activityTypes"]
+        const totalPerWeekCategoryTypes = totalPerWeekCategoryTypesRows.rows as unknown as TotalPerWeek["categoryTypes"];
+        const totalPerWeekActivityTypes = totalPerWeekActivityTypesRows.rows as unknown as TotalPerWeek["activityTypes"];
 
         // Creating empty activities
         for (let i = 0; i < totalPerWeekCategoryTypes.length; i++) {
-            let categoryTotal:number = findTotalCountForCategory(totalPerWeekCategoryTypes, totalPerWeekCategoryTypes[i].categoryid)
-            let activityTotal:number = findActivityAggregateCount(totalPerWeekActivityTypes, totalPerWeekCategoryTypes[i].categoryid)
+            const categoryTotal:number = findTotalCountForCategory(totalPerWeekCategoryTypes, totalPerWeekCategoryTypes[i].categoryid);
+            const activityTotal:number = findActivityAggregateCount(totalPerWeekActivityTypes, totalPerWeekCategoryTypes[i].categoryid);
 
-            let emptyActivity:TotalPerWeekActivityType = {
-                activityid: "Other", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal-activityTotal, long: "Other", short: "o", userid: totalPerWeekCategoryTypes[i].userid
-            }
+            const emptyActivity:TotalPerWeekActivityType = {
+                activityid: "Other", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal - activityTotal, long: "Other", short: "o", userid: totalPerWeekCategoryTypes[i].userid,
+            };
 
-            totalPerWeekActivityTypes.push(emptyActivity)
+            totalPerWeekActivityTypes.push(emptyActivity);
         }
 
         if (totalPerWeekCategoryTypesRows.rowCount === 0) {
             return {
                 status: 404,
-                error: `This week has no analytics.`,
+                error: "This week has no analytics.",
                 totalPerWeek: {
                     categoryTypes: [],
-                    activityTypes: []
-                }
-            }
+                    activityTypes: [],
+                },
+            };
         }
 
         return {
@@ -131,19 +131,19 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
             error: "",
             totalPerWeek: {
                 categoryTypes: totalPerWeekCategoryTypes,
-                activityTypes: totalPerWeekActivityTypes
-            }
-        }
+                activityTypes: totalPerWeekActivityTypes,
+            },
+        };
     } catch (e: any) {
-        await client.query("ROLLBACK")
-        return {status: 400, error: e.message, totalPerWeek: {
+        await client.query("ROLLBACK");
+        return { status: 400, error: e.message, totalPerWeek: {
                 categoryTypes: [],
-                activityTypes: []
-            }}
+                activityTypes: [],
+            } };
     } finally {
-        client.release()
+        client.release();
     }
-}
+};
 
 /**
  * This type is specific to the function below.
@@ -170,61 +170,61 @@ type TotalPerDay = {
  * @param weekid of the week for which to find the total per day.
  */
 export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerDay: TotalPerDay[] }> => {
-    const client: PoolClient = await db.getClient()
+    const client: PoolClient = await db.getClient();
     const totalPerDay: TotalPerDay[] = [
-        {weekDay: 0, categories: [], activities: []},
-        {weekDay: 1, categories: [], activities: []},
-        {weekDay: 2, categories: [], activities: []},
-        {weekDay: 3, categories: [], activities: []},
-        {weekDay: 4, categories: [], activities: []},
-        {weekDay: 5, categories: [], activities: []},
-        {weekDay: 6, categories: [], activities: []}
-    ]
+        { weekDay: 0, categories: [], activities: [] },
+        { weekDay: 1, categories: [], activities: [] },
+        { weekDay: 2, categories: [], activities: [] },
+        { weekDay: 3, categories: [], activities: [] },
+        { weekDay: 4, categories: [], activities: [] },
+        { weekDay: 5, categories: [], activities: [] },
+        { weekDay: 6, categories: [], activities: [] },
+    ];
 
-    const getTotalPerDayCategoriesQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name\n' +
-        'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
-        'WHERE category.userid=$2 \n' +
-        'AND category.weekid=$3\n' +
-        'AND category."weekDay"=$4\n' +
-        'AND "categoryType".categoryid=category.categoryid \n' +
-        'GROUP BY category.categoryid, "categoryType".name'
+    const getTotalPerDayCategoriesQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name\n" +
+        "FROM category, (SELECT * FROM category_type WHERE userid=$1) AS \"categoryType\" \n" +
+        "WHERE category.userid=$2 \n" +
+        "AND category.weekid=$3\n" +
+        "AND category.\"weekDay\"=$4\n" +
+        "AND \"categoryType\".categoryid=category.categoryid \n" +
+        "GROUP BY category.categoryid, \"categoryType\".name";
 
-    const getTotalPerDayActivitiesQuery = 'SELECT activityid, COUNT("weekDay")::int\n' +
-        'FROM category \n' +
-        'WHERE userid=$1 \n' +
-        'AND weekid=$2\n' +
-        'AND "weekDay"=$3\n' +
-        'GROUP BY activityid'
+    const getTotalPerDayActivitiesQuery = "SELECT activityid, COUNT(\"weekDay\")::int\n" +
+        "FROM category \n" +
+        "WHERE userid=$1 \n" +
+        "AND weekid=$2\n" +
+        "AND \"weekDay\"=$3\n" +
+        "GROUP BY activityid";
 
 
     try {
         // Begin transaction
-        await client.query("BEGIN")
+        await client.query("BEGIN");
 
         for (let i = 0; i < totalPerDay.length; i++) {
-            let totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i])
-            let totalPerDayActivities = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i])
+            const totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i]);
+            const totalPerDayActivities = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i]);
 
-            totalPerDay[i].categories = totalPerDayCategories.rows
-            totalPerDay[i].categories.forEach(category => category.weekDay = i)
-            totalPerDay[i].activities = totalPerDayActivities.rows
-            totalPerDay[i].activities.forEach(activity => activity.weekDay = i)
+            totalPerDay[i].categories = totalPerDayCategories.rows;
+            totalPerDay[i].categories.forEach((category) => category.weekDay = i);
+            totalPerDay[i].activities = totalPerDayActivities.rows;
+            totalPerDay[i].activities.forEach((activity) => activity.weekDay = i);
         }
 
-        await client.query("COMMIT")
+        await client.query("COMMIT");
 
         return {
             status: 200,
             error: "",
-            totalPerDay
-        }
+            totalPerDay,
+        };
     } catch (e: any) {
-        await client.query("ROLLBACK")
-        return {status: 400, error: e.message, totalPerDay}
+        await client.query("ROLLBACK");
+        return { status: 400, error: e.message, totalPerDay };
     } finally {
-        client.release()
+        client.release();
     }
-}
+};
 
 type AvailableMonth = {
     year: number
@@ -237,15 +237,15 @@ export const getAvailableMonths = async (userid: string):Promise<{ status: numbe
         const getAvailableMonthsQuery = "SELECT DISTINCT date_part('month', \"weekDayDate\") AS \"month\", date_part('year', \"weekDayDate\") AS \"year\", date_part('week', \"weekDayDate\") as \"weekNr\" \n" +
             "FROM category \n" +
             "WHERE userid=$1 " +
-            "ORDER BY \"year\" DESC;"
+            "ORDER BY \"year\" DESC;";
 
-        const availableMonths:QueryResult = await db.query(getAvailableMonthsQuery, [userid])
+        const availableMonths:QueryResult = await db.query(getAvailableMonthsQuery, [userid]);
 
-        return { status: 200, error: "", availableMonths: availableMonths.rows }
+        return { status: 200, error: "", availableMonths: availableMonths.rows };
     } catch (e:any) {
-        return {status: 400, error: e.message, availableMonths:[]}
+        return { status: 400, error: e.message, availableMonths: [] };
     }
-}
+};
 
 type TotalPerMonthActivityType = ActivityType & { count: number }
 type TotalPerMonthCategoryType = CategoryType & {count: number }
@@ -255,69 +255,69 @@ export type TotalPerMonth = {
 }
 
 export const getTotalPerMonth = async (userid: string, month: number, year: number):Promise<{ status: number, error: string, totalPerMonth: TotalPerMonth}> => {
-    const client: PoolClient = await db.getClient()
+    const client: PoolClient = await db.getClient();
 
-    const getTotalPerMonthCategoryQuery = 'SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived ' +
-        'FROM category, category_type ' +
-        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
-        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
-        'category.userid=$3 AND ' +
-        'category_type.userid=category.userid AND ' +
-        'category.categoryid=category_type.categoryid ' +
-        'GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;'
+    const getTotalPerMonthCategoryQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
+        "FROM category, category_type " +
+        "WHERE date_part('month', category.\"weekDayDate\")=$1 AND " +
+        "date_part('year', category.\"weekDayDate\")=$2 AND " +
+        "category.userid=$3 AND " +
+        "category_type.userid=category.userid AND " +
+        "category.categoryid=category_type.categoryid " +
+        "GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;";
 
-    const getTotalPerMonthActivityQuery = 'SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived ' +
-        'FROM category, activity_type ' +
-        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
-        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
-        'category.activityid=activity_type.activityid AND ' +
-        'category.userid=$3 AND ' +
-        'category.userid=activity_type.userid ' +
-        'GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived'
+    const getTotalPerMonthActivityQuery = "SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived " +
+        "FROM category, activity_type " +
+        "WHERE date_part('month', category.\"weekDayDate\")=$1 AND " +
+        "date_part('year', category.\"weekDayDate\")=$2 AND " +
+        "category.activityid=activity_type.activityid AND " +
+        "category.userid=$3 AND " +
+        "category.userid=activity_type.userid " +
+        "GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived";
 
     try {
         // Begin transaction
-        await client.query("BEGIN")
+        await client.query("BEGIN");
 
-        const totalPerMonthCategoryRows:QueryResult = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid])
-        const totalPerMonthActivityRows:QueryResult = await client.query(getTotalPerMonthActivityQuery, [month, year, userid])
+        const totalPerMonthCategoryRows:QueryResult = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid]);
+        const totalPerMonthActivityRows:QueryResult = await client.query(getTotalPerMonthActivityQuery, [month, year, userid]);
 
-        await client.query("COMMIT")
+        await client.query("COMMIT");
 
-        const totalPerMonthCategory = totalPerMonthCategoryRows.rows as unknown as TotalPerMonth["categoryTypes"]
-        const totalPerMonthActivity = totalPerMonthActivityRows.rows as unknown as TotalPerMonth["activityTypes"]
+        const totalPerMonthCategory = totalPerMonthCategoryRows.rows as unknown as TotalPerMonth["categoryTypes"];
+        const totalPerMonthActivity = totalPerMonthActivityRows.rows as unknown as TotalPerMonth["activityTypes"];
 
         // Creating empty activities
         for (let i = 0; i < totalPerMonthCategory.length; i++) {
-            let categoryTotal:number = findTotalCountForCategory(totalPerMonthCategory, totalPerMonthCategory[i].categoryid)
-            let activityTotal:number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid)
+            const categoryTotal:number = findTotalCountForCategory(totalPerMonthCategory, totalPerMonthCategory[i].categoryid);
+            const activityTotal:number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid);
 
-            let emptyActivity:TotalPerWeekActivityType = {
-                activityid: "Other", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal-activityTotal, long: "Other", short: "o", userid: totalPerMonthCategory[i].userid
-            }
+            const emptyActivity:TotalPerWeekActivityType = {
+                activityid: "Other", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal - activityTotal, long: "Other", short: "o", userid: totalPerMonthCategory[i].userid,
+            };
 
-            totalPerMonthActivity.push(emptyActivity)
+            totalPerMonthActivity.push(emptyActivity);
         }
 
         if (totalPerMonthCategoryRows.rowCount === 0) {
             return {
                 status: 404,
-                error: `This week has no analytics.`,
+                error: "This week has no analytics.",
                 totalPerMonth: {
                     categoryTypes: [],
-                    activityTypes: []
-                }
-            }
+                    activityTypes: [],
+                },
+            };
         }
 
-        return {status: 200, error: "", totalPerMonth: {categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity}}
+        return { status: 200, error: "", totalPerMonth: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity } };
     } catch (e: any) {
-        await client.query("ROLLBACK")
-        return {status: 400, error: e.message, totalPerMonth: {} as TotalPerMonth}
+        await client.query("ROLLBACK");
+        return { status: 400, error: e.message, totalPerMonth: {} as TotalPerMonth };
     } finally {
-        client.release()
+        client.release();
     }
-}
+};
 
 type TotalPerDaySpecific = {
     weekDay: number
@@ -331,23 +331,23 @@ type TotalPerDaySpecific = {
 
 export const getTotalPerDaySpecific = async (userid: string, day: number, weekNr: number, year: number):Promise<{ status: number, error: string, totalPerDaySpecific: TotalPerDaySpecific }> => {
     try {
-        const getTotalPerDaySpecificQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name, "categoryType".color \n' +
-            'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
-            'WHERE category.userid=$2 \n' +
-            'AND date_part(\'year\', category."weekDayDate")=$3\n' +
-            'AND date_part(\'week\', category."weekDayDate")=$4 \n' +
-            'AND category."weekDay"=$5\n' +
-            'AND "categoryType".categoryid=category.categoryid \n' +
-            'GROUP BY category.categoryid, "categoryType".name, "categoryType".color'
+        const getTotalPerDaySpecificQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name, \"categoryType\".color \n" +
+            "FROM category, (SELECT * FROM category_type WHERE userid=$1) AS \"categoryType\" \n" +
+            "WHERE category.userid=$2 \n" +
+            "AND date_part('year', category.\"weekDayDate\")=$3\n" +
+            "AND date_part('week', category.\"weekDayDate\")=$4 \n" +
+            "AND category.\"weekDay\"=$5\n" +
+            "AND \"categoryType\".categoryid=category.categoryid \n" +
+            "GROUP BY category.categoryid, \"categoryType\".name, \"categoryType\".color";
 
-        const totalPerDaySpecific = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day])
+        const totalPerDaySpecific = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day]);
 
         if (totalPerDaySpecific.rowCount === 0) {
-            return {status: 404, error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, totalPerDaySpecific: {} as TotalPerDaySpecific}
+            return { status: 404, error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, totalPerDaySpecific: {} as TotalPerDaySpecific };
         }
 
-        return {status: 200, error: "", totalPerDaySpecific: {weekDay: day, categories: totalPerDaySpecific.rows}}
+        return { status: 200, error: "", totalPerDaySpecific: { weekDay: day, categories: totalPerDaySpecific.rows } };
     } catch (e: any) {
-        return {status: 400, error: e.message, totalPerDaySpecific: {} as TotalPerDaySpecific}
+        return { status: 400, error: e.message, totalPerDaySpecific: {} as TotalPerDaySpecific };
     }
-}
+};

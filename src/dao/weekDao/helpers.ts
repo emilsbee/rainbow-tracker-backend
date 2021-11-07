@@ -1,5 +1,5 @@
 // Internal imports
-import {Category, Note} from "../../routes/public/week/week";
+import { Category, Note } from "../../routes/public/week/week";
 
 /**
  * Given an array of categories or notes, this function creates a double
@@ -9,10 +9,10 @@ import {Category, Note} from "../../routes/public/week/week";
  * @return (Note | Category)[][]
  */
 export const groupByDays = (items: Note[] | Category[]):any[][] => {
-    let dayArrays:(Note | Category)[][] = [[], [], [], [], [], [], []]
+    const dayArrays:(Note | Category)[][] = [[], [], [], [], [], [], []];
 
-    items.forEach(item => {
-        dayArrays[item.weekDay].push(item)
-    })
-    return dayArrays
-}
+    items.forEach((item) => {
+        dayArrays[item.weekDay].push(item);
+    });
+    return dayArrays;
+};

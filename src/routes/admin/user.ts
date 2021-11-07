@@ -1,13 +1,13 @@
 // External imports
-import {Context, Next} from "koa";
-let Router = require('koa-router');
+import { Context, Next } from "koa";
+const Router = require("koa-router");
 
 // Internal
 import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
-import {createUser, deleteUser, getUserInfo} from "../../dao/userDao";
+import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
 
-let router = new Router(); // Initialize router
+const router = new Router(); // Initialize router
 
 export type User = {
     userid:string,
@@ -19,24 +19,24 @@ export type User = {
 /**
  * Create a user with given userid, email, password.
  */
-router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
-    let userToCreate = ctx.request.body as User
+router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
+    const userToCreate = ctx.request.body as User;
 
-    let {status, user, error} = await createUser(userToCreate.email, userToCreate.password)
+    const { status, user, error } = await createUser(userToCreate.email, userToCreate.password);
 
     if (status === 422) {
-        ctx.throw(status, error, {path: __filename})
+        ctx.throw(status, error, { path: __filename });
     }
 
-    ctx.status = status
+    ctx.status = status;
 
     if (user.length !== 0) {
         ctx.body = JSON.stringify([{
             userid: user[0].userid,
-            email: user[0].email
-        }])
+            email: user[0].email,
+        }]);
     } else {
-        ctx.body = []
+        ctx.body = [];
     }
 });
 
@@ -44,32 +44,32 @@ router.post('/users', contentType.JSON, protect.admin, async  (ctx:Context, next
  * Delete a user with given userid.
  */
 router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) => {
-    const userid = ctx.params.userid
-    let {status, error} = await deleteUser(userid)
+    const userid = ctx.params.userid;
+    const { status, error } = await deleteUser(userid);
 
     if (status === 400) {
-        ctx.throw(status, error, {path: __filename})
+        ctx.throw(status, error, { path: __filename });
     }
 
-    ctx.status = status
-})
+    ctx.status = status;
+});
 
 /**
  * Get information about the user.
  * @return User
  */
 router.get("/users/:userid", protect.admin, async (ctx:Context) => {
-    let userid:string = ctx.params.userid
+    const userid:string = ctx.params.userid;
 
-    let {status, user, error} = await getUserInfo(userid)
+    const { status, user, error } = await getUserInfo(userid);
 
     if (status === 400) {
-        ctx.throw(status, error, {path: __filename})
+        ctx.throw(status, error, { path: __filename });
     }
 
-    ctx.status = status
+    ctx.status = status;
 
-    ctx.body = user
-})
+    ctx.body = user;
+});
 
-export default router
+export default router;
