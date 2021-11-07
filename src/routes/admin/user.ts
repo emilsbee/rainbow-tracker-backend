@@ -1,5 +1,5 @@
 import * as i from "types";
-import { Context, Next } from "koa";
+import { Context } from "koa";
 const Router = require("koa-router");
 
 // Internal
@@ -12,7 +12,7 @@ const router = new Router(); // Initialize router
 /**
  * Create a user with given userid, email, password.
  */
-router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context, next:Next) => {
+router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
     const userToCreate = ctx.request.body as i.User;
 
     const { status, data: user, error } = await createUser(userToCreate.email, userToCreate.password);
@@ -36,7 +36,7 @@ router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context, next
 /**
  * Delete a user with given userid.
  */
-router.delete("/users/:userid", protect.admin, async (ctx:Context, next:Next) => {
+router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid = ctx.params.userid;
     const { status, error } = await deleteUser(userid);
 
