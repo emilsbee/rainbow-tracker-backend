@@ -7,3 +7,4 @@ dist/
 src/tests/postman/environment.json
 src/tests/reports/
 logs/
+data/
