@@ -1,8 +1,8 @@
-// Internal imports
-import { TotalPerWeek } from "./analyticsDao";
-import { CategoryType } from "../../routes/public/categoryType";
+import * as i from "types";
 
-export const findTotalCountForCategory = (categoryTypes: (CategoryType & {count: number })[], pickedCategoryid: string):number => {
+import { TotalPerWeek } from "./analyticsDao";
+
+export const findTotalCountForCategory = (categoryTypes: (i.CategoryType & {count: number })[], pickedCategoryid: string):number => {
     let res = 0;
 
     for (let i = 0; i < categoryTypes.length; i++) {

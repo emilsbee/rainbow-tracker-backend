@@ -1,15 +1,13 @@
-// External imports
+import { QueryResult } from "pg";
+import * as i from "types";
 import { v4 as uuid } from "uuid";
 
-// Internal imports
 import db from "../db/postgres";
-import { ActivityType } from "../routes/public/activityType";
 
 /**
  * Queries
  */
 export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1 AND archived=false";
-
 
 /**
  * Update given activity by activityid.
@@ -17,27 +15,31 @@ export const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$
  * @param activityType
  * @param activityid
  */
-export const updateActivityType = async (userid: string, activityType: ActivityType, activityid: string): Promise<{ status: number, error: string, activityType:ActivityType }> => {
+export const updateActivityType = async (
+    userid: string,
+    activityType: i.ActivityType,
+    activityid: string,
+): Promise<i.DaoResponse<i.ActivityType>> => {
     try {
         const updateActivityTypeQuery = "UPDATE activity_type SET long=$1, short=$2, archived=$3 WHERE userid=$4 AND activityid=$5;";
-        const updatedActivity = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, activityType.archived, userid, activityid]);
+        const updatedActivity: QueryResult = await db.query(updateActivityTypeQuery, [activityType.long, activityType.short, activityType.archived, userid, activityid]);
 
         if (updatedActivity.rowCount === 0) {
             return {
                 status: 404,
                 error: `Activity ${activityid} does not exist in the database.`,
-                activityType: {} as ActivityType,
+                data: {} as i.ActivityType,
             };
         } else {
             return {
                 status: 200,
                 error: "",
-                activityType: activityType,
+                data: activityType,
             };
         }
 
     } catch (e: any) {
-        return { status: 400, error: e.message, activityType: {} as ActivityType };
+        return { status: 400, error: e.message, data: {} as i.ActivityType };
     }
 
 };
@@ -46,14 +48,14 @@ export const updateActivityType = async (userid: string, activityType: ActivityT
  * Fetches all category types for a given user.
  * @param userid of the user for which to fetch the category types.
  */
-export const getActivityTypes = async (userid: string): Promise<{ status: number, activityTypes: ActivityType[], error: string }> => {
+export const getActivityTypes = async (userid: string): Promise<i.DaoResponse<i.ActivityType[]>> => {
     try {
-        const activityTypes = await db.query(getActivityTypesQuery, [userid]);
+        const activityTypes: QueryResult<i.ActivityType> = await db.query(getActivityTypesQuery, [userid]);
         return {
-            status: 200, activityTypes: activityTypes.rows, error: "",
+            status: 200, data: activityTypes.rows, error: "",
         };
     } catch (e: any) {
-        return { status: 400, activityTypes: [], error: e.message };
+        return { status: 400, data: [], error: e.message };
     }
 };
 
@@ -62,7 +64,10 @@ export const getActivityTypes = async (userid: string): Promise<{ status: number
  * @param userid of user for which to create the activity type.
  * @param activityType
  */
-export const createActivityType = async (userid: string, activityType: ActivityType):Promise<{ status: number, activityType: ActivityType, error: string }> => {
+export const createActivityType = async (
+    userid: string,
+    activityType: i.ActivityType,
+):Promise<i.DaoResponse<i.ActivityType>> => {
     try {
         const createActivityTypeQuery = "INSERT INTO activity_type(activityid, categoryid, userid, long, short, archived) VALUES($1, $2, $3, $4, $5, $6)";
         const activityid = uuid();
@@ -71,7 +76,7 @@ export const createActivityType = async (userid: string, activityType: ActivityT
 
         return {
             status: 201,
-            activityType: {
+            data: {
                 activityid,
                 categoryid: activityType.categoryid,
                 userid,
@@ -82,6 +87,6 @@ export const createActivityType = async (userid: string, activityType: ActivityT
             error: "",
         };
     } catch (e: any) {
-        return { status: 422, activityType: {} as ActivityType, error: e.message };
+        return { status: 422, data: {} as i.ActivityType, error: e.message };
     }
 };

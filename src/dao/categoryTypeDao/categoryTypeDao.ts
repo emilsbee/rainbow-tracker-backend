@@ -1,11 +1,8 @@
-// External imports
+import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 import { v4 as uuid } from "uuid";
 
-// Internal imports
-import { CategoryType } from "../../routes/public/categoryType";
 import db from "../../db/postgres";
-import { ActivityType } from "../../routes/public/activityType";
 import { sortActivityTypesByArchived, sortCategoryTypesByArchived } from "./helpers";
 
 /**
@@ -14,7 +11,7 @@ import { sortActivityTypesByArchived, sortCategoryTypesByArchived } from "./help
  * @param userid for which to archive the category type.
  * @param categoryid of the category to archive.
  */
-export const archiveCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string }> => {
+export const archiveCategoryType = async (userid: string, categoryid: string): Promise<i.DaoResponse<null>> => {
     const client: PoolClient = await db.getClient();
 
     try {
@@ -25,19 +22,19 @@ export const archiveCategoryType = async (userid: string, categoryid: string): P
         await client.query(archiveActivityTypeQuery, [categoryid, userid]);
 
         const archiveCategoryTypeQuery = "UPDATE category_type SET archived=true WHERE categoryid=$1 AND userid=$2";
-        const categoryRes = await client.query(archiveCategoryTypeQuery, [categoryid, userid]);
+        const categoryRes: QueryResult = await client.query(archiveCategoryTypeQuery, [categoryid, userid]);
 
         // Commit transaction
         await client.query("COMMIT");
 
         if (categoryRes.rowCount === 0) {
-            return { status: 404, error: `Category ${categoryid} does not exist in the database.` };
+            return { status: 404, error: `Category ${categoryid} does not exist in the database.`, data: null };
         } else {
-            return { status: 204, error: "" };
+            return { status: 204, error: "", data: null };
         }
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message };
+        return { status: 400, error: e.message, data: null };
     } finally {
         client.release();
     }
@@ -49,33 +46,40 @@ export const archiveCategoryType = async (userid: string, categoryid: string): P
  * @param newCategoryType to update with.
  * @param categoryid of category to update.
  */
-export const updateCategoryType = async (userid: string, newCategoryType: CategoryType, categoryid: string): Promise<{ status: number, categoryType: CategoryType, error: string }> => {
+export const updateCategoryType = async (
+    userid: string,
+    newCategoryType: i.CategoryType,
+    categoryid: string,
+): Promise<i.DaoResponse<i.CategoryType>> => {
+    let categoryType = {} as i.CategoryType;
 
     try {
         const updateCategoryTypeQuery = "UPDATE category_type SET color=$1, name=$2 WHERE userid=$3 AND categoryid=$4;";
-        const updatedCategory = await db.query(updateCategoryTypeQuery, [newCategoryType.color, newCategoryType.name, userid, categoryid]);
+        const updatedCategory: QueryResult = await db.query(updateCategoryTypeQuery, [newCategoryType.color, newCategoryType.name, userid, categoryid]);
 
         if (updatedCategory.rowCount === 0) {
             return {
                 status: 404,
-                categoryType: {} as CategoryType,
+                data: categoryType,
                 error: `Category type ${categoryid} for update was not found.`,
             };
         } else {
+            categoryType = {
+                categoryid,
+                name: newCategoryType.name,
+                color: newCategoryType.color,
+                archived: false,
+                userid,
+            };
+
             return {
                 status: 200,
-                categoryType: {
-                    categoryid,
-                    name: newCategoryType.name,
-                    color: newCategoryType.color,
-                    archived: false,
-                    userid,
-                },
+                data: categoryType,
                 error: "",
             };
         }
     } catch (e: any) {
-        return { status: 400, categoryType: {} as CategoryType, error: e.message };
+        return { status: 400, data: categoryType, error: e.message };
     }
 };
 
@@ -83,15 +87,15 @@ export const updateCategoryType = async (userid: string, newCategoryType: Catego
  * Fetches all category types for a given user.
  * @param userid of the user for which to fetch the category types.
  */
-export const getCategoryTypes = async (userid: string): Promise<{ status: number, categoryTypes: CategoryType[], error: string }> => {
+export const getCategoryTypes = async (userid: string): Promise<i.DaoResponse<i.CategoryType[]>> => {
     try {
         const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false";
-        const newCategoryTypes = await db.query(getCategoryTypesQuery, [userid]);
+        const newCategoryTypes: QueryResult<i.CategoryType> = await db.query(getCategoryTypesQuery, [userid]);
         return {
-            status: 200, categoryTypes: newCategoryTypes.rows, error: "",
+            status: 200, data: newCategoryTypes.rows, error: "",
         };
     } catch (e: any) {
-        return { status: 400, categoryTypes: [], error: e.message };
+        return { status: 400, data: [], error: e.message };
     }
 };
 
@@ -99,7 +103,9 @@ export const getCategoryTypes = async (userid: string): Promise<{ status: number
  * Fetches all category types and all activity types for a given user.
  * @param userid of the user for which to fetch the category and activity types.
  */
-export const getCategoryTypesFull = async (userid: string): Promise<{status: number, categoryTypes: CategoryType[], activityTypes: ActivityType[], error: string}> => {
+export const getCategoryTypesFull = async (
+    userid: string,
+): Promise<i.DaoResponse<{ categoryTypes: i.CategoryType[], activityTypes: i.ActivityType[] }>> => {
     const client: PoolClient = await db.getClient();
 
     try {
@@ -108,15 +114,22 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
 
         const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1";
         const getActivityTypesQuery = "SELECT * FROM activity_type WHERE userid=$1";
-        const categoryTypes = await client.query(getCategoryTypesQuery, [userid]);
-        const activityTypes = await client.query(getActivityTypesQuery, [userid]);
+        const categoryTypes: QueryResult<i.CategoryType> = await client.query(getCategoryTypesQuery, [userid]);
+        const activityTypes: QueryResult<i.ActivityType> = await client.query(getActivityTypesQuery, [userid]);
 
         await client.query("COMMIT");
 
-        return { status: 200, categoryTypes: sortCategoryTypesByArchived(categoryTypes.rows), activityTypes: sortActivityTypesByArchived(activityTypes.rows), error: "" };
+        return {
+            status: 200,
+            data: {
+                categoryTypes: sortCategoryTypesByArchived(categoryTypes.rows),
+                activityTypes: sortActivityTypesByArchived(activityTypes.rows),
+            },
+            error: "",
+        };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, categoryTypes: [], activityTypes: [], error: e.message };
+        return { status: 400, data: { categoryTypes: [], activityTypes: [] }, error: e.message };
     } finally {
         client.release();
     }
@@ -128,15 +141,19 @@ export const getCategoryTypesFull = async (userid: string): Promise<{status: num
  * @param color of the category type to create.
  * @param name of the category type to create.
  */
-export const createCategoryType = async (userid: string, color: string, name: string): Promise<{ status: number, categoryType: CategoryType[], error: string }> => {
+export const createCategoryType = async (
+    userid: string,
+    color: string,
+    name: string,
+): Promise<i.DaoResponse<i.CategoryType[]>> => {
     try {
         const createCategoryTypeQuery = "INSERT INTO category_type(categoryid, userid, color, name, archived) VALUES($1, $2, $3, $4, $5);";
         const categoryid = uuid();
         const values = [categoryid, userid, color, name, false];
         await db.query(createCategoryTypeQuery, values);
-        return { status: 201, categoryType: [{ userid, categoryid, name, color, archived: false }], error: "" };
+        return { status: 201, data: [{ userid, categoryid, name, color, archived: false }], error: "" };
     } catch (err: any) {
-        return { status: 422, categoryType: [], error: err.message };
+        return { status: 422, data: [], error: err.message };
     }
 };
 
@@ -145,7 +162,7 @@ export const createCategoryType = async (userid: string, color: string, name: st
  * @param userid
  * @param categoryid
  */
-export const restoreCategoryType = async (userid: string, categoryid: string): Promise<{ status: number, error: string}> => {
+export const restoreCategoryType = async (userid: string, categoryid: string): Promise<i.DaoResponse<null>> => {
     const client: PoolClient = await db.getClient();
 
     try {
@@ -159,15 +176,15 @@ export const restoreCategoryType = async (userid: string, categoryid: string): P
         await client.query(restoreActivityTypesQuery, [userid, categoryid]);
 
         if (restoredCategoryType.rowCount === 0) {
-            return { status: 404, error: `Could not find given category with categoryid: ${categoryid}.` };
+            return { status: 404, error: `Could not find given category with categoryid: ${categoryid}.`, data: null };
         }
 
         await client.query("COMMIT");
 
-        return { status: 200, error: "" };
+        return { status: 200, error: "", data: null };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message };
+        return { status: 400, error: e.message, data: null };
     } finally {
         client.release();
     }

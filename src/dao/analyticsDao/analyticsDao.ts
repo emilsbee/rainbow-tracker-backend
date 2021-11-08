@@ -1,11 +1,8 @@
-// External imports
+import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 
-// Internal imports
 import db from "../../db/postgres";
-import { ActivityType } from "../../routes/public/activityType";
 import { findActivityAggregateCount, findTotalCountForCategory } from "./helpers";
-import { CategoryType } from "../../routes/public/categoryType";
 
 /**
  * This type is specific to the function below.
@@ -58,8 +55,8 @@ export const getAvailableDates = async (userid: string): Promise<{ status: numbe
 /**
  * This type is specific to the return statement of function below.
  */
-type TotalPerWeekActivityType = ActivityType & { count: number }
-type TotalPerWeekCategoryType = CategoryType & {count: number }
+type TotalPerWeekActivityType = i.ActivityType & { count: number }
+type TotalPerWeekCategoryType = i.CategoryType & {count: number }
 export type TotalPerWeek = {
     categoryTypes: TotalPerWeekCategoryType[],
     activityTypes: TotalPerWeekActivityType[]
@@ -247,8 +244,8 @@ export const getAvailableMonths = async (userid: string):Promise<{ status: numbe
     }
 };
 
-type TotalPerMonthActivityType = ActivityType & { count: number }
-type TotalPerMonthCategoryType = CategoryType & {count: number }
+type TotalPerMonthActivityType = i.ActivityType & { count: number }
+type TotalPerMonthCategoryType = i.CategoryType & {count: number }
 export type TotalPerMonth = {
     categoryTypes: TotalPerMonthCategoryType[],
     activityTypes: TotalPerMonthActivityType[]
