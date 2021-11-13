@@ -1,8 +1,7 @@
-// External imports
+import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-// Internal imports
 import protect from "../../middleware/auth";
 import {
     getAvailableDates,
@@ -24,7 +23,7 @@ router.get("/analytics/total-per-day/:day", protect.user, async (ctx: Context) =
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const { status, error, totalPerDaySpecific } = await getTotalPerDaySpecific(userid, parseInt(day), parseInt(weekNr), parseInt(weekYear));
+    const { status, error, data: totalPerDaySpecific } = await getTotalPerDaySpecific(userid, parseInt(day), parseInt(weekNr), parseInt(weekYear));
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
@@ -47,7 +46,7 @@ router.get("/analytics/total-per-day", protect.user, async (ctx: Context) => {
     if (weekIdError.length > 0 || weekid == null) {
         ctx.throw(status, weekIdError, { path: __filename });
     } else {
-        const { status, error: TotalPerDayError, totalPerDay } = await getTotalPerDay(userid, weekid);
+        const { status, error: TotalPerDayError, data: totalPerDay } = await getTotalPerDay(userid, weekid);
 
         if (TotalPerDayError.length > 0) {
             ctx.throw(status, TotalPerDayError, { path: __filename });
@@ -71,7 +70,7 @@ router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
     if (weekIdError.length > 0 || weekid == null) {
         ctx.throw(status, weekIdError, { path: __filename });
     } else {
-        const { status, error: TotalPerWeekError, totalPerWeek } = await getTotalPerWeek(userid, weekid);
+        const { status, error: TotalPerWeekError, data: totalPerWeek } = await getTotalPerWeek(userid, weekid);
 
         if (TotalPerWeekError.length > 0) {
             ctx.throw(status, TotalPerWeekError, { path: __filename });
@@ -89,7 +88,7 @@ router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
 router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
     const userid = ctx.params.userid;
 
-    const { status, error, availableDates } = await getAvailableDates(userid);
+    const { status, error, data: availableDates } = await getAvailableDates(userid);
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
@@ -102,7 +101,7 @@ router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
 router.get("/analytics/available-months", protect.user, async (ctx: Context) => {
     const userid = ctx.params.userid;
 
-    const { status, error, availableMonths } = await getAvailableMonths(userid);
+    const { status, error, data: availableMonths } = await getAvailableMonths(userid);
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
@@ -117,7 +116,7 @@ router.get("/analytics/total-per-month", protect.user, async (ctx: Context) => {
     const month = ctx.request.query.month as string;
     const year = ctx.request.query.year as string;
 
-    const { status, error, totalPerMonth } = await getTotalPerMonth(userid, parseInt(month), parseInt(year));
+    const { status, error, data: totalPerMonth } = await getTotalPerMonth(userid, parseInt(month), parseInt(year));
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });

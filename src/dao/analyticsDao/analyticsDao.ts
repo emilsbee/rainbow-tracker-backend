@@ -5,18 +5,13 @@ import db from "../../db/postgres";
 import { findActivityAggregateCount, findTotalCountForCategory } from "./helpers";
 
 /**
- * This type is specific to the function below.
- */
-type AvailableDate = {
-    year: number,
-    weeks: number[]
-}
-/**
  * Fetches the available years and the respective weeks that user has created. Not the actual week (like categories, note) but
  * literally the years and week numbers that have been created.
  * @param userid for which to fetch available dates.
  */
-export const getAvailableDates = async (userid: string): Promise<{ status: number, error: string, availableDates: AvailableDate[] }> => {
+export const getAvailableDates = async (
+    userid: string
+): Promise<i.DaoResponse<i.AvailableDate[]>> => {
     const client: PoolClient = await db.getClient();
 
     try {
@@ -28,7 +23,7 @@ export const getAvailableDates = async (userid: string): Promise<{ status: numbe
 
         const yearRes = await client.query(getAvailableYearsQuery, [userid]);
 
-        const availableDates: AvailableDate[] = [];
+        const availableDates: i.AvailableDate[] = [];
         if (yearRes.rowCount !== 0) {
             for (let i = 0; i < yearRes.rowCount; i++) {
                 const weekRes = await client.query(getAvailableWeeksOfYearQuery, [userid, yearRes.rows[i].weekYear]);
@@ -41,26 +36,15 @@ export const getAvailableDates = async (userid: string): Promise<{ status: numbe
         return {
             status: 200,
             error: "",
-            availableDates,
+            data: availableDates,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, availableDates: [] };
+        return { status: 400, error: e.message, data: [] };
     } finally {
         client.release();
     }
 };
-
-
-/**
- * This type is specific to the return statement of function below.
- */
-type TotalPerWeekActivityType = i.ActivityType & { count: number }
-type TotalPerWeekCategoryType = i.CategoryType & {count: number }
-export type TotalPerWeek = {
-    categoryTypes: TotalPerWeekCategoryType[],
-    activityTypes: TotalPerWeekActivityType[]
-}
 
 /**
  * Fetches the amount of time spent on each category type and activity type
@@ -69,7 +53,10 @@ export type TotalPerWeek = {
  * @param userid of the user for which to find the total per week.
  * @param weekid of the week for which to find the total per week.
  */
-export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerWeek: TotalPerWeek }> => {
+export const getTotalPerWeek = async (
+    userid: string, 
+    weekid: string
+): Promise<i.DaoResponse<i.TotalPerWeek>> => {
     const client: PoolClient = await db.getClient();
 
     const getTotalPerWeekCategoryTypesQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
@@ -92,20 +79,20 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
         // Begin transaction
         await client.query("BEGIN");
 
-        const totalPerWeekCategoryTypesRows: QueryResult = await client.query(getTotalPerWeekCategoryTypesQuery, [weekid, userid]);
-        const totalPerWeekActivityTypesRows: QueryResult = await client.query(getTotalPerWeekActivityTypesQuery, [weekid, userid]);
+        const totalPerWeekCategoryTypesRows: QueryResult<i.TotalPerWeekCategoryType> = await client.query(getTotalPerWeekCategoryTypesQuery, [weekid, userid]);
+        const totalPerWeekActivityTypesRows: QueryResult<i.TotalPerWeekActivityType> = await client.query(getTotalPerWeekActivityTypesQuery, [weekid, userid]);
 
         await client.query("COMMIT");
 
-        const totalPerWeekCategoryTypes = totalPerWeekCategoryTypesRows.rows as unknown as TotalPerWeek["categoryTypes"];
-        const totalPerWeekActivityTypes = totalPerWeekActivityTypesRows.rows as unknown as TotalPerWeek["activityTypes"];
+        const totalPerWeekCategoryTypes = totalPerWeekCategoryTypesRows.rows;
+        const totalPerWeekActivityTypes = totalPerWeekActivityTypesRows.rows;
 
         // Creating empty activities
         for (let i = 0; i < totalPerWeekCategoryTypes.length; i++) {
             const categoryTotal:number = findTotalCountForCategory(totalPerWeekCategoryTypes, totalPerWeekCategoryTypes[i].categoryid);
             const activityTotal:number = findActivityAggregateCount(totalPerWeekActivityTypes, totalPerWeekCategoryTypes[i].categoryid);
 
-            const emptyActivity:TotalPerWeekActivityType = {
+            const emptyActivity: i.TotalPerWeekActivityType = {
                 activityid: "Other", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal - activityTotal, long: "Other", short: "o", userid: totalPerWeekCategoryTypes[i].userid,
             };
 
@@ -116,7 +103,7 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
             return {
                 status: 404,
                 error: "This week has no analytics.",
-                totalPerWeek: {
+                data: {
                     categoryTypes: [],
                     activityTypes: [],
                 },
@@ -126,39 +113,26 @@ export const getTotalPerWeek = async (userid: string, weekid: string): Promise<{
         return {
             status: 200,
             error: "",
-            totalPerWeek: {
+            data: {
                 categoryTypes: totalPerWeekCategoryTypes,
                 activityTypes: totalPerWeekActivityTypes,
             },
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, totalPerWeek: {
-                categoryTypes: [],
-                activityTypes: [],
-            } };
+        return { 
+                status: 400, 
+                error: e.message, 
+                data: {
+                    categoryTypes: [],
+                    activityTypes: [],
+                } 
+            };
     } finally {
         client.release();
     }
 };
 
-/**
- * This type is specific to the function below.
- */
-type TotalPerDay = {
-    weekDay: number
-    categories: {
-        categoryid: string | null
-        count: number
-        weekDay: number
-        name: string
-    }[]
-    activities: {
-        activityid: string | null
-        count: number
-        weekDay: number
-    }[]
-}
 /**
  * Fetches the amount of time spent on each category type and activity type
  * for a given week in each day. In the return type, amount symbolizes the amount of 15
@@ -166,9 +140,12 @@ type TotalPerDay = {
  * @param userid of the user for which to find the total  per day.
  * @param weekid of the week for which to find the total per day.
  */
-export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ status: number, error: string, totalPerDay: TotalPerDay[] }> => {
+export const getTotalPerDay = async (
+    userid: string, 
+    weekid: string
+): Promise<i.DaoResponse<i.TotalPerDay[]>> => {
     const client: PoolClient = await db.getClient();
-    const totalPerDay: TotalPerDay[] = [
+    const totalPerDay: i.TotalPerDay[] = [
         { weekDay: 0, categories: [], activities: [] },
         { weekDay: 1, categories: [], activities: [] },
         { weekDay: 2, categories: [], activities: [] },
@@ -199,8 +176,8 @@ export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ 
         await client.query("BEGIN");
 
         for (let i = 0; i < totalPerDay.length; i++) {
-            const totalPerDayCategories = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i]);
-            const totalPerDayActivities = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i]);
+            const totalPerDayCategories: QueryResult<i.TotalPerDayCategoryType> = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i]);
+            const totalPerDayActivities: QueryResult<i.TotalPerDayActivityType> = await client.query(getTotalPerDayActivitiesQuery, [userid, weekid, i]);
 
             totalPerDay[i].categories = totalPerDayCategories.rows;
             totalPerDay[i].categories.forEach((category) => category.weekDay = i);
@@ -213,45 +190,38 @@ export const getTotalPerDay = async (userid: string, weekid: string): Promise<{ 
         return {
             status: 200,
             error: "",
-            totalPerDay,
+            data: totalPerDay,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, totalPerDay };
+        return { status: 400, error: e.message, data: totalPerDay };
     } finally {
         client.release();
     }
 };
 
-type AvailableMonth = {
-    year: number
-    month: number // 1-12
-    weekNr: number
-}
-
-export const getAvailableMonths = async (userid: string):Promise<{ status: number, error: string, availableMonths: AvailableMonth[] }> => {
+export const getAvailableMonths = async (
+    userid: string
+):Promise<i.DaoResponse<i.AvailableMonth[]>> => {
     try {
         const getAvailableMonthsQuery = "SELECT DISTINCT date_part('month', \"weekDayDate\") AS \"month\", date_part('year', \"weekDayDate\") AS \"year\", date_part('week', \"weekDayDate\") as \"weekNr\" \n" +
             "FROM category \n" +
             "WHERE userid=$1 " +
             "ORDER BY \"year\" DESC;";
 
-        const availableMonths:QueryResult = await db.query(getAvailableMonthsQuery, [userid]);
+        const availableMonths:QueryResult<i.AvailableMonth> = await db.query(getAvailableMonthsQuery, [userid]);
 
-        return { status: 200, error: "", availableMonths: availableMonths.rows };
+        return { status: 200, error: "", data: availableMonths.rows };
     } catch (e:any) {
-        return { status: 400, error: e.message, availableMonths: [] };
+        return { status: 400, error: e.message, data: [] };
     }
 };
 
-type TotalPerMonthActivityType = i.ActivityType & { count: number }
-type TotalPerMonthCategoryType = i.CategoryType & {count: number }
-export type TotalPerMonth = {
-    categoryTypes: TotalPerMonthCategoryType[],
-    activityTypes: TotalPerMonthActivityType[]
-}
-
-export const getTotalPerMonth = async (userid: string, month: number, year: number):Promise<{ status: number, error: string, totalPerMonth: TotalPerMonth}> => {
+export const getTotalPerMonth = async (
+    userid: string, 
+    month: number, 
+    year: number
+):Promise<i.DaoResponse<i.TotalPerMonth>> => {
     const client: PoolClient = await db.getClient();
 
     const getTotalPerMonthCategoryQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
@@ -276,21 +246,27 @@ export const getTotalPerMonth = async (userid: string, month: number, year: numb
         // Begin transaction
         await client.query("BEGIN");
 
-        const totalPerMonthCategoryRows:QueryResult = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid]);
-        const totalPerMonthActivityRows:QueryResult = await client.query(getTotalPerMonthActivityQuery, [month, year, userid]);
+        const totalPerMonthCategoryRows:QueryResult<i.TotalPerMonthCategoryType> = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid]);
+        const totalPerMonthActivityRows:QueryResult<i.TotalPerMonthActivityType> = await client.query(getTotalPerMonthActivityQuery, [month, year, userid]);
 
         await client.query("COMMIT");
 
-        const totalPerMonthCategory = totalPerMonthCategoryRows.rows as unknown as TotalPerMonth["categoryTypes"];
-        const totalPerMonthActivity = totalPerMonthActivityRows.rows as unknown as TotalPerMonth["activityTypes"];
+        const totalPerMonthCategory = totalPerMonthCategoryRows.rows;
+        const totalPerMonthActivity = totalPerMonthActivityRows.rows;
 
         // Creating empty activities
         for (let i = 0; i < totalPerMonthCategory.length; i++) {
-            const categoryTotal:number = findTotalCountForCategory(totalPerMonthCategory, totalPerMonthCategory[i].categoryid);
-            const activityTotal:number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid);
+            const categoryTotal: number = findTotalCountForCategory(totalPerMonthCategory, totalPerMonthCategory[i].categoryid);
+            const activityTotal: number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid);
 
-            const emptyActivity:TotalPerWeekActivityType = {
-                activityid: "Other", archived: false, categoryid: totalPerMonthCategory[i].categoryid, count: categoryTotal - activityTotal, long: "Other", short: "o", userid: totalPerMonthCategory[i].userid,
+            const emptyActivity: i.TotalPerWeekActivityType = {
+                activityid: "Other", 
+                archived: false, 
+                categoryid: totalPerMonthCategory[i].categoryid, 
+                count: categoryTotal - activityTotal, 
+                long: "Other", 
+                short: "o", 
+                userid: totalPerMonthCategory[i].userid,
             };
 
             totalPerMonthActivity.push(emptyActivity);
@@ -300,33 +276,28 @@ export const getTotalPerMonth = async (userid: string, month: number, year: numb
             return {
                 status: 404,
                 error: "This week has no analytics.",
-                totalPerMonth: {
+                data: {
                     categoryTypes: [],
                     activityTypes: [],
                 },
             };
         }
 
-        return { status: 200, error: "", totalPerMonth: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity } };
+        return { status: 200, error: "", data: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity } };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, totalPerMonth: {} as TotalPerMonth };
+        return { status: 400, error: e.message, data: {} as i.TotalPerMonth };
     } finally {
         client.release();
     }
 };
 
-type TotalPerDaySpecific = {
-    weekDay: number
-    categories: {
-        categoryid: string | null
-        count: number
-        name: string
-        color: string
-    }[]
-}
-
-export const getTotalPerDaySpecific = async (userid: string, day: number, weekNr: number, year: number):Promise<{ status: number, error: string, totalPerDaySpecific: TotalPerDaySpecific }> => {
+export const getTotalPerDaySpecific = async (
+    userid: string, 
+    day: number, 
+    weekNr: number, 
+    year: number
+):Promise<i.DaoResponse<i.TotalPerDaySpecific>> => {
     try {
         const getTotalPerDaySpecificQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name, \"categoryType\".color \n" +
             "FROM category, (SELECT * FROM category_type WHERE userid=$1) AS \"categoryType\" \n" +
@@ -337,14 +308,24 @@ export const getTotalPerDaySpecific = async (userid: string, day: number, weekNr
             "AND \"categoryType\".categoryid=category.categoryid \n" +
             "GROUP BY category.categoryid, \"categoryType\".name, \"categoryType\".color";
 
-        const totalPerDaySpecific = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day]);
-
+        const totalPerDaySpecific: QueryResult<i.TotalPerDaySpecificCategoryType> = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day]);
+        
         if (totalPerDaySpecific.rowCount === 0) {
-            return { status: 404, error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, totalPerDaySpecific: {} as TotalPerDaySpecific };
+            return { 
+                status: 404, 
+                error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, 
+                data: {} as i.TotalPerDaySpecific };
         }
 
-        return { status: 200, error: "", totalPerDaySpecific: { weekDay: day, categories: totalPerDaySpecific.rows } };
+        return { 
+            status: 200, 
+            error: "", 
+            data: { 
+                weekDay: day, 
+                categories: totalPerDaySpecific.rows
+            }
+        };
     } catch (e: any) {
-        return { status: 400, error: e.message, totalPerDaySpecific: {} as TotalPerDaySpecific };
+        return { status: 400, error: e.message, data: {} as i.TotalPerDaySpecific };
     }
 };

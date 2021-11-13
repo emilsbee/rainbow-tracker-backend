@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 
 export const serveFrontend = (app: Application):void => {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development") {
         fs.accessSync(path.join(__dirname, "../../frontendBuild"));
 
         app.use(koaStatic("./frontendBuild"));

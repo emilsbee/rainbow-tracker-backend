@@ -1,3 +1,5 @@
+import * as i from "types";
+
 export type CategoryType = {
     categoryid:string,
     userid:string,
@@ -43,3 +45,56 @@ export type Week = {
 }
 
 export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
+
+export type AvailableDate = {
+    year: number,
+    weeks: number[]
+}
+
+export type TotalPerWeekActivityType = i.ActivityType & { count: number }
+export type TotalPerWeekCategoryType = i.CategoryType & {count: number }
+export type TotalPerWeek = {
+    categoryTypes: TotalPerWeekCategoryType[],
+    activityTypes: TotalPerWeekActivityType[]
+}
+
+export type TotalPerDayCategoryType = {
+    categoryid: string | null
+    count: number
+    weekDay: number
+    name: string
+}
+export type TotalPerDayActivityType = {
+    activityid: string | null
+    count: number
+    weekDay: number
+}
+export type TotalPerDay = {
+    weekDay: number
+    categories: i.TotalPerDayCategoryType[]
+    activities: i.TotalPerDayActivityType[]
+}
+
+export type AvailableMonth = {
+    year: number
+    month: number // 1-12
+    weekNr: number
+}
+
+export type TotalPerMonthActivityType = i.ActivityType & { count: number }
+export type TotalPerMonthCategoryType = i.CategoryType & {count: number }
+export type TotalPerMonth = {
+    categoryTypes: TotalPerMonthCategoryType[],
+    activityTypes: TotalPerMonthActivityType[]
+}
+
+export type TotalPerDaySpecificCategoryType = {
+    categoryid: string | null
+    count: number
+    name: string
+    color: string
+}
+export type TotalPerDaySpecific = {
+    weekDay: number
+    categories: i.TotalPerDaySpecificCategoryType[]
+}

@@ -1,10 +1,10 @@
 import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 import { v4 as uuid } from "uuid";
+import { DateTime } from "luxon";
 
 import { groupByDays } from "./helpers";
 import db from "../../db/postgres";
-import { DateTime } from "luxon";
 
 /**
  * Fetches a week by a given weekid for a given user. The week returned is a full week,
@@ -29,8 +29,8 @@ export const getWeekByWeekid = async (
 
         // Execute queries
         const week: QueryResult<i.Week>  = await client.query(getWeekQuery);
-        const notes: QueryResult<i.Note[]> = await client.query(getWeekNotes);
-        const categories: QueryResult<i.Category[]> = await client.query(getWeekCategories);
+        const notes: QueryResult<i.Note> = await client.query(getWeekNotes);
+        const categories: QueryResult<i.Category> = await client.query(getWeekCategories);
 
         return {
             status: 200,
