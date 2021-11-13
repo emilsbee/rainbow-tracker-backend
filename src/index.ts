@@ -1,10 +1,8 @@
 import koa from "koa";
 
-require("dotenv").config();
+import { setupRoutes, setupMiddleware, serveFrontend } from "services";
 
-import { setupRoutes } from "./services/setupRoutes";
-import { setupMiddleware } from "./services/setupMiddleware";
-import { serveFrontend } from "./services/serveFrontend";
+require("dotenv").config();
 
 const app = new koa();
 
