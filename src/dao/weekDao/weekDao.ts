@@ -14,8 +14,8 @@ import db from "../../db/postgres";
  * @return {{ status: number, category: FullWeek[] }}
  */
 export const getWeekByWeekid = async (
-    weekid:string, 
-    userid:string
+    weekid:string,
+    userid:string,
 ):Promise<i.DaoResponse<i.FullWeek[]>> => {
     const client:PoolClient = await db.getClient();
     const values = [weekid, userid];
@@ -64,9 +64,9 @@ export const getWeekByWeekid = async (
  * @param userid or null if no week found.
  */
 export const getWeekId = async (
-    weekNr:number, 
-    weekYear:number, 
-    userid:string
+    weekNr:number,
+    weekYear:number,
+    userid:string,
 ):Promise<i.DaoResponse<string | null>> => {
     const weekidQueryValues = [userid, weekNr, weekYear];
     const getWeekidQuery = { name: "fetch-weekid", text: "SELECT weekid FROM week WHERE week.userid=$1 AND week.\"weekNr\"=$2 AND week.\"weekYear\"=$3", values: weekidQueryValues };
@@ -92,9 +92,9 @@ export const getWeekId = async (
  * @return {{status:number, category:FullWeek[]}}
  */
 export const createWeek = async (
-    weekNr:number, 
-    weekYear:number, 
-    userid:string
+    weekNr:number,
+    weekYear:number,
+    userid:string,
 ):Promise<i.DaoResponse<i.FullWeek[]>> => {
     const client:PoolClient = await db.getClient();
 

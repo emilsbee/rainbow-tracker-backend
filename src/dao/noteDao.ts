@@ -12,10 +12,10 @@ import { DAY_TIME_SLOTS } from "../constants/constants";
  * @param day for which to update with the given notes.
  */
 export const updateWeekDayNotes = async (
-    weekid: string, 
-    userid: string, 
-    notes: i.Note[], 
-    day: number
+    weekid: string,
+    userid: string,
+    notes: i.Note[],
+    day: number,
 ): Promise<i.DaoResponse<null>> => {
     const client: PoolClient = await db.getClient();
     const updateWeekDayNotesQuery = "UPDATE note SET note=$1, stackid=$2 WHERE weekid=$3 AND \"weekDay\"=$4 AND \"notePosition\"=$5 AND userid=$6";

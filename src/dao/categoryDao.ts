@@ -11,10 +11,10 @@ import db from "../db/postgres";
  * @param day for which to update given categories.
  */
 export const updateWeekDayCategories = async (
-    weekid: string, 
-    userid: string, 
-    categories: i.Category[], 
-    day: number
+    weekid: string,
+    userid: string,
+    categories: i.Category[],
+    day: number,
 ): Promise<i.DaoResponse<i.Category[]>> => {
     const client: PoolClient = await db.getClient();
     const updateWeekDayCategoriesQuery = "UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND \"weekDay\"=$4 AND \"categoryPosition\"=$5 AND userid=$6";

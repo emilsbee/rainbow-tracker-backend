@@ -40,7 +40,7 @@ router.get("/week", protect.user, async (ctx: Context) => {
     if (weekIdError.length > 0 || weekid == null) {
         ctx.throw(status, weekIdError, { path: __filename });
     } else {
-        const { data: week, status, error: weekError} = await getWeekByWeekid(weekid, userid);
+        const { data: week, status, error: weekError } = await getWeekByWeekid(weekid, userid);
 
         if (weekError.length > 0) {
             ctx.throw(status, weekError, { path: __filename });

@@ -10,7 +10,7 @@ import { findActivityAggregateCount, findTotalCountForCategory } from "./helpers
  * @param userid for which to fetch available dates.
  */
 export const getAvailableDates = async (
-    userid: string
+    userid: string,
 ): Promise<i.DaoResponse<i.AvailableDate[]>> => {
     const client: PoolClient = await db.getClient();
 
@@ -54,8 +54,8 @@ export const getAvailableDates = async (
  * @param weekid of the week for which to find the total per week.
  */
 export const getTotalPerWeek = async (
-    userid: string, 
-    weekid: string
+    userid: string,
+    weekid: string,
 ): Promise<i.DaoResponse<i.TotalPerWeek>> => {
     const client: PoolClient = await db.getClient();
 
@@ -120,13 +120,13 @@ export const getTotalPerWeek = async (
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { 
-                status: 400, 
-                error: e.message, 
+        return {
+                status: 400,
+                error: e.message,
                 data: {
                     categoryTypes: [],
                     activityTypes: [],
-                } 
+                },
             };
     } finally {
         client.release();
@@ -141,8 +141,8 @@ export const getTotalPerWeek = async (
  * @param weekid of the week for which to find the total per day.
  */
 export const getTotalPerDay = async (
-    userid: string, 
-    weekid: string
+    userid: string,
+    weekid: string,
 ): Promise<i.DaoResponse<i.TotalPerDay[]>> => {
     const client: PoolClient = await db.getClient();
     const totalPerDay: i.TotalPerDay[] = [
@@ -201,7 +201,7 @@ export const getTotalPerDay = async (
 };
 
 export const getAvailableMonths = async (
-    userid: string
+    userid: string,
 ):Promise<i.DaoResponse<i.AvailableMonth[]>> => {
     try {
         const getAvailableMonthsQuery = "SELECT DISTINCT date_part('month', \"weekDayDate\") AS \"month\", date_part('year', \"weekDayDate\") AS \"year\", date_part('week', \"weekDayDate\") as \"weekNr\" \n" +
@@ -218,9 +218,9 @@ export const getAvailableMonths = async (
 };
 
 export const getTotalPerMonth = async (
-    userid: string, 
-    month: number, 
-    year: number
+    userid: string,
+    month: number,
+    year: number,
 ):Promise<i.DaoResponse<i.TotalPerMonth>> => {
     const client: PoolClient = await db.getClient();
 
@@ -260,12 +260,12 @@ export const getTotalPerMonth = async (
             const activityTotal: number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid);
 
             const emptyActivity: i.TotalPerWeekActivityType = {
-                activityid: "Other", 
-                archived: false, 
-                categoryid: totalPerMonthCategory[i].categoryid, 
-                count: categoryTotal - activityTotal, 
-                long: "Other", 
-                short: "o", 
+                activityid: "Other",
+                archived: false,
+                categoryid: totalPerMonthCategory[i].categoryid,
+                count: categoryTotal - activityTotal,
+                long: "Other",
+                short: "o",
                 userid: totalPerMonthCategory[i].userid,
             };
 
@@ -293,10 +293,10 @@ export const getTotalPerMonth = async (
 };
 
 export const getTotalPerDaySpecific = async (
-    userid: string, 
-    day: number, 
-    weekNr: number, 
-    year: number
+    userid: string,
+    day: number,
+    weekNr: number,
+    year: number,
 ):Promise<i.DaoResponse<i.TotalPerDaySpecific>> => {
     try {
         const getTotalPerDaySpecificQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name, \"categoryType\".color \n" +
@@ -309,21 +309,21 @@ export const getTotalPerDaySpecific = async (
             "GROUP BY category.categoryid, \"categoryType\".name, \"categoryType\".color";
 
         const totalPerDaySpecific: QueryResult<i.TotalPerDaySpecificCategoryType> = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day]);
-        
+
         if (totalPerDaySpecific.rowCount === 0) {
-            return { 
-                status: 404, 
-                error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`, 
+            return {
+                status: 404,
+                error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`,
                 data: {} as i.TotalPerDaySpecific };
         }
 
-        return { 
-            status: 200, 
-            error: "", 
-            data: { 
-                weekDay: day, 
-                categories: totalPerDaySpecific.rows
-            }
+        return {
+            status: 200,
+            error: "",
+            data: {
+                weekDay: day,
+                categories: totalPerDaySpecific.rows,
+            },
         };
     } catch (e: any) {
         return { status: 400, error: e.message, data: {} as i.TotalPerDaySpecific };
