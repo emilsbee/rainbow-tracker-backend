@@ -42,15 +42,15 @@ router.get("/analytics/total-per-day", protect.user, async (ctx: Context) => {
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const weekidRes: {weekid: string | null, error: string} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const { data: weekid, error: weekIdError, status } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
 
-    if (weekidRes.weekid == null) {
-        ctx.throw(404, weekidRes.error, { path: __filename });
+    if (weekIdError.length > 0 || weekid == null) {
+        ctx.throw(status, weekIdError, { path: __filename });
     } else {
-        const { status, error, totalPerDay } = await getTotalPerDay(userid, weekidRes.weekid);
+        const { status, error: TotalPerDayError, totalPerDay } = await getTotalPerDay(userid, weekid);
 
-        if (error.length > 0) {
-            ctx.throw(status, error, { path: __filename });
+        if (TotalPerDayError.length > 0) {
+            ctx.throw(status, TotalPerDayError, { path: __filename });
         }
 
         ctx.status = status;
@@ -66,15 +66,15 @@ router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const weekidRes: {weekid: string | null, error: string} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const { data: weekid, error: weekIdError, status} = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
 
-    if (weekidRes.weekid == null) {
-        ctx.throw(404, weekidRes.error, { path: __filename });
+    if (weekIdError.length > 0 || weekid == null) {
+        ctx.throw(status, weekIdError, { path: __filename });
     } else {
-        const { status, error, totalPerWeek } = await getTotalPerWeek(userid, weekidRes.weekid);
+        const { status, error: TotalPerWeekError, totalPerWeek } = await getTotalPerWeek(userid, weekid);
 
-        if (error.length > 0) {
-            ctx.throw(status, error, { path: __filename });
+        if (TotalPerWeekError.length > 0) {
+            ctx.throw(status, TotalPerWeekError, { path: __filename });
         }
 
         ctx.status = status;

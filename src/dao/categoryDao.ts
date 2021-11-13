@@ -1,8 +1,6 @@
-// External imports
+import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 
-// Internal imports
-import { Category } from "../routes/public/week/week";
 import db from "../db/postgres";
 
 /**
@@ -12,7 +10,12 @@ import db from "../db/postgres";
  * @param categories the new categories to update the week with.
  * @param day for which to update given categories.
  */
-export const updateWeekDayCategories = async (weekid: string, userid: string, categories: Category[], day: number): Promise<{ status: number, error: string, categories: Category[] }> => {
+export const updateWeekDayCategories = async (
+    weekid: string, 
+    userid: string, 
+    categories: i.Category[], 
+    day: number
+): Promise<i.DaoResponse<i.Category[]>> => {
     const client: PoolClient = await db.getClient();
     const updateWeekDayCategoriesQuery = "UPDATE category SET categoryid=$1, activityid=$2 WHERE weekid=$3 AND \"weekDay\"=$4 AND \"categoryPosition\"=$5 AND userid=$6";
 
@@ -27,15 +30,15 @@ export const updateWeekDayCategories = async (weekid: string, userid: string, ca
 
             if (res.rowCount < 1) {
                 await client.query("COMMIT");
-                return { status: 404, error: `Category not found for week ${weekid}.`, categories: [] };
+                return { status: 404, error: `Category not found for week ${weekid}.`, data: [] };
             }
         }
 
         await client.query("COMMIT");
-        return { status: 200, error: "", categories };
+        return { status: 200, error: "", data: categories };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, categories: [] };
+        return { status: 400, error: e.message, data: [] };
     } finally {
         client.release();
     }

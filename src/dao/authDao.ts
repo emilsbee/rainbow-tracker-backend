@@ -11,7 +11,10 @@ import db from "../db/postgres";
  * @param email of the user to login.
  * @param password of the user to login.
  */
-export const login = async (email:string, password:string):Promise<i.DaoResponse<i.User>> => {
+export const login = async (
+    email:string, 
+    password:string
+):Promise<i.DaoResponse<i.User>> => {
     const client:PoolClient = await db.getClient();
     let user: i.User = {} as i.User;
     let error: string;

@@ -76,7 +76,4 @@
     "src/**/*",
     "frontendBuild/**/*"
   ],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
 }

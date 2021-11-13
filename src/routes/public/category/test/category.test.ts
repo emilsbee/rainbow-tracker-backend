@@ -1,4 +1,4 @@
-// External imports
+import * as i from "types";
 import request from "supertest";
 import fs from "fs";
 
@@ -6,17 +6,15 @@ import fs from "fs";
 import server from "../../../../index";
 import { initialize, initializeWithData } from "../../../../tests/helpers";
 import redisClient from "../../../../db/redis";
-import { User } from "../../../admin/user";
-import { Week } from "../../week/week";
 
-const testUser:User = {
+const testUser: i.User = {
     email: "test@test.com",
     password: "password",
     userid: "81823c86-ef44-4885-9933-929ed75e0876",
     salt: "6c605af47e13bf6b51bd3b6bc0b26eff",
 };
 
-const testBadUser:User = {
+const testBadUser: i.User = {
     email: "fake@fake.fake",
     password: "wrong",
     userid: "fake",

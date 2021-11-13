@@ -1,21 +1,19 @@
-// External imports
+import * as i from "types";
 import request from "supertest";
 
-// Internal imports
 import server from "../../../index";
 import { initialize, initializeWithData } from "../../../tests/helpers";
 import redisClient from "../../../db/redis";
 import { SESSION_COOKIE_NAME } from "../../../middleware/session";
-import { User } from "../../admin/user";
 
-export const testUser:User = {
+export const testUser: i.User = {
     email: "test@test.com",
     password: "password",
     userid: "81823c86-ef44-4885-9933-929ed75e0876",
     salt: "6c605af47e13bf6b51bd3b6bc0b26eff",
 };
 
-export const testBadUser:User = {
+export const testBadUser: i.User = {
     email: "fake@fake.fake",
     password: "wrong",
     userid: "fake",

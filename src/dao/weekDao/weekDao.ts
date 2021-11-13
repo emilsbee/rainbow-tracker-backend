@@ -1,9 +1,7 @@
-// External imports
-import { PoolClient } from "pg";
+import * as i from "types";
+import { PoolClient, QueryResult } from "pg";
 import { v4 as uuid } from "uuid";
 
-// Internal imports
-import { Category, FullWeek, Note } from "../../routes/public/week/week";
 import { groupByDays } from "./helpers";
 import db from "../../db/postgres";
 import { DateTime } from "luxon";
@@ -15,7 +13,10 @@ import { DateTime } from "luxon";
  * @param userid of category to fetch.
  * @return {{ status: number, category: FullWeek[] }}
  */
-export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ status: number, week: FullWeek[], error:string }> => {
+export const getWeekByWeekid = async (
+    weekid:string, 
+    userid:string
+):Promise<i.DaoResponse<i.FullWeek[]>> => {
     const client:PoolClient = await db.getClient();
     const values = [weekid, userid];
     const getWeekNotes = { name: "fetch-notes", text: "SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2 ORDER BY note.\"notePosition\" ASC", values };
@@ -27,13 +28,13 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
         await client.query("BEGIN");
 
         // Execute queries
-        const week = await client.query(getWeekQuery);
-        const notes = await client.query(getWeekNotes);
-        const categories = await client.query(getWeekCategories);
+        const week: QueryResult<i.Week>  = await client.query(getWeekQuery);
+        const notes: QueryResult<i.Note[]> = await client.query(getWeekNotes);
+        const categories: QueryResult<i.Category[]> = await client.query(getWeekCategories);
 
         return {
             status: 200,
-            week: [{
+            data: [{
                 weekid: week.rows[0].weekid,
                 userid: week.rows[0].userid,
                 weekNr: week.rows[0].weekNr,
@@ -48,7 +49,7 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
         await client.query("ROLLBACK");
         return {
             status: 400,
-            week: [],
+            data: [],
             error: e.message,
         };
     } finally {
@@ -62,20 +63,24 @@ export const getWeekByWeekid = async (weekid:string, userid:string):Promise<{ st
  * @param weekYear of the week.
  * @param userid or null if no week found.
  */
-export const getWeekId = async (weekNr:number, weekYear:number, userid:string):Promise<{weekid: string | null, error:string}> => {
+export const getWeekId = async (
+    weekNr:number, 
+    weekYear:number, 
+    userid:string
+):Promise<i.DaoResponse<string | null>> => {
     const weekidQueryValues = [userid, weekNr, weekYear];
     const getWeekidQuery = { name: "fetch-weekid", text: "SELECT weekid FROM week WHERE week.userid=$1 AND week.\"weekNr\"=$2 AND week.\"weekYear\"=$3", values: weekidQueryValues };
 
     try {
-        const weekid = await db.query(getWeekidQuery);
+        const weekid: QueryResult<{ weekid: string }> = await db.query(getWeekidQuery);
 
         if (weekid.rowCount === 0) {
-            return { weekid: null, error: `Week ${weekNr}, ${weekYear} was not found for user ${userid}.` };
+            return { data: null, error: `Week ${weekNr}, ${weekYear} was not found for user ${userid}.`, status: 404 };
         } else {
-            return { weekid: weekid.rows[0].weekid, error: "" };
+            return { data: weekid.rows[0].weekid, error: "", status: 200 };
         }
     } catch (e: any) {
-        return { weekid: null, error: e.message };
+        return { data: null, error: e.message, status: 400 };
     }
 };
 
@@ -86,7 +91,11 @@ export const getWeekId = async (weekNr:number, weekYear:number, userid:string):P
  * @param userid of the user for which to create the week.
  * @return {{status:number, category:FullWeek[]}}
  */
-export const createWeek = async (weekNr:number, weekYear:number, userid:string):Promise<{ status: number, week: FullWeek[], error:string }> => {
+export const createWeek = async (
+    weekNr:number, 
+    weekYear:number, 
+    userid:string
+):Promise<i.DaoResponse<i.FullWeek[]>> => {
     const client:PoolClient = await db.getClient();
 
     try {
@@ -100,8 +109,8 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
         await client.query(createWeekQuery, values);
 
         // Save weeks's categories and notes
-        const categories:Category[] = [];
-        const notes:Note[] = [];
+        const categories: i.Category[] = [];
+        const notes: i.Note[] = [];
         const createCategoryQuery:string = "INSERT INTO category(weekid, \"weekDay\", \"categoryPosition\", userid, \"weekDayDate\") VALUES($1, $2, $3, $4, $5);";
         const createNoteQuery:string = "INSERT INTO note(weekid, \"weekDay\", \"notePosition\", stackid, userid, note, \"weekDayDate\") VALUES($1, $2, $3, $4, $5, $6, $7);";
 
@@ -131,12 +140,12 @@ export const createWeek = async (weekNr:number, weekYear:number, userid:string):
 
         return {
             status: 201,
-            week: [{ weekid, userid: userid, weekNr: weekNr, weekYear: weekYear, notes: groupByDays(notes), categories: groupByDays(categories) }],
+            data: [{ weekid, userid: userid, weekNr: weekNr, weekYear: weekYear, notes: groupByDays(notes), categories: groupByDays(categories) }],
             error: "",
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, week: [], error: e.message };
+        return { status: 400, data: [], error: e.message };
     } finally {
         client.release();
     }

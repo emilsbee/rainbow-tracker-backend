@@ -1,14 +1,12 @@
-// External imports
+import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-// Internal imports
 import contentType from "../../../middleware/contentType";
 import protect from "../../../middleware/auth";
 import { updateWeekDayCategories } from "../../../dao/categoryDao";
-import { Category } from "../week/week";
 
-const router = new Router(); // Initialize router
+const router = new Router();
 
 /**
  * Route for updating a given week day's categories. So all categories from a specific week
@@ -20,9 +18,9 @@ router.patch("/week/:weekid/day/:day/categories", contentType.JSON, protect.user
     const weekid = ctx.params.weekid;
     const userid = ctx.params.userid;
     const day = ctx.params.day;
-    const categoriesToUpdate = ctx.request.body as unknown as Category[];
+    const categoriesToUpdate = ctx.request.body as i.Category[];
 
-    const { status, error, categories } = await updateWeekDayCategories(weekid, userid, categoriesToUpdate, day);
+    const { status, error, data: categories } = await updateWeekDayCategories(weekid, userid, categoriesToUpdate, day);
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });

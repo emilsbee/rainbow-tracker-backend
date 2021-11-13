@@ -1,9 +1,7 @@
-// External imports
 import { Context } from "koa";
 const Router = require("koa-router");
 import { v4 as uuid } from "uuid";
 
-// Internal
 import contentType from "../../../middleware/contentType";
 import { login } from "../../../dao/authDao";
 import { SESSION_CONTEXT_OBJECT_NAME, SESSION_COOKIE_NAME, SESSION_EXPIRE_TIME_SECONDS } from "../../../middleware/session";
