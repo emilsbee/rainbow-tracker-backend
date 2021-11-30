@@ -1,15 +1,15 @@
 import Application from "koa";
 import router from "koa-router";
 
-import noteRouter from "../routes/public/note/note";
-import analyticsRouter from "../routes/public/analytics";
-import activityTypeRouter from "../routes/public/activityType";
+import noteRouter from "../routes/protected/note/note";
+import analyticsRouter from "../routes/protected/analytics";
+import activityTypeRouter from "../routes/protected/activityType";
 import loginRouter from "../routes/public/login/login";
 import userRouter from "../routes/admin/user";
-import authRouter from "../routes/public/auth";
-import weekRouter from "../routes/public/week/week";
-import categoryTypeRouter from "../routes/public/categoryType";
-import categoryRouter from "../routes/public/category/category";
+import authRouter from "../routes/protected/auth";
+import weekRouter from "../routes/protected/week/week";
+import categoryTypeRouter from "../routes/protected/categoryType";
+import categoryRouter from "../routes/protected/category/category";
 
 export const setupRoutes = (app: Application):void => {
     // Admin router is for endpoints only accessible by someone with an admin access token.

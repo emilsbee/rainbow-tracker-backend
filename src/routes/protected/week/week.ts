@@ -13,8 +13,8 @@ const router = new Router(); // Initialize router
  * Also, generates the week's categories and notes.
  * @return week with notes and categories organized in days.
  */
-router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context) => {
-    const userid: string = ctx.params.userid;
+router.post("/weeks", contentType.JSON, async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const { weekNr, weekYear } = ctx.request.body as i.Week;
     const { status, data: week, error } = await createWeek(weekNr, weekYear, userid);
 
@@ -30,8 +30,8 @@ router.post("/weeks", contentType.JSON, protect.user, async (ctx: Context) => {
  * Fetches a week and its categories and notes by a given weekNr and weekYear.
  * @return week with notes and categories organized in days.
  */
-router.get("/week", protect.user, async (ctx: Context) => {
-    const userid: string = ctx.params.userid;
+router.get("/week", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 

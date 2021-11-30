@@ -12,8 +12,8 @@ import contentType from "../../middleware/contentType";
 
 const router = new Router();
 
-router.patch("/activity-type/:activityid", protect.user, contentType.JSON, async (ctx: Context) => {
-    const userid: string = ctx.params.userid;
+router.patch("/activity-type/:activityid", contentType.JSON, async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const activityid: string = ctx.params.activityid;
     const activityToUpdate = ctx.request.body as i.ActivityType;
 
@@ -27,8 +27,8 @@ router.patch("/activity-type/:activityid", protect.user, contentType.JSON, async
     ctx.body = activityType;
 });
 
-router.get("/activity-types", protect.user, async (ctx: Context) => {
-    const userid: string = ctx.params.userid;
+router.get("/activity-types", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
 
     const { status, data: activityTypes, error } = await getActivityTypes(userid);
 
@@ -40,8 +40,8 @@ router.get("/activity-types", protect.user, async (ctx: Context) => {
     ctx.body = activityTypes;
 });
 
-router.post("/activity-types", protect.user, contentType.JSON, async (ctx: Context) => {
-    const userid: string = ctx.params.userid;
+router.post("/activity-types", contentType.JSON, async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const activityTypeToCreate = ctx.request.body as i.ActivityType;
 
     const { status, data: activityType, error } = await createActivityType(userid, activityTypeToCreate);

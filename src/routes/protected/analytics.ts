@@ -17,8 +17,8 @@ const router = new Router();
 /**
  * Route for fetching analytics for a single specific day.
  */
-router.get("/analytics/total-per-day/:day", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/total-per-day/:day", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const day = ctx.params.day;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
@@ -36,8 +36,8 @@ router.get("/analytics/total-per-day/:day", protect.user, async (ctx: Context) =
 /**
  * Route for fetching the total per day for categories and activities.
  */
-router.get("/analytics/total-per-day", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/total-per-day", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
@@ -60,8 +60,8 @@ router.get("/analytics/total-per-day", protect.user, async (ctx: Context) => {
 /**
  * Route for fetching the total time for each category, activity type in a given week by week number and year.
  */
-router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/total-per-week", async (ctx:Context) => {
+    const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
@@ -85,8 +85,8 @@ router.get("/analytics/total-per-week", protect.user, async (ctx:Context) => {
  * Route for fetching the years and weeks which the user has populated. So if the user only has one
  * week created which is week 32, 2020, then an object containing week 32 and year 2020 will be returned.
  */
-router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/available-dates", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
 
     const { status, error, data: availableDates } = await getAvailableDates(userid);
 
@@ -98,8 +98,8 @@ router.get("/analytics/available-dates", protect.user, async (ctx: Context) => {
     ctx.body = availableDates;
 });
 
-router.get("/analytics/available-months", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/available-months", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
 
     const { status, error, data: availableMonths } = await getAvailableMonths(userid);
 
@@ -111,8 +111,8 @@ router.get("/analytics/available-months", protect.user, async (ctx: Context) => 
     ctx.body = availableMonths;
 });
 
-router.get("/analytics/total-per-month", protect.user, async (ctx: Context) => {
-    const userid = ctx.params.userid;
+router.get("/analytics/total-per-month", async (ctx: Context) => {
+    const userid = ctx.state.user.userid;
     const month = ctx.request.query.month as string;
     const year = ctx.request.query.year as string;
 

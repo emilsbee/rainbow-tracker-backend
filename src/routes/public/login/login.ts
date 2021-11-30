@@ -1,44 +1,45 @@
 import { Context } from "koa";
 const Router = require("koa-router");
-import { v4 as uuid } from "uuid";
 
+import { generateAccessToken, generateRefreshToken, validateRefreshToken } from "../../../services";
 import contentType from "../../../middleware/contentType";
 import { login } from "../../../dao/authDao";
-import { SESSION_CONTEXT_OBJECT_NAME, SESSION_COOKIE_NAME, SESSION_EXPIRE_TIME_SECONDS } from "../../../middleware/session";
-import redisClient from "../../../db/redis";
 
 const router = new Router();
 
-/**
- * Route for logging in with email and password. It calls a function to check for
- * credential validity, then depending on the result creates a session cookie and
- * saves the sessionid of the cookie in redis.
- * @return user
- */
 router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body as {email:string, password:string};
 
-    const { status, data, error } = await login(email, password);
+    const { status, data: user, error } = await login(email, password);
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
-    } else {
-        ctx[SESSION_CONTEXT_OBJECT_NAME].userid = data.userid;
-
-        // Create a new session
-        const sessionid = uuid();
-        ctx.cookies.set(SESSION_COOKIE_NAME, sessionid);
-
-        // Save the session information in Redis
-        try {
-            await redisClient.setex(sessionid, SESSION_EXPIRE_TIME_SECONDS,  JSON.stringify({ userid: data.userid }));
-        } catch (e) {
-            ctx.throw(500, "Redis could not save sessionid.", { path: __filename });
-        }
     }
 
+    const accessToken: string = generateAccessToken({ userid: user.userid });
+    const refreshToken: string = await generateRefreshToken(user.userid);
+
     ctx.status = status;
-    ctx.body = data;
+    ctx.body = { ...user, accessToken, refreshToken };
+});
+
+router.post("/auth/refresh", contentType.JSON, async (ctx: Context) => {
+    const { refreshToken, userid } =  ctx.request.body as { refreshToken: string, userid: string };
+
+    let accessToken: string;
+    let status: number;
+
+    const isValid = await validateRefreshToken(userid, refreshToken);
+
+    if (isValid) {
+        accessToken = await generateAccessToken({ userid });
+        status = 200;
+    } else {
+        ctx.throw(401, "Invalid refresh token", { path: __filename });
+    }
+
+   ctx.body = { accessToken };
+   ctx.status = status;
 });
 
 export  default router;

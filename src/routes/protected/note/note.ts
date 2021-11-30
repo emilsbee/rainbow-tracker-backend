@@ -14,9 +14,9 @@ const router = new Router();
  * updated is the note text itself . However, all the information of a note has to
  * be provided like the notePosition, weekid, etc.
  */
-router.patch("/week/:weekid/day/:day/notes", contentType.JSON, protect.user, async (ctx:Context) => {
+router.patch("/week/:weekid/day/:day/notes", contentType.JSON, async (ctx:Context) => {
     const weekid = ctx.params.weekid;
-    const userid = ctx.params.userid;
+    const userid = ctx.state.user.userid;
     const day = ctx.params.day;
     const notes = ctx.request.body as i.Note[];
 

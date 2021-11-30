@@ -14,9 +14,9 @@ const router = new Router();
  * updated are the categoryid and activityid. However, all the information of a category has to
  * be provided like the categoryPosition, weekid, etc.
  */
-router.patch("/week/:weekid/day/:day/categories", contentType.JSON, protect.user, async (ctx: Context) => {
+router.patch("/week/:weekid/day/:day/categories", contentType.JSON, async (ctx: Context) => {
     const weekid = ctx.params.weekid;
-    const userid = ctx.params.userid;
+    const userid = ctx.state.user.userid;
     const day = ctx.params.day;
     const categoriesToUpdate = ctx.request.body as i.Category[];
 
