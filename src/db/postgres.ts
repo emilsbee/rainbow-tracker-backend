@@ -1,4 +1,4 @@
-// External imports
+import fs from "fs";
 import { PoolClient, QueryResult, Pool } from "pg";
 
 // get the current environment
@@ -26,11 +26,10 @@ if (pgport) {
 }
 
 const pool = new Pool({
-    password: pgpassword,
-    user: pguser,
-    host: pghost,
-    database: pgdatabase,
-    port: pgport,
+    connectionString: `postgresql://${pguser}:${pgpassword}@${pghost}:${pgport}/${pgdatabase}`,
+    ssl: {
+        ca: fs.readFileSync("./ca-certificate.cer").toString(),
+    },
 });
 
 export default {
