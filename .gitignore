@@ -1,5 +1,5 @@
 node_modules/
-.env
+*.env
 **/.idea/workspace.xml
 **/.idea/tasks.xml
 .idea/
@@ -9,3 +9,4 @@ src/tests/reports/
 logs/
 data/
 .DS_Store
+*.cer
