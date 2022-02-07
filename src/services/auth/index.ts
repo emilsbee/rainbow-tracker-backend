@@ -6,7 +6,7 @@ import redisClient from "../../db/redis";
 
 export const generateAccessToken = (data: i.SessionObject) => {
   if (process.env.JWT_SECRET) {
-    return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "86400s" }); // 86400s = 1day;
+    return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "43200s" }); // 43200seconds = 12hours;
   } else {
     throw new Error("You must have the environment variable JWT_SECRET");
   }
