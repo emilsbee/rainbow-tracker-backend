@@ -87,3 +87,10 @@ CREATE TABLE category (
         "weekDay" > -1 AND "weekDay" < 7
     )
 );
+
+CREATE TABLE user_session (
+    userid VARCHAR(50),
+    "refreshToken" VARCHAR(50) NOT NULL,
+    "expires" BIGINT NOT NULL,
+    CONSTRAINT fk_user FOREIGN KEY(userid) REFERENCES app_user(userid) ON DELETE CASCADE
+);
