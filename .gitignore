@@ -9,4 +9,3 @@ src/tests/reports/
 logs/
 data/
 .DS_Store
-*.cer
