@@ -16,7 +16,7 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
         ctx.throw(status, error, { path: __filename });
     }
 
-    const accessToken: string = generateAccessToken({ userid: user.userid });
+    const accessToken: string = generateAccessToken({ userid: user.userid, active: true });
     const refreshToken: string = await generateRefreshToken(user.userid);
 
     ctx.status = status;
@@ -32,7 +32,7 @@ router.post("/auth/refresh", contentType.JSON, async (ctx: Context) => {
     const isValid = await validateRefreshToken(userid, refreshToken);
 
     if (isValid) {
-        accessToken = await generateAccessToken({ userid });
+        accessToken = await generateAccessToken({ userid, active: true });
         status = 200;
     } else {
         ctx.throw(401, "Invalid refresh token", { path: __filename });
