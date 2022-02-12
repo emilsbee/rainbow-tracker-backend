@@ -7,13 +7,13 @@ import { login } from "../../../dao/authDao";
 
 const router = new Router();
 
-router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
+router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body as {email:string, password:string};
 
     const { status, data: user, error } = await login(email, password);
 
-    if (error.length > 0) {
-        ctx.throw(status, error, { path: __filename });
+    if (error.length > 0 || !user) {
+        ctx.throw(status, error);
     }
 
     const accessToken: string = generateAccessToken({ userid: user.userid, active: true });
@@ -23,23 +23,18 @@ router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
     ctx.body = { ...user, accessToken, refreshToken };
 });
 
-router.post("/auth/refresh", contentType.JSON, async (ctx: Context) => {
+router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
     const { refreshToken, userid } =  ctx.request.body as { refreshToken: string, userid: string };
-
-    let accessToken: string;
-    let status: number;
 
     const isValid = await validateRefreshToken(userid, refreshToken);
 
-    if (isValid) {
-        accessToken = await generateAccessToken({ userid, active: true });
-        status = 200;
+    if (!isValid) {
+        ctx.throw(401, "Invalid refresh token");
     } else {
-        ctx.throw(401, "Invalid refresh token", { path: __filename });
+        const accessToken = await generateAccessToken({ userid, active: true });
+        ctx.body = { accessToken };
+        ctx.status = 200;
     }
-
-   ctx.body = { accessToken };
-   ctx.status = status;
 });
 
 export  default router;

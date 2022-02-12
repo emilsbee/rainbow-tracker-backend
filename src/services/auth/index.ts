@@ -1,7 +1,9 @@
 import * as i from "types";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
+import { DateTime } from "luxon";
 
+import { client } from "../../services/prismaClient";
 import redisClient from "../../db/redis";
 
 export const generateAccessToken = (data: i.SessionObject) => {
@@ -15,11 +17,16 @@ export const generateAccessToken = (data: i.SessionObject) => {
 export const SESSION_EXPIRE_TIME_SECONDS = 172800;
 export const generateRefreshToken = async (userid: string) => {
   const refreshToken = uuid();
-
   try {
-      await redisClient.setex(userid, SESSION_EXPIRE_TIME_SECONDS, refreshToken);
-  } catch (e) {
-      throw new Error("Redis could not save refresh token");
+      await client.session.create({
+        data: {
+          userid,
+          refreshToken,
+          expiresAt: DateTime.now().plus({ seconds: SESSION_EXPIRE_TIME_SECONDS }).toISO(),
+        },
+      });
+  } catch (e: any) {
+      throw new Error(e);
   }
 
   return refreshToken;
@@ -29,13 +36,24 @@ export const validateRefreshToken = async (userid: string, refreshToken: string)
   let isValid = false;
 
   try {
-    const fetchedRefreshToken = await redisClient.get(userid) as unknown as string | null;
+    const session = await client.session.findUnique({
+      where: {
+        userid_refreshToken: {
+          userid,
+          refreshToken,
+        },
+      },
+    });
 
-    if (refreshToken === fetchedRefreshToken) {
+    if (
+      session &&
+      refreshToken === session.refreshToken &&
+      DateTime.now().toISO() < DateTime.fromJSDate(session.expiresAt).toISO()
+    ) {
       isValid = true;
     }
   } catch {
-    throw new Error("Redis could not fetch refresh token");
+    throw new Error("Refresh token could not be fetched.");
   }
 
   return isValid;
