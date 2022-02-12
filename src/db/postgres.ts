@@ -7,8 +7,7 @@ const pool = new Pool({
         ca: process.env.NODE_ENV === "production"
             ? process.env.CA_CERT
             : fs.readFileSync("./ca-certificate.cer").toString(),
-        rejectUnauthorized: false,
-        requestCert: true,
+        rejectUnauthorized: true,
     },
 });
 
