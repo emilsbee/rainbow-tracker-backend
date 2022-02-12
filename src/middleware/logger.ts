@@ -18,5 +18,5 @@ export const logger = async (ctx:Context, next: Next):Promise<void> => {
 
     const stream = fs.createWriteStream(path.join(__dirname, "../../logs/requests.log"), { flags: "a" });
 
-    stream.write(`${DateTime.now().toLocaleString(DateTime.DATETIME_MED)} ${ctx.req.url} \n`);
+    stream.write(`${DateTime.now().toLocaleString(DateTime.DATETIME_MED)} ${ctx.host} ${ctx.url} ${ctx.href} \n`);
 };
