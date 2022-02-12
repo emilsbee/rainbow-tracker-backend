@@ -4,7 +4,9 @@ import { PoolClient, QueryResult, Pool } from "pg";
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
-        ca: fs.readFileSync("./ca-certificate.cer").toString(),
+        ca: process.env.NODE_ENV === "production"
+            ? process.env.CA_CERT
+            : fs.readFileSync("./ca-certificate.cer").toString(),
         rejectUnauthorized: false,
         requestCert: true,
     },
