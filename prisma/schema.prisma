@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model activityType {
+  activityid   String       @id @db.VarChar(50)
+  categoryid   String       @db.VarChar(50)
+  userid       String       @db.VarChar(50)
+  long         String       @db.VarChar(100)
+  short        String       @db.VarChar(2)
+  archived     Boolean
+  categoryType categoryType @relation(fields: [categoryid], references: [categoryid], onDelete: NoAction, onUpdate: NoAction, map: "fk_category")
+  appUser      appUser      @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  categories   category[]
+
+  @@map("activity_type")
+}
+
+model appUser {
+  userid        String         @id @db.VarChar(50)
+  email         String         @unique @db.VarChar(320)
+  password      String         @db.VarChar(250)
+  salt          String         @db.VarChar(50)
+  activityTypes activityType[]
+  categories    category[]
+  categoryTypes categoryType[]
+  notes         note[]
+  sessions      session[]
+  weeks         week[]
+
+  @@map("app_user")
+}
+
+model category {
+  weekid           String        @db.VarChar(50)
+  weekDay          Int
+  categoryPosition Int
+  userid           String        @db.VarChar(50)
+  categoryid       String?       @db.VarChar(50)
+  activityid       String?       @db.VarChar(50)
+  weekDayDate      DateTime      @db.Date
+  activityType     activityType? @relation(fields: [activityid], references: [activityid], onDelete: NoAction, onUpdate: NoAction, map: "fk_activity")
+  categoryType     categoryType? @relation(fields: [categoryid], references: [categoryid], onDelete: NoAction, onUpdate: NoAction, map: "fk_category")
+  appUser          appUser       @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  week             week          @relation(fields: [weekid], references: [weekid], onDelete: NoAction, onUpdate: NoAction, map: "fk_week")
+
+  @@id([weekid, weekDay, categoryPosition])
+}
+
+model categoryType {
+  categoryid    String         @id @db.VarChar(50)
+  userid        String         @db.VarChar(50)
+  color         String         @db.VarChar(50)
+  name          String         @db.VarChar(50)
+  archived      Boolean
+  appUser       appUser        @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  activityTypes activityType[]
+  categories    category[]
+
+  @@map("category_type")
+}
+
+model note {
+  weekid       String   @db.VarChar(50)
+  weekDay      Int
+  notePosition Int
+  stackid      String   @db.VarChar(50)
+  userid       String   @db.VarChar(50)
+  note         String?  @db.VarChar
+  weekDayDate  DateTime @db.Date
+  app_user     appUser  @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  week         week     @relation(fields: [weekid], references: [weekid], onDelete: NoAction, onUpdate: NoAction, map: "fk_week")
+
+  @@id([weekid, weekDay, notePosition])
+}
+
+model session {
+  userid       String   @db.VarChar(50)
+  refreshToken String   @unique @db.VarChar(50)
+  expiresAt    DateTime @db.Timestamp(6)
+  appUser      appUser  @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+
+  @@id([userid, refreshToken])
+}
+
+model week {
+  weekid     String     @id @db.VarChar(50)
+  userid     String     @db.VarChar(50)
+  weekNr     Int
+  weekYear   Int
+  app_user   appUser    @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  categories category[]
+  notes      note[]
+
+  @@unique([userid, weekNr, weekYear])
+}

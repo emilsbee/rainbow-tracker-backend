@@ -1,14 +1,8 @@
 import fs from "fs";
 import { PoolClient, QueryResult, Pool } from "pg";
 
-const pgpassword = process.env.PGPASSWORD;
-const pguser = process.env.PGUSER;
-const pghost = process.env.PGHOST;
-const pgdatabase = process.env.PGDATABASE;
-const pgport = process.env.PGPORT;
-
 const pool = new Pool({
-    connectionString: `postgresql://${pguser}:${pgpassword}@${pghost}:${pgport}/${pgdatabase}`,
+    connectionString: process.env.DATABASE_URL,
     ssl: {
         ca: fs.readFileSync("./ca-certificate.cer").toString(),
     },
