@@ -3,3 +3,4 @@ export * from "./setupMiddleware";
 export * from "./setupRoutes";
 export * from "./auth";
 export * from "./checkEnvVariables";
+export * from "./prismaClient";
