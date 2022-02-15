@@ -38,10 +38,7 @@ export const validateRefreshToken = async (userid: string, refreshToken: string)
   try {
     const session = await client.session.findUnique({
       where: {
-        userid_refreshToken: {
-          userid,
-          refreshToken,
-        },
+        refreshToken,
       },
     });
 
