@@ -17,7 +17,7 @@ export const setupRoutes = (app: Application):void => {
     adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods());
 
     // Public router is for regular users.
-    const publicRouter = new router({ prefix: "/user/:userid" });
+    const publicRouter = new router();
     publicRouter.use(
         noteRouter.routes(),
         categoryRouter.routes(),
