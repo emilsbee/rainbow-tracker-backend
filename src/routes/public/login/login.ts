@@ -24,11 +24,11 @@ router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
 });
 
 router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
-    const { refreshToken, userid } =  ctx.request.body as { refreshToken: string, userid: string };
+    const { refreshToken } =  ctx.request.body as { refreshToken: string, userid: string };
 
-    const isValid = await validateRefreshToken(userid, refreshToken);
+    const { userid, isValid } = await validateRefreshToken(refreshToken);
 
-    if (!isValid) {
+    if (!isValid || !userid) {
         ctx.throw(401, "Invalid refresh token");
     } else {
         const accessToken = await generateAccessToken({ userid, active: true });
