@@ -24,7 +24,7 @@ router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
 });
 
 router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
-    const { refreshToken } =  ctx.request.body as { refreshToken: string, userid: string };
+    const { refreshToken } =  ctx.request.body as { refreshToken: string };
 
     const { userid, isValid } = await validateRefreshToken(refreshToken);
 
