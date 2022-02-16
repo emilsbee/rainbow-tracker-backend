@@ -5,7 +5,6 @@ import { DateTime } from "luxon";
 
 import { client } from "../../services/prismaClient";
 import redisClient from "../../db/redis";
-import { stringify } from "querystring";
 
 export const generateAccessToken = (data: i.SessionObject) => {
   if (process.env.JWT_SECRET) {
