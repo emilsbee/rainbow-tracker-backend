@@ -32,8 +32,16 @@ export const generateRefreshToken = async (userid: string) => {
   return refreshToken;
 };
 
-export const validateRefreshToken = async (userid: string, refreshToken: string): Promise<boolean> => {
-  let isValid = false;
+type ValidateRefreshTokenReturn = {
+  isValid: boolean;
+  userid: string | null;
+}
+type ValidateRefreshToken = (refreshToken: string) => Promise<ValidateRefreshTokenReturn>;
+export const validateRefreshToken: ValidateRefreshToken = async (refreshToken) => {
+  let returnData: ValidateRefreshTokenReturn = {
+    isValid: false,
+    userid: null,
+  };
 
   try {
     const session = await client.session.findUnique({
@@ -47,13 +55,16 @@ export const validateRefreshToken = async (userid: string, refreshToken: string)
       refreshToken === session.refreshToken &&
       DateTime.now().toISO() < DateTime.fromJSDate(session.expiresAt).toISO()
     ) {
-      isValid = true;
+      returnData = {
+        isValid: true,
+        userid: session.userid,
+      };
     }
   } catch {
     throw new Error("Refresh token could not be fetched.");
   }
 
-  return isValid;
+  return returnData;
 };
 
 export const removeRefreshToken = async (userid: string) => {
