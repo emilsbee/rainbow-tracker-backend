@@ -4,3 +4,4 @@ export * from "./setupRoutes";
 export * from "./auth";
 export * from "./checkEnvVariables";
 export * from "./prismaClient";
+export * from "./groupByDays";
