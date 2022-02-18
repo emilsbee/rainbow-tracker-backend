@@ -1,4 +1,5 @@
 import * as i from "types";
+import { category, note } from "@prisma/client";
 
 export type CategoryType = {
     categoryid:string,
@@ -44,7 +45,7 @@ export type Week = {
     weekYear: number
 }
 
-export type FullWeek = Week & { categories: Category[][], notes: Note[][] }
+export type FullWeek = Week & { categories: category[][], notes: note[][] }
 
 export type AvailableDate = {
     year: number,

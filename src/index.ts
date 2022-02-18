@@ -1,8 +1,9 @@
 import koa from "koa";
-
 require("dotenv").config();
 
-import { setupRoutes, serveFrontend, setupMiddleware } from "./services";
+import { setupRoutes, serveFrontend, setupMiddleware, checkEnvVars } from "./services";
+
+checkEnvVars();
 
 const app = new koa();
 
@@ -18,4 +19,3 @@ const server = app.listen(process.env.PORT, () => {
 });
 
 export default server;
-

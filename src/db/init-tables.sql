@@ -87,3 +87,4 @@ CREATE TABLE category (
         "weekDay" > -1 AND "weekDay" < 7
     )
 );
+

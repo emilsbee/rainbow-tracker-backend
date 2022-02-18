@@ -2,9 +2,8 @@ import * as i from "types";
 import { Context } from "koa";
 import Router from "koa-router";
 
-import contentType from "../../../middleware/contentType";
-import protect from "../../../middleware/auth";
-import { createWeek, getWeekByWeekid, getWeekId } from "../../../dao/weekDao/weekDao";
+import contentType from "../../middleware/contentType";
+import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
 
 const router = new Router(); // Initialize router
 
@@ -26,10 +25,6 @@ router.post("/weeks", contentType.JSON, async (ctx: Context) => {
     ctx.body = week;
 });
 
-/**
- * Fetches a week and its categories and notes by a given weekNr and weekYear.
- * @return week with notes and categories organized in days.
- */
 router.get("/week", async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;

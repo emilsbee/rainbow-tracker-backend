@@ -1,4 +1,4 @@
-import * as i from "types";
+import { category, note } from "@prisma/client";
 
 /**
  * Given an array of categories or notes, this function creates a double
@@ -7,8 +7,8 @@ import * as i from "types";
  * @param items Note[] or Category[]
  * @return (Note | Category)[][]
  */
-export const groupByDays = (items: i.Note[] | i.Category[]):any[][] => {
-    const dayArrays:(i.Note | i.Category)[][] = [[], [], [], [], [], [], []];
+export const groupByDays = <T extends { weekDay: number }> (items: T[]):T[][] => {
+    const dayArrays: T[][] = [[], [], [], [], [], [], []];
 
     items.forEach((item) => {
         dayArrays[item.weekDay].push(item);

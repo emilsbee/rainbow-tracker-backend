@@ -16,6 +16,7 @@ export const errorMiddleware = async (ctx:Context, next:Next):Promise<void> => {
         await next();
     } catch (e: any) {
         ctx.status = e.status || 500;
+        ctx.body = e;
         ctx.app.emit("error", e, ctx);
     }
 };

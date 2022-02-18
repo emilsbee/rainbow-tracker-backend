@@ -2,59 +2,45 @@ import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
+import { note, category } from "@prisma/client";
 
-import { groupByDays } from "./helpers";
-import db from "../../db/postgres";
+import { groupByDays } from "services";
+import { client } from "services";
 
-/**
- * Fetches a week by a given weekid for a given user. The week returned is a full week,
- * meaning it includes the categories and notes.
- * @param weekid of category to fetch.
- * @param userid of category to fetch.
- * @return {{ status: number, category: FullWeek[] }}
- */
+import db from "../db/postgres";
+
 export const getWeekByWeekid = async (
     weekid:string,
     userid:string,
-):Promise<i.DaoResponse<i.FullWeek[]>> => {
-    const client:PoolClient = await db.getClient();
-    const values = [weekid, userid];
-    const getWeekNotes = { name: "fetch-notes", text: "SELECT * FROM note WHERE note.weekid = $1 AND note.userid = $2 ORDER BY note.\"notePosition\" ASC", values };
-    const getWeekQuery = { name: "fetch-week", text: "SELECT * FROM week WHERE week.weekid = $1 AND week.userid = $2", values };
-    const getWeekCategories = { name: "fetch-categories", text: "SELECT *, to_char(\"weekDayDate\", 'YYYY-MM-DD') as \"weekDayDate\" FROM category WHERE category.weekid = $1 AND category.userid = $2 ORDER BY category.\"categoryPosition\" ASC", values };
+):Promise<i.DaoResponse<any>> => {
+    const notes = await client.note.findMany({
+        where: {
+            weekid,
+            userid,
+        },
+        orderBy: {
+            notePosition: "asc",
+        },
+    });
 
-    try {
-        // Begin transaction
-        await client.query("BEGIN");
+    const categories = await client.category.findMany({
+        where: {
+            weekid,
+            userid,
+        },
+        orderBy: {
+            categoryPosition: "asc",
+        },
+    });
 
-        // Execute queries
-        const week: QueryResult<i.Week>  = await client.query(getWeekQuery);
-        const notes: QueryResult<i.Note> = await client.query(getWeekNotes);
-        const categories: QueryResult<i.Category> = await client.query(getWeekCategories);
+    const week = await client.week.findFirst({
+        where: {
+            userid,
+            weekid,
+        },
+    });
 
-        return {
-            status: 200,
-            data: [{
-                weekid: week.rows[0].weekid,
-                userid: week.rows[0].userid,
-                weekNr: week.rows[0].weekNr,
-                weekYear: week.rows[0].weekYear,
-                categories: groupByDays(categories.rows),
-                notes: groupByDays(notes.rows),
-            }],
-            error: "",
-        };
-    } catch (e: any) {
-
-        await client.query("ROLLBACK");
-        return {
-            status: 400,
-            data: [],
-            error: e.message,
-        };
-    } finally {
-        client.release();
-    }
+    return { status: 200, error: "", data: { notes: groupByDays(notes), categories: groupByDays(categories), week } };
 };
 
 /**
@@ -109,15 +95,15 @@ export const createWeek = async (
         await client.query(createWeekQuery, values);
 
         // Save weeks's categories and notes
-        const categories: i.Category[] = [];
-        const notes: i.Note[] = [];
+        const categories: category[] = [];
+        const notes: note[] = [];
         const createCategoryQuery:string = "INSERT INTO category(weekid, \"weekDay\", \"categoryPosition\", userid, \"weekDayDate\") VALUES($1, $2, $3, $4, $5);";
         const createNoteQuery:string = "INSERT INTO note(weekid, \"weekDay\", \"notePosition\", stackid, userid, note, \"weekDayDate\") VALUES($1, $2, $3, $4, $5, $6, $7);";
 
         for (let dayIndex:number = 0; dayIndex < 7; dayIndex++) {
             for (let pos:number = 1; pos < 97; pos++) {
                 // Save category
-                const weekDayDate: string = DateTime.fromISO(`${weekYear}-W${String(weekNr).padStart(2, "0")}-${dayIndex + 1}`).toISODate();
+                const weekDayDate: Date = DateTime.fromISO(`${weekYear}-W${String(weekNr).padStart(2, "0")}-${dayIndex + 1}`).toJSDate();
 
                 const categoryValues = [weekid, dayIndex, pos,  userid, weekDayDate];
                 categories.push({

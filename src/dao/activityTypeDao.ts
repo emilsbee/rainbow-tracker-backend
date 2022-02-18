@@ -1,8 +1,10 @@
+import { activityType } from "@prisma/client";
 import { QueryResult } from "pg";
 import * as i from "types";
 import { v4 as uuid } from "uuid";
 
 import db from "../db/postgres";
+import { client } from "../services";
 
 /**
  * Queries
@@ -48,11 +50,17 @@ export const updateActivityType = async (
  * Fetches all category types for a given user.
  * @param userid of the user for which to fetch the category types.
  */
-export const getActivityTypes = async (userid: string): Promise<i.DaoResponse<i.ActivityType[]>> => {
+export const getActivityTypes = async (userid: string): Promise<i.DaoResponse<activityType[]>> => {
     try {
-        const activityTypes: QueryResult<i.ActivityType> = await db.query(getActivityTypesQuery, [userid]);
+        const activityTypes = await client.activityType.findMany({
+            where: {
+                userid,
+                archived: false,
+            },
+        });
+
         return {
-            status: 200, data: activityTypes.rows, error: "",
+            status: 200, data: activityTypes, error: "",
         };
     } catch (e: any) {
         return { status: 400, data: [], error: e.message };

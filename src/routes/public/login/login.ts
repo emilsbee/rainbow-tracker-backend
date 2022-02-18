@@ -7,39 +7,38 @@ import { login } from "../../../dao/authDao";
 
 const router = new Router();
 
-router.post("/auth/login", contentType.JSON, async (ctx:Context) => {
+router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body as {email:string, password:string};
 
     const { status, data: user, error } = await login(email, password);
 
-    if (error.length > 0) {
-        ctx.throw(status, error, { path: __filename });
+    if (error.length > 0 || !user) {
+        ctx.throw(status, error);
     }
 
-    const accessToken: string = generateAccessToken({ userid: user.userid });
+    const accessToken: string = generateAccessToken({ userid: user.userid, active: true });
     const refreshToken: string = await generateRefreshToken(user.userid);
 
     ctx.status = status;
     ctx.body = { ...user, accessToken, refreshToken };
 });
 
-router.post("/auth/refresh", contentType.JSON, async (ctx: Context) => {
-    const { refreshToken, userid } =  ctx.request.body as { refreshToken: string, userid: string };
+router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
+    const { refreshToken } =  ctx.request.body as { refreshToken: string };
 
-    let accessToken: string;
-    let status: number;
-
-    const isValid = await validateRefreshToken(userid, refreshToken);
-
-    if (isValid) {
-        accessToken = await generateAccessToken({ userid });
-        status = 200;
-    } else {
-        ctx.throw(401, "Invalid refresh token", { path: __filename });
+    if (!refreshToken) {
+        ctx.throw(401, "Valid refresh token must be provided.");
     }
 
-   ctx.body = { accessToken };
-   ctx.status = status;
+    const { userid, isValid } = await validateRefreshToken(refreshToken);
+
+    if (!isValid || !userid) {
+        ctx.throw(401, "Invalid refresh token");
+    } else {
+        const accessToken = await generateAccessToken({ userid, active: true });
+        ctx.body = { accessToken };
+        ctx.status = 200;
+    }
 });
 
 export  default router;

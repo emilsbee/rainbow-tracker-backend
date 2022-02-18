@@ -1,8 +1,6 @@
-import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-import protect from "../../middleware/auth";
 import {
     getAvailableDates,
     getAvailableMonths,
@@ -10,7 +8,7 @@ import {
     getTotalPerMonth,
     getTotalPerWeek,
 } from "../../dao/analyticsDao/analyticsDao";
-import { getWeekId } from "../../dao/weekDao/weekDao";
+import { getWeekId } from "../../dao/weekDao";
 
 const router = new Router();
 

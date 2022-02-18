@@ -1,3 +1,4 @@
 export type SessionObject = {
-  userid: string
+  userid: string;
+  active: boolean;
 };
