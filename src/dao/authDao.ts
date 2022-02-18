@@ -37,7 +37,7 @@ export const login = async (
             return { status: 401, data: null, error: "Incorrect email or password." };
         }
     } catch (e: any) {
-        return { status: 400, data: null, error: "Something went wrong." };
+        return { status: 400, data: null, error: e.message };
    };
 };
 
