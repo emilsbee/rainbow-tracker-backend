@@ -2,9 +2,11 @@ import * as i from "types";
 import { PoolClient, QueryResult } from "pg";
 import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
+import { note, category } from "@prisma/client";
 
-import { client } from "../../services/prismaClient";
-import { groupByDays } from "./helpers";
+import { groupByDays } from "services";
+import { client } from "services";
+
 import db from "../../db/postgres";
 
 export const getWeekByWeekid = async (
@@ -38,7 +40,7 @@ export const getWeekByWeekid = async (
         },
     });
 
-    return { status: 200, error: "", data: { notes, categories, week } };
+    return { status: 200, error: "", data: { notes: groupByDays(notes), categories: groupByDays(categories), week } };
 };
 
 /**
@@ -93,15 +95,15 @@ export const createWeek = async (
         await client.query(createWeekQuery, values);
 
         // Save weeks's categories and notes
-        const categories: i.Category[] = [];
-        const notes: i.Note[] = [];
+        const categories: category[] = [];
+        const notes: note[] = [];
         const createCategoryQuery:string = "INSERT INTO category(weekid, \"weekDay\", \"categoryPosition\", userid, \"weekDayDate\") VALUES($1, $2, $3, $4, $5);";
         const createNoteQuery:string = "INSERT INTO note(weekid, \"weekDay\", \"notePosition\", stackid, userid, note, \"weekDayDate\") VALUES($1, $2, $3, $4, $5, $6, $7);";
 
         for (let dayIndex:number = 0; dayIndex < 7; dayIndex++) {
             for (let pos:number = 1; pos < 97; pos++) {
                 // Save category
-                const weekDayDate: string = DateTime.fromISO(`${weekYear}-W${String(weekNr).padStart(2, "0")}-${dayIndex + 1}`).toISODate();
+                const weekDayDate: Date = DateTime.fromISO(`${weekYear}-W${String(weekNr).padStart(2, "0")}-${dayIndex + 1}`).toJSDate();
 
                 const categoryValues = [weekid, dayIndex, pos,  userid, weekDayDate];
                 categories.push({

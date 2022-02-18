@@ -7,7 +7,7 @@ import activityTypeRouter from "../routes/protected/activityType";
 import loginRouter from "../routes/public/login/login";
 import userRouter from "../routes/admin/user";
 import authRouter from "../routes/protected/auth";
-import weekRouter from "../routes/protected/week/week";
+import weekRouter from "../routes/protected/week";
 import categoryTypeRouter from "../routes/protected/categoryType";
 import categoryRouter from "../routes/protected/category/category";
 
