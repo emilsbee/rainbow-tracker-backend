@@ -7,7 +7,7 @@ import { note, category } from "@prisma/client";
 import { groupByDays } from "services";
 import { client } from "services";
 
-import db from "../../db/postgres";
+import db from "../db/postgres";
 
 export const getWeekByWeekid = async (
     weekid:string,

@@ -3,7 +3,7 @@ import { Context } from "koa";
 import Router from "koa-router";
 
 import contentType from "../../middleware/contentType";
-import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao/weekDao";
+import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
 
 const router = new Router(); // Initialize router
 
