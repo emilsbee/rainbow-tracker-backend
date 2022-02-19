@@ -1,7 +1,7 @@
 import * as i from "types";
 import { Context } from "koa";
 import Router from "koa-router";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 
 import contentType from "../../middleware/contentType";
 import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
@@ -31,13 +31,15 @@ router.get("/week", async (ctx: Context) => {
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const { data: weekid, error: weekIdError, status } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const { data: weekid, error: weekIdError, status, success } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
 
-    if (weekIdError.length > 0) {
+    if (!success) {
         ctx.throw(status, weekIdError);
     } else if (!weekid) {
         const maxDate = DateTime.now().plus({ years: 2 });
-        if (parseInt(weekNr) <= maxDate.weekNumber && parseInt(weekYear) <= maxDate.weekYear) {
+        const currentDate = DateTime.fromObject({ weekNumber: parseInt(weekNr), weekYear: parseInt(weekYear) });
+
+        if (currentDate.toMillis() >= maxDate.toMillis()) {
             ctx.throw(400, "A week can be created maximums 2 years in the future.");
         } else {
             const { data, error: createWeekError, status: createWeekStatus } = await createWeek(parseInt(weekNr), parseInt(weekYear), userid);

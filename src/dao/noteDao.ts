@@ -29,16 +29,16 @@ export const updateWeekDayNotes = async (
             const res: QueryResult = await client.query(updateWeekDayNotesQuery, updateWeekDayNotesQueryValues);
 
             if (res.rowCount < 1) {
-                return { status: 404, error: "Note not found.", data: null };
+                return { status: 404, error: "Note not found.", data: null, success: true };
             }
         }
 
         await client.query("COMMIT");
 
-        return { status: 204, error: "", data: null };
+        return { status: 204, error: "", data: null, success: true };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e, data: null };
+        return { status: 400, error: e, data: null, success: false };
     } finally {
         client.release();
     }

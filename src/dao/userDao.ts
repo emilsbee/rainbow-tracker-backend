@@ -18,14 +18,19 @@ export const getUserInfo = async (userid:string):Promise<i.DaoResponse<i.User>> 
         const userQuery:QueryResult<i.User> = await db.query(getUserInfoQuery);
 
         if (userQuery.rowCount === 0) {
-            return { status: 404, error: `Could not find user with userid ${userid}`, data: user };
+            return {
+                status: 404,
+                error: `Could not find user with userid ${userid}`,
+                data: user,
+                success: true,
+            };
         } else {
             user = userQuery.rows[0];
         }
 
-        return { status: 200, data: user, error: "" };
+        return { status: 200, data: user, error: "", success: true };
     } catch (e: any) {
-        return { status: 400, data: user, error: e.message };
+        return { status: 400, data: user, error: e.message, success: false };
     }
 };
 
@@ -46,9 +51,9 @@ export const createUser = async (email:string, password:string):Promise<i.DaoRes
 
     try {
         await db.query(createUserQuery);
-        return { status: 201, data: [newUser], error: "" };
+        return { status: 201, data: [newUser], error: "", success: true };
     } catch (err: any) {
-        return { status: 422, data: [], error: err.message };
+        return { status: 422, data: [], error: err.message, success: false };
     }
 };
 
@@ -70,10 +75,10 @@ export const deleteUser = async (userid:string):Promise<i.DaoResponse<null>> => 
         // Commit transaction
         await client.query("COMMIT");
 
-        return { status: 204, error: "", data: null };
+        return { status: 204, error: "", data: null, success: true };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: null };
+        return { status: 400, error: e.message, data: null, success: false };
     } finally {
         client.release();
     }

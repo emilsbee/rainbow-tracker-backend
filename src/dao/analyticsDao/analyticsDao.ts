@@ -37,10 +37,11 @@ export const getAvailableDates = async (
             status: 200,
             error: "",
             data: availableDates,
+            success: true,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: [] };
+        return { status: 400, error: e.message, data: [], success: false };
     } finally {
         client.release();
     }
@@ -107,6 +108,7 @@ export const getTotalPerWeek = async (
                     categoryTypes: [],
                     activityTypes: [],
                 },
+                success: true,
             };
         }
 
@@ -117,6 +119,7 @@ export const getTotalPerWeek = async (
                 categoryTypes: totalPerWeekCategoryTypes,
                 activityTypes: totalPerWeekActivityTypes,
             },
+            success: true,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
@@ -127,6 +130,7 @@ export const getTotalPerWeek = async (
                     categoryTypes: [],
                     activityTypes: [],
                 },
+                success: false,
             };
     } finally {
         client.release();
@@ -191,10 +195,11 @@ export const getTotalPerDay = async (
             status: 200,
             error: "",
             data: totalPerDay,
+            success: true,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: totalPerDay };
+        return { status: 400, error: e.message, data: totalPerDay, success: false };
     } finally {
         client.release();
     }
@@ -211,9 +216,9 @@ export const getAvailableMonths = async (
 
         const availableMonths:QueryResult<i.AvailableMonth> = await db.query(getAvailableMonthsQuery, [userid]);
 
-        return { status: 200, error: "", data: availableMonths.rows };
+        return { status: 200, error: "", data: availableMonths.rows, success: true };
     } catch (e:any) {
-        return { status: 400, error: e.message, data: [] };
+        return { status: 400, error: e.message, data: [], success: false };
     }
 };
 
@@ -280,13 +285,14 @@ export const getTotalPerMonth = async (
                     categoryTypes: [],
                     activityTypes: [],
                 },
+                success: true,
             };
         }
 
-        return { status: 200, error: "", data: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity } };
+        return { status: 200, error: "", data: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity }, success: true };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: {} as i.TotalPerMonth };
+        return { status: 400, error: e.message, data: {} as i.TotalPerMonth, success: false };
     } finally {
         client.release();
     }
@@ -314,7 +320,9 @@ export const getTotalPerDaySpecific = async (
             return {
                 status: 404,
                 error: `No categories have been added for day ${day} in week ${weekNr} in year ${year}`,
-                data: {} as i.TotalPerDaySpecific };
+                data: {} as i.TotalPerDaySpecific,
+                success: true,
+            };
         }
 
         return {
@@ -324,8 +332,9 @@ export const getTotalPerDaySpecific = async (
                 weekDay: day,
                 categories: totalPerDaySpecific.rows,
             },
+            success: true,
         };
     } catch (e: any) {
-        return { status: 400, error: e.message, data: {} as i.TotalPerDaySpecific };
+        return { status: 400, error: e.message, data: {} as i.TotalPerDaySpecific, success: false };
     }
 };

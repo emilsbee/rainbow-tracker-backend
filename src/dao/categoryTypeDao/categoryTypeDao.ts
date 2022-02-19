@@ -28,13 +28,13 @@ export const archiveCategoryType = async (userid: string, categoryid: string): P
         await client.query("COMMIT");
 
         if (categoryRes.rowCount === 0) {
-            return { status: 404, error: `Category ${categoryid} does not exist in the database.`, data: null };
+            return { status: 404, error: `Category ${categoryid} does not exist in the database.`, data: null, success: true };
         } else {
-            return { status: 204, error: "", data: null };
+            return { status: 204, error: "", data: null, success: true };
         }
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: null };
+        return { status: 400, error: e.message, data: null, success: false };
     } finally {
         client.release();
     }
@@ -62,6 +62,7 @@ export const updateCategoryType = async (
                 status: 404,
                 data: categoryType,
                 error: `Category type ${categoryid} for update was not found.`,
+                success: true,
             };
         } else {
             categoryType = {
@@ -76,10 +77,11 @@ export const updateCategoryType = async (
                 status: 200,
                 data: categoryType,
                 error: "",
+                success: true,
             };
         }
     } catch (e: any) {
-        return { status: 400, data: categoryType, error: e.message };
+        return { status: 400, data: categoryType, error: e.message, success: false };
     }
 };
 
@@ -92,10 +94,10 @@ export const getCategoryTypes = async (userid: string): Promise<i.DaoResponse<i.
         const getCategoryTypesQuery = "SELECT * FROM category_type WHERE userid=$1 AND archived=false";
         const newCategoryTypes: QueryResult<i.CategoryType> = await db.query(getCategoryTypesQuery, [userid]);
         return {
-            status: 200, data: newCategoryTypes.rows, error: "",
+            status: 200, data: newCategoryTypes.rows, error: "", success: true,
         };
     } catch (e: any) {
-        return { status: 400, data: [], error: e.message };
+        return { status: 400, data: [], error: e.message, success: false };
     }
 };
 
@@ -126,10 +128,11 @@ export const getCategoryTypesFull = async (
                 activityTypes: sortActivityTypesByArchived(activityTypes.rows),
             },
             error: "",
+            success: true,
         };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, data: { categoryTypes: [], activityTypes: [] }, error: e.message };
+        return { status: 400, data: { categoryTypes: [], activityTypes: [] }, error: e.message, success: false };
     } finally {
         client.release();
     }
@@ -151,9 +154,9 @@ export const createCategoryType = async (
         const categoryid = uuid();
         const values = [categoryid, userid, color, name, false];
         await db.query(createCategoryTypeQuery, values);
-        return { status: 201, data: [{ userid, categoryid, name, color, archived: false }], error: "" };
+        return { status: 201, data: [{ userid, categoryid, name, color, archived: false }], error: "", success: true };
     } catch (err: any) {
-        return { status: 422, data: [], error: err.message };
+        return { status: 422, data: [], error: err.message, success: false };
     }
 };
 
@@ -176,15 +179,15 @@ export const restoreCategoryType = async (userid: string, categoryid: string): P
         await client.query(restoreActivityTypesQuery, [userid, categoryid]);
 
         if (restoredCategoryType.rowCount === 0) {
-            return { status: 404, error: `Could not find given category with categoryid: ${categoryid}.`, data: null };
+            return { status: 404, error: `Could not find given category with categoryid: ${categoryid}.`, data: null, success: true };
         }
 
         await client.query("COMMIT");
 
-        return { status: 200, error: "", data: null };
+        return { status: 200, error: "", data: null, success: true };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: null };
+        return { status: 400, error: e.message, data: null, success: false };
     } finally {
         client.release();
     }

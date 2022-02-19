@@ -31,17 +31,19 @@ export const updateActivityType = async (
                 status: 404,
                 error: `Activity ${activityid} does not exist in the database.`,
                 data: {} as i.ActivityType,
+                success: true,
             };
         } else {
             return {
                 status: 200,
                 error: "",
                 data: activityType,
+                success: true,
             };
         }
 
     } catch (e: any) {
-        return { status: 400, error: e.message, data: {} as i.ActivityType };
+        return { status: 400, error: e.message, data: {} as i.ActivityType, success: false };
     }
 
 };
@@ -60,10 +62,10 @@ export const getActivityTypes = async (userid: string): Promise<i.DaoResponse<ac
         });
 
         return {
-            status: 200, data: activityTypes, error: "",
+            status: 200, data: activityTypes, error: "", success: true,
         };
     } catch (e: any) {
-        return { status: 400, data: [], error: e.message };
+        return { status: 400, data: [], error: e.message, success: false };
     }
 };
 
@@ -93,8 +95,9 @@ export const createActivityType = async (
                 archived: activityType.archived,
             },
             error: "",
+            success: true,
         };
     } catch (e: any) {
-        return { status: 422, data: {} as i.ActivityType, error: e.message };
+        return { status: 422, data: {} as i.ActivityType, error: e.message, success: false };
     }
 };

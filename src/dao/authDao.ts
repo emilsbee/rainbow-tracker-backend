@@ -25,19 +25,21 @@ export const login = async (
                     },
                     status: 200,
                     error: "",
+                    success: true,
                 };
             } else {
                 return {
                     data: null,
                     error: "Incorrect email or password.",
                     status: 401,
+                    success: true,
                 };
             }
         } else {
-            return { status: 401, data: null, error: "Incorrect email or password." };
+            return { status: 401, data: null, error: "Incorrect email or password.", success: true };
         }
     } catch (e: any) {
-        return { status: 400, data: null, error: "Something went wrong." };
+        return { status: 400, data: null, error: "Something went wrong.", success: false };
    };
 };
 

@@ -36,12 +36,21 @@ export const getWeekByWeekid = async (
         });
 
         if (!week) {
-            return { status: 404, error: "No week found.", data: undefined };
+            return { status: 404, error: "No week found.", data: undefined, success: true };
         }
 
-        return { status: 200, error: "", data: { notes: groupByDays(notes), categories: groupByDays(categories), ...week } };
+        return {
+            status: 200,
+            error: "",
+            data: {
+                notes: groupByDays(notes),
+                categories: groupByDays(categories),
+                ...week,
+            },
+            success: true,
+        };
     } catch (e: any) {
-        return { status: 400, error: e.message, data: undefined };
+        return { status: 400, error: e.message, data: undefined, success: false };
     };
 };
 
@@ -49,7 +58,7 @@ export const getWeekId = async (
     weekNr:number,
     weekYear:number,
     userid:string,
-):Promise<i.DaoResponse<string | undefined>> => {
+):Promise<i.DaoResponse<string | undefined | null>> => {
     try {
         const weekId = await client.week.findFirst({
             select: {
@@ -62,9 +71,11 @@ export const getWeekId = async (
             },
         });
 
-        return { status: 200, data: weekId?.weekid, error: "" };
+        if (!weekId) return { status: 404, error: "No week found.", success: true, data: undefined };
+
+        return { status: 200, data: weekId.weekid, error: "", success: true };
     } catch (e: any) {
-        return { status: 400, data: undefined, error: e.message };
+        return { status: 400, data: undefined, error: e.message, success: false };
     }
 };
 
@@ -105,8 +116,9 @@ export const createWeek = async (
                 categories: groupByDays(categoryData),
                 notes: groupByDays(notesData),
             },
+            success: true,
         };
     } catch (e: any) {
-        return { error: e.message, status: 400, data: undefined };
+        return { error: e.message, status: 400, data: undefined, success: false };
     }
 };

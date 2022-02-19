@@ -30,15 +30,15 @@ export const updateWeekDayCategories = async (
 
             if (res.rowCount < 1) {
                 await client.query("COMMIT");
-                return { status: 404, error: `Category not found for week ${weekid}.`, data: [] };
+                return { status: 404, error: `Category not found for week ${weekid}.`, data: [], success: true };
             }
         }
 
         await client.query("COMMIT");
-        return { status: 200, error: "", data: categories };
+        return { status: 200, error: "", data: categories, success: true };
     } catch (e: any) {
         await client.query("ROLLBACK");
-        return { status: 400, error: e.message, data: [] };
+        return { status: 400, error: e.message, data: [], success: false };
     } finally {
         client.release();
     }
