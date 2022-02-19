@@ -1,6 +1,7 @@
 import * as i from "types";
 import { Context } from "koa";
 import Router from "koa-router";
+import { DateTime } from "luxon";
 
 import contentType from "../../middleware/contentType";
 import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
@@ -32,8 +33,22 @@ router.get("/week", async (ctx: Context) => {
 
     const { data: weekid, error: weekIdError, status } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
 
-    if (weekIdError.length > 0 || weekid == null) {
-        ctx.throw(status, weekIdError, { path: __filename });
+    if (weekIdError.length > 0) {
+        ctx.throw(status, weekIdError);
+    } else if (!weekid) {
+        const maxDate = DateTime.now().plus({ years: 2 });
+        if (parseInt(weekNr) <= maxDate.weekNumber && parseInt(weekYear) <= maxDate.weekYear) {
+            ctx.throw(400, "A week can be created maximums 2 years in the future.");
+        } else {
+            const { data, error: createWeekError, status: createWeekStatus } = await createWeek(parseInt(weekNr), parseInt(weekYear), userid);
+
+            if (createWeekError.length > 0) {
+                ctx.throw(createWeekStatus, createWeekError);
+            }
+
+            ctx.status = 200;
+            ctx.body = data;
+        }
     } else {
         const { data: week, status, error: weekError } = await getWeekByWeekid(weekid, userid);
 

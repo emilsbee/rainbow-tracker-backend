@@ -5,3 +5,4 @@ export * from "./auth";
 export * from "./checkEnvVariables";
 export * from "./prismaClient";
 export * from "./groupByDays";
+export * from "./generateStaticData";

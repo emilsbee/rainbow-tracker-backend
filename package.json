@@ -7,10 +7,10 @@
   "author": "Emils Bernhards",
   "license": "ISC",
   "scripts": {
-    "start:test": "export NODE_ENV=test && ts-node src/index.ts",
-    "start": "export NODE_ENV=development && nodemon --exec 'ts-node' src/index.ts",
+    "start:test": "export NODE_ENV=test && ts-node -r tsconfig-paths/register src/index.ts",
+    "start": "export NODE_ENV=development && nodemon --exec 'ts-node' -r tsconfig-paths/register src/index.ts",
     "start:prod": "export NODE_ENV=production && node dist/index.js",
-    "start:debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' src/index.ts",
+    "start:debug": "export NODE_ENV=development && nodemon --exec 'DEBUG=koa* ts-node' -r tsconfig-paths/register src/index.ts",
     "test": "CI=true ./node_modules/.bin/jest --runInBand",
     "lint": "eslint --fix --ext .js --ext .jsx --ext .ts --ext .tsx src/",
     "build": "tsc && tsc-alias",
@@ -59,6 +59,7 @@
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
     "ts-node": "10.4.0",
+    "tsconfig-paths": "^3.12.0",
     "typescript": "4.4.4"
   }
 }
