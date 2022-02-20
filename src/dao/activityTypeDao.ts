@@ -1,10 +1,11 @@
+import * as i from "types";
 import { activityType } from "@prisma/client";
 import { QueryResult } from "pg";
-import * as i from "types";
 import { v4 as uuid } from "uuid";
 
+import { client } from "services";
+
 import db from "../db/postgres";
-import { client } from "../services";
 
 /**
  * Queries

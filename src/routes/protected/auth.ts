@@ -1,7 +1,7 @@
 import { Context } from "koa";
 const Router = require("koa-router");
 
-import { removeRefreshToken } from "../../services";
+import { removeRefreshToken } from "services";
 
 export const authRouter = new Router();
 

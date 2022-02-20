@@ -2,13 +2,10 @@ import { Context } from "koa";
 const Router = require("koa-router");
 
 import {
-    getAvailableDates,
-    getAvailableMonths,
-    getTotalPerDay, getTotalPerDaySpecific,
-    getTotalPerMonth,
-    getTotalPerWeek,
-} from "../../dao/analyticsDao/analyticsDao";
-import { getWeekId } from "../../dao/weekDao";
+    getAvailableDates, getAvailableMonths, getTotalPerDay,
+    getTotalPerDaySpecific, getTotalPerMonth, getTotalPerWeek,
+    getWeekId,
+} from "dao";
 
 export const analyticsRouter = new Router();
 

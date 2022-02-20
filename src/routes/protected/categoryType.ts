@@ -3,11 +3,10 @@ import { Context, Next } from "koa";
 import Router from "koa-router";
 
 import { contentType } from "middleware";
-
 import {
     createCategoryType, archiveCategoryType, getCategoryTypes,
     getCategoryTypesFull, restoreCategoryType, updateCategoryType,
-} from "../../dao/categoryTypeDao/categoryTypeDao";
+} from "dao";
 
 export const categoryTypeRouter = new Router();
 

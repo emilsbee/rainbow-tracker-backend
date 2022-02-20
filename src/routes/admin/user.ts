@@ -3,8 +3,7 @@ import { Context } from "koa";
 const Router = require("koa-router");
 
 import { contentType, admin } from "middleware";
-
-import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
+import { createUser, deleteUser, getUserInfo } from "dao";
 
 export const userAdminRouter = new Router();
 

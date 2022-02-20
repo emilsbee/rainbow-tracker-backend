@@ -4,8 +4,7 @@ import Router from "koa-router";
 import { DateTime } from "luxon";
 
 import { contentType } from "middleware";
-
-import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
+import { createWeek, getWeekByWeekid, getWeekId } from "dao";
 
 export const weekRouter = new Router(); // Initialize router
 

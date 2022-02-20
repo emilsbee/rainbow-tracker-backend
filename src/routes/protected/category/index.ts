@@ -3,8 +3,7 @@ import { Context } from "koa";
 const Router = require("koa-router");
 
 import { contentType } from "middleware";
-
-import { updateWeekDayCategories } from "../../../dao/categoryDao";
+import { updateWeekDayCategories } from "dao";
 
 export const categoryRouter = new Router();
 
