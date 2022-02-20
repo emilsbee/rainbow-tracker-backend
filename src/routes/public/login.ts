@@ -1,16 +1,17 @@
 import { Context } from "koa";
 const Router = require("koa-router");
 
-import { generateAccessToken, generateRefreshToken, validateRefreshToken } from "../../../services";
-import contentType from "../../../middleware/contentType";
-import { login } from "../../../dao/authDao";
+import { generateAccessToken, generateRefreshToken, validateRefreshToken } from "services";
+import { checkCredentials } from "dao";
+
+import contentType from "../../middleware/contentType";
 
 const router = new Router();
 
 router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
-    const { email, password } = ctx.request.body as {email:string, password:string};
+    const { email, password } = ctx.request.body;
 
-    const { status, data: user, error } = await login(email, password);
+    const { status, data: user, error } = await checkCredentials({ email, password });
 
     if (error.length > 0 || !user) {
         ctx.throw(status, error);
@@ -41,4 +42,4 @@ router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
     }
 });
 
-export  default router;
+export default router;

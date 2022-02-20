@@ -1,3 +1,5 @@
+export * from "./user/types";
+
 export type DaoResponse<T> = {
     error: string;
     status: number;
