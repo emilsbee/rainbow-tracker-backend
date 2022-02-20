@@ -3,26 +3,22 @@ import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
 
-import { client } from "../../services/prismaClient";
-import redisClient from "../../db/redis";
+import { client } from "services";
 
-export const generateAccessToken = (data: i.SessionObject) => {
-  if (process.env.JWT_SECRET) {
-    return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "43200s" }); // 43200seconds = 12hours;
-  } else {
-    throw new Error("You must have the environment variable JWT_SECRET");
-  }
+import { authConfig } from "./config";
+
+export const generateAccessToken: i.GenerateAccessToken = (data) => {
+  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: authConfig.ACCESS_TOKEN_EXPIRE });
 };
 
-export const SESSION_EXPIRE_TIME_SECONDS = 172800;
-export const generateRefreshToken = async (userid: string) => {
+export const generateRefreshToken: i.GenerateRefreshToken = async (userid) => {
   const refreshToken = uuid();
   try {
       await client.session.create({
         data: {
           userid,
           refreshToken,
-          expiresAt: DateTime.now().plus({ seconds: SESSION_EXPIRE_TIME_SECONDS }).toISO(),
+          expiresAt: DateTime.now().plus({ seconds: authConfig.REFRESH_TOKEN_EXPIRE }).toISO(),
         },
       });
   } catch (e: any) {
@@ -32,13 +28,8 @@ export const generateRefreshToken = async (userid: string) => {
   return refreshToken;
 };
 
-type ValidateRefreshTokenReturn = {
-  isValid: boolean;
-  userid: string | null;
-}
-type ValidateRefreshToken = (refreshToken: string) => Promise<ValidateRefreshTokenReturn>;
-export const validateRefreshToken: ValidateRefreshToken = async (refreshToken) => {
-  let returnData: ValidateRefreshTokenReturn = {
+export const validateRefreshToken: i.ValidateRefreshToken = async (refreshToken) => {
+  let returnData: i.ValidateRefreshTokenReturn = {
     isValid: false,
     userid: null,
   };
@@ -61,16 +52,25 @@ export const validateRefreshToken: ValidateRefreshToken = async (refreshToken) =
       };
     }
   } catch {
-    throw new Error("Refresh token could not be fetched.");
+    return returnData;
   }
 
   return returnData;
 };
 
-export const removeRefreshToken = async (userid: string) => {
+export const removeRefreshToken: i.RemoveRefreshToken = async (userid) => {
   try {
-    await redisClient.del(userid);
-  } catch {
-    throw new Error("Redis could not remove refresh token");
+    const { count } = await client.session.deleteMany({
+      where: {
+        userid,
+      },
+    });
+
+    if (count === 0) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
   }
 };

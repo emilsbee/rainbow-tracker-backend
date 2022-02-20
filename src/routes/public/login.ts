@@ -5,7 +5,6 @@ import { generateAccessToken, generateRefreshToken, validateRefreshToken } from 
 import { checkCredentials } from "dao";
 import { contentType } from "middleware";
 
-
 export const authPublicRouter = new Router();
 
 authPublicRouter.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
@@ -25,7 +24,7 @@ authPublicRouter.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) 
 });
 
 authPublicRouter.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
-    const { refreshToken } =  ctx.request.body as { refreshToken: string };
+    const { refreshToken } =  ctx.request.body;
 
     if (!refreshToken) {
         ctx.throw(401, "Valid refresh token must be provided.");

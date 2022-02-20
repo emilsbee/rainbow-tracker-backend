@@ -8,9 +8,11 @@ export const authRouter = new Router();
 authRouter.get("/auth/logout", async (ctx:Context) => {
     const userid = ctx.state.user.userid;
 
-    await removeRefreshToken(userid);
+    const success = await removeRefreshToken(userid);
 
-    ctx.status = 204;
+    if (success) {
+        ctx.status = 204;
+    } else ctx.status = 400;
 });
 
 /**
