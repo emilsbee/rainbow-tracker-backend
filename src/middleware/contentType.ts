@@ -5,7 +5,7 @@ const ContentType = {
     JSON: "application/json",
 };
 
-export default {
+export const contentType = {
     JSON: async (ctx:Context, next:Next) => {
         if (ctx.req.headers["content-type"] === ContentType.JSON) {
             await next();

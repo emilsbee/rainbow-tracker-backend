@@ -2,13 +2,13 @@ import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-import contentType from "../../middleware/contentType";
-import protect from "../../middleware/auth";
+import { contentType, admin } from "middleware";
+
 import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
 
 export const userAdminRouter = new Router();
 
-userAdminRouter.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
+userAdminRouter.post("/users", contentType.JSON, admin, async  (ctx:Context) => {
     const userToCreate = ctx.request.body as i.User;
 
     const { status, data: user, error } = await createUser(userToCreate.email, userToCreate.password);
@@ -29,7 +29,7 @@ userAdminRouter.post("/users", contentType.JSON, protect.admin, async  (ctx:Cont
     }
 });
 
-userAdminRouter.delete("/users/:userid", protect.admin, async (ctx:Context) => {
+userAdminRouter.delete("/users/:userid", admin, async (ctx:Context) => {
     const userid = ctx.params.userid;
     const { status, error } = await deleteUser(userid);
 
@@ -40,7 +40,7 @@ userAdminRouter.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     ctx.status = status;
 });
 
-userAdminRouter.get("/users/:userid", protect.admin, async (ctx:Context) => {
+userAdminRouter.get("/users/:userid", admin, async (ctx:Context) => {
     const userid:string = ctx.params.userid;
 
     const { status, data, error } = await getUserInfo(userid);

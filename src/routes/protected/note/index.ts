@@ -2,7 +2,8 @@ import * as i from "types";
 import { Context } from "koa";
 const Router = require("koa-router");
 
-import contentType from "../../../middleware/contentType";
+import { contentType } from "middleware";
+
 import { updateWeekDayNotes } from "../../../dao/noteDao";
 
 export const noteRouter = new Router();

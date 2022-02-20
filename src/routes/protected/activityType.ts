@@ -2,12 +2,13 @@ import * as i from "types";
 import { Context } from "koa";
 import Router from "koa-router";
 
+import { contentType } from "middleware";
+
 import {
     createActivityType,
     getActivityTypes,
     updateActivityType,
 } from "../../dao/activityTypeDao";
-import contentType from "../../middleware/contentType";
 
 export const activityTypeRouter = new Router();
 

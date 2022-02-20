@@ -2,8 +2,7 @@ import Application from "koa";
 import bodyParser from "koa-bodyparser";
 import jwt from "koa-jwt";
 
-import { errorHandler, errorMiddleware } from "../middleware/error";
-import { logger } from "../middleware/logger";
+import { errorHandler, errorMiddleware, logger } from "middleware";
 
 export const setupMiddleware = (app: Application):void => {
     app.use(

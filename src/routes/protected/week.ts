@@ -1,9 +1,10 @@
 import * as i from "types";
 import { Context } from "koa";
 import Router from "koa-router";
-import { DateTime, Duration } from "luxon";
+import { DateTime } from "luxon";
 
-import contentType from "../../middleware/contentType";
+import { contentType } from "middleware";
+
 import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
 
 export const weekRouter = new Router(); // Initialize router

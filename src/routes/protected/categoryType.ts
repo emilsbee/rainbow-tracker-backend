@@ -2,7 +2,8 @@ import * as i from "types";
 import { Context, Next } from "koa";
 import Router from "koa-router";
 
-import contentType from "../../middleware/contentType";
+import { contentType } from "middleware";
+
 import {
     createCategoryType, archiveCategoryType, getCategoryTypes,
     getCategoryTypesFull, restoreCategoryType, updateCategoryType,

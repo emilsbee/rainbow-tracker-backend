@@ -3,8 +3,8 @@ const Router = require("koa-router");
 
 import { generateAccessToken, generateRefreshToken, validateRefreshToken } from "services";
 import { checkCredentials } from "dao";
+import { contentType } from "middleware";
 
-import contentType from "../../middleware/contentType";
 
 export const authPublicRouter = new Router();
 
