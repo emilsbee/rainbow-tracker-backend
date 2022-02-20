@@ -50,6 +50,7 @@ model Category {
   week             Week          @relation(fields: [weekid], references: [weekid], onDelete: NoAction, onUpdate: NoAction, map: "fk_week")
 
   @@id([weekid, weekDay, categoryPosition])
+  @@map("category")
 }
 
 model CategoryType {
@@ -77,6 +78,7 @@ model Note {
   week         Week     @relation(fields: [weekid], references: [weekid], onDelete: NoAction, onUpdate: NoAction, map: "fk_week")
 
   @@id([weekid, weekDay, notePosition])
+  @@map("note")
 }
 
 model Session {
@@ -86,6 +88,7 @@ model Session {
   appUser      AppUser  @relation(fields: [userid], references: [userid], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
 
   @@id([userid, refreshToken])
+  @@map("session")
 }
 
 model Week {
@@ -98,4 +101,5 @@ model Week {
   notes      Note[]
 
   @@unique([userid, weekNr, weekYear])
+  @@map("week")
 }
