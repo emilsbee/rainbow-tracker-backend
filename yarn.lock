@@ -5367,6 +5367,11 @@
     "readable-stream" "^3.6.0"
     "semver" "^7.3.2"
 
+"superstruct@^0.15.3":
+  "integrity" "sha512-wilec1Rg3FtKuRjRyCt70g5W29YUEuaLnybdVQUI+VQ7m0bw8k7TzrRv5iYmo6IpjLVrwxP5t3RgjAVqhYh4Fg=="
+  "resolved" "https://registry.npmjs.org/superstruct/-/superstruct-0.15.3.tgz"
+  "version" "0.15.3"
+
 "supertest@^6.1.6":
   "integrity" "sha512-0hACYGNJ8OHRg8CRITeZOdbjur7NLuNs0mBjVhdpxi7hP6t3QIbOzLON5RTUmZcy2I9riuII3+Pr2C7yztrIIg=="
   "resolved" "https://registry.npmjs.org/supertest/-/supertest-6.1.6.tgz"

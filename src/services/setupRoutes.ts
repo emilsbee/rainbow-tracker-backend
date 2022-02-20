@@ -4,7 +4,7 @@ import router from "koa-router";
 import noteRouter from "../routes/protected/note/note";
 import analyticsRouter from "../routes/protected/analytics";
 import activityTypeRouter from "../routes/protected/activityType";
-import loginRouter from "../routes/public/login/login";
+import loginRouter from "../routes/public/login";
 import userRouter from "../routes/admin/user";
 import authRouter from "../routes/protected/auth";
 import weekRouter from "../routes/protected/week";

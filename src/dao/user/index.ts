@@ -1,12 +1,21 @@
 import * as i from "types";
+import * as s from "superstruct";
 const crypto = require("crypto");
 
-import { client } from "../services/prismaClient";
+import { client } from "services";
 
-export const login = async (
-    email:string,
-    password:string,
-):Promise<i.DaoResponse<LoginReturnProps>> => {
+import { CheckCredentialsModel } from "./models";
+
+export const checkCredentials: i.CheckCredentials = async ({
+    email,
+    password,
+}) => {
+    try {
+        s.assert({ email, password }, CheckCredentialsModel);
+    } catch (e: any) {
+        return { status: 400, error: e.message, data: null, success: true };
+    };
+
     try {
         const user = await client.appUser.findUnique({
             where: {
@@ -42,8 +51,3 @@ export const login = async (
         return { status: 400, data: null, error: "Something went wrong.", success: false };
    };
 };
-
-type LoginReturnProps = {
-    userid: string;
-    email: string;
-} | null;
