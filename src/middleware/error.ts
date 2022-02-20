@@ -1,8 +1,8 @@
 // External imports
-import { Context, Next } from "koa";
-import fs from "fs";
-import { DateTime } from "luxon";
-import path from "path";
+import { Context, Next } from 'koa';
+import fs from 'fs';
+import { DateTime } from 'luxon';
+import path from 'path';
 
 // Internal imports
 
@@ -17,7 +17,7 @@ export const errorMiddleware = async (ctx:Context, next:Next):Promise<void> => {
     } catch (e: any) {
         ctx.status = e.status || 500;
         ctx.body = e;
-        ctx.app.emit("error", e, ctx);
+        ctx.app.emit('error', e, ctx);
     }
 };
 
@@ -28,12 +28,12 @@ export const errorMiddleware = async (ctx:Context, next:Next):Promise<void> => {
  */
 export const errorHandler = async (err:{path:string, message:string}, ctx:Context):Promise<void> => {
     try {
-        await fs.promises.access(path.join(__dirname, "../../logs"));
+        await fs.promises.access(path.join(__dirname, '../../logs'));
     } catch (e) {
-        await fs.promises.mkdir(path.join(__dirname, "../../logs"));
+        await fs.promises.mkdir(path.join(__dirname, '../../logs'));
     }
 
-    const stream = fs.createWriteStream(path.join(__dirname, "../../logs/errors.log"), { flags: "a" });
+    const stream = fs.createWriteStream(path.join(__dirname, '../../logs/errors.log'), { flags: 'a' });
 
     stream.write(`${DateTime.now().toLocaleString(DateTime.DATETIME_MED)} ${err.path} ${err.message} ${ctx.req.url} \n`);
 };

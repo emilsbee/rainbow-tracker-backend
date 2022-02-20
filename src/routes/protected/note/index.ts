@@ -1,9 +1,9 @@
-import * as i from "types";
-import { Context } from "koa";
-const Router = require("koa-router");
+import { Context } from 'koa';
+const Router = require('koa-router');
+import { Note } from '@prisma/client';
 
-import { contentType } from "middleware";
-import { updateWeekDayNotes } from "dao";
+import { contentType } from 'middleware';
+import { updateWeekDayNotes } from 'dao';
 
 export const noteRouter = new Router();
 
@@ -13,11 +13,11 @@ export const noteRouter = new Router();
  * updated is the note text itself . However, all the information of a note has to
  * be provided like the notePosition, weekid, etc.
  */
- noteRouter.patch("/week/:weekid/day/:day/notes", contentType.JSON, async (ctx:Context) => {
+ noteRouter.patch('/week/:weekid/day/:day/notes', contentType.JSON, async (ctx:Context) => {
     const weekid = ctx.params.weekid;
     const userid = ctx.state.user.userid;
     const day = ctx.params.day;
-    const notes = ctx.request.body as i.Note[];
+    const notes = ctx.request.body as Note[];
 
     const { status, error } = await updateWeekDayNotes(weekid, userid, notes, day);
 

@@ -1,22 +1,22 @@
 // External imports
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 // Internal imports
-import db from "../db/postgres";
+import db from '../db/postgres';
 
 /**
  * Drops and re-creates tables.
  */
 export async function initialize():Promise<void> {
     try {
-        const initializeDatabase = fs.readFileSync(path.join(__dirname, "../db/tests/init-tests.sql")).toString();
+        const initializeDatabase = fs.readFileSync(path.join(__dirname, '../db/tests/init-tests.sql')).toString();
 
-        const queries:string[] = initializeDatabase.split(";");
+        const queries:string[] = initializeDatabase.split(';');
 
         for (let i = 0; i < queries.length; i++) {
             if (queries[i].length > 0) {
-                await db.query(queries[i] + ";");
+                await db.query(queries[i] + ';');
             }
         }
     } catch (e: any) {
@@ -29,11 +29,11 @@ export async function initialize():Promise<void> {
  */
 export async function initializeWithData(query: string):Promise<void> {
     try {
-        const queries:string[] = query.split(";");
+        const queries:string[] = query.split(';');
 
         for (let i = 0; i < queries.length; i++) {
             if (queries[i].length > 0) {
-                await db.query(queries[i] + ";");
+                await db.query(queries[i] + ';');
             }
         }
     } catch (e: any) {

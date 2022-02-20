@@ -1,9 +1,9 @@
-import * as i from "types";
-import { Context } from "koa";
-const Router = require("koa-router");
+import { Context } from 'koa';
+const Router = require('koa-router');
+import { Category } from '@prisma/client';
 
-import { contentType } from "middleware";
-import { updateWeekDayCategories } from "dao";
+import { contentType } from 'middleware';
+import { updateWeekDayCategories } from 'dao';
 
 export const categoryRouter = new Router();
 
@@ -13,11 +13,11 @@ export const categoryRouter = new Router();
  * updated are the categoryid and activityid. However, all the information of a category has to
  * be provided like the categoryPosition, weekid, etc.
  */
- categoryRouter.patch("/week/:weekid/day/:day/categories", contentType.JSON, async (ctx: Context) => {
+ categoryRouter.patch('/week/:weekid/day/:day/categories', contentType.JSON, async (ctx: Context) => {
     const weekid = ctx.params.weekid;
     const userid = ctx.state.user.userid;
     const day = ctx.params.day;
-    const categoriesToUpdate = ctx.request.body as i.Category[];
+    const categoriesToUpdate = ctx.request.body as Category[];
 
     const { status, error, data: categories } = await updateWeekDayCategories(weekid, userid, categoriesToUpdate, day);
 

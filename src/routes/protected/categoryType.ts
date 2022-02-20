@@ -1,16 +1,16 @@
-import * as i from "types";
-import { Context, Next } from "koa";
-import Router from "koa-router";
+import { Context, Next } from 'koa';
+import Router from 'koa-router';
+import { CategoryType } from '@prisma/client';
 
-import { contentType } from "middleware";
+import { contentType } from 'middleware';
 import {
     createCategoryType, archiveCategoryType, getCategoryTypes,
     getCategoryTypesFull, restoreCategoryType, updateCategoryType,
-} from "dao";
+} from 'dao';
 
 export const categoryTypeRouter = new Router();
 
-categoryTypeRouter.patch("/category-type/restore/:categoryid", async (ctx:Context) => {
+categoryTypeRouter.patch('/category-type/restore/:categoryid', async (ctx:Context) => {
     const userid = ctx.state.user.userid;
     const categoryid: string = ctx.params.categoryid;
 
@@ -23,7 +23,7 @@ categoryTypeRouter.patch("/category-type/restore/:categoryid", async (ctx:Contex
     ctx.status = status;
 });
 
-categoryTypeRouter.get("/category-types-full", async (ctx: Context) => {
+categoryTypeRouter.get('/category-types-full', async (ctx: Context) => {
     const userid = ctx.state.user.userid;
 
     const { status, data: { categoryTypes, activityTypes }, error } = await getCategoryTypesFull(userid);
@@ -36,7 +36,7 @@ categoryTypeRouter.get("/category-types-full", async (ctx: Context) => {
     ctx.body = { categoryTypes, activityTypes };
 });
 
-categoryTypeRouter.delete("/category-type/:categoryid", async (ctx:Context) => {
+categoryTypeRouter.delete('/category-type/:categoryid', async (ctx:Context) => {
     const userid = ctx.state.user.userid;
     const categoryid: string = ctx.params.categoryid;
 
@@ -49,10 +49,10 @@ categoryTypeRouter.delete("/category-type/:categoryid", async (ctx:Context) => {
     ctx.status = status;
 });
 
-categoryTypeRouter.patch("/category-type/:categoryid", contentType.JSON, async (ctx:Context, next:Next) => {
+categoryTypeRouter.patch('/category-type/:categoryid', contentType.JSON, async (ctx:Context, next:Next) => {
     const userid = ctx.state.user.userid;
     const categoryid: string = ctx.params.categoryid;
-    const categoryToUpdate = ctx.request.body as i.CategoryType;
+    const categoryToUpdate = ctx.request.body as CategoryType;
 
     const { status, data: categoryType, error } = await updateCategoryType(userid, categoryToUpdate, categoryid);
 
@@ -65,7 +65,7 @@ categoryTypeRouter.patch("/category-type/:categoryid", contentType.JSON, async (
     ctx.body = categoryType;
 });
 
-categoryTypeRouter.get("/category-types", async (ctx:Context, next:Next) => {
+categoryTypeRouter.get('/category-types', async (ctx:Context, next:Next) => {
     const userid = ctx.state.user.userid;
 
     const { status, data: categoryTypes, error } = await getCategoryTypes(userid);
@@ -79,9 +79,9 @@ categoryTypeRouter.get("/category-types", async (ctx:Context, next:Next) => {
     ctx.body = categoryTypes;
 });
 
-categoryTypeRouter.post("/category-types", contentType.JSON, async (ctx:Context) => {
+categoryTypeRouter.post('/category-types', contentType.JSON, async (ctx:Context) => {
     const userid = ctx.state.user.userid;
-    const categoryTypeToCreate = ctx.request.body as i.CategoryType;
+    const categoryTypeToCreate = ctx.request.body as CategoryType;
 
     const { status, data: categoryType, error } = await createCategoryType(userid, categoryTypeToCreate.color, categoryTypeToCreate.name);
 

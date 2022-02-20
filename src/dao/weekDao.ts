@@ -1,7 +1,7 @@
-import * as i from "types";
-import { v4 as uuid } from "uuid";
+import * as i from 'types';
+import { v4 as uuid } from 'uuid';
 
-import { groupByDays, client, generateNotes, generateCategories } from "services";
+import { groupByDays, client, generateNotes, generateCategories } from 'services';
 
 export const getWeekByWeekid = async (
     weekid:string,
@@ -14,7 +14,7 @@ export const getWeekByWeekid = async (
                 userid,
             },
             orderBy: {
-                notePosition: "asc",
+                notePosition: 'asc',
             },
         });
 
@@ -24,7 +24,7 @@ export const getWeekByWeekid = async (
                 userid,
             },
             orderBy: {
-                categoryPosition: "asc",
+                categoryPosition: 'asc',
             },
         });
 
@@ -36,12 +36,12 @@ export const getWeekByWeekid = async (
         });
 
         if (!week) {
-            return { status: 404, error: "No week found.", data: undefined, success: true };
+            return { status: 404, error: 'No week found.', data: undefined, success: true };
         }
 
         return {
             status: 200,
-            error: "",
+            error: '',
             data: {
                 notes: groupByDays(notes),
                 categories: groupByDays(categories),
@@ -71,9 +71,9 @@ export const getWeekId = async (
             },
         });
 
-        if (!weekId) return { status: 404, error: "No week found.", success: true, data: undefined };
+        if (!weekId) return { status: 404, error: 'No week found.', success: true, data: undefined };
 
-        return { status: 200, data: weekId.weekid, error: "", success: true };
+        return { status: 200, data: weekId.weekid, error: '', success: true };
     } catch (e: any) {
         return { status: 400, data: undefined, error: e.message, success: false };
     }
@@ -109,7 +109,7 @@ export const createWeek = async (
         });
 
         return {
-            error: "",
+            error: '',
             status: 201,
             data: {
                 ...week,

@@ -1,8 +1,8 @@
-import * as i from "types";
-import { PoolClient, QueryResult } from "pg";
+import * as i from 'types';
+import { PoolClient, QueryResult } from 'pg';
 
-import db from "../../db/postgres";
-import { findActivityAggregateCount, findTotalCountForCategory } from "./helpers";
+import db from '../../db/postgres';
+import { findActivityAggregateCount, findTotalCountForCategory } from './helpers';
 
 /**
  * Fetches the available years and the respective weeks that user has created. Not the actual week (like categories, note) but
@@ -16,10 +16,10 @@ export const getAvailableDates = async (
 
     try {
         // Begin transaction
-        await client.query("BEGIN");
+        await client.query('BEGIN');
 
-        const getAvailableYearsQuery = "SELECT DISTINCT \"weekYear\" FROM week WHERE userid=$1 ORDER BY \"weekYear\" DESC;";
-        const getAvailableWeeksOfYearQuery = "SELECT \"weekNr\" FROM week WHERE userid=$1 AND \"weekYear\"=$2 ORDER BY \"weekNr\" DESC;";
+        const getAvailableYearsQuery = 'SELECT DISTINCT "weekYear" FROM week WHERE userid=$1 ORDER BY "weekYear" DESC;';
+        const getAvailableWeeksOfYearQuery = 'SELECT "weekNr" FROM week WHERE userid=$1 AND "weekYear"=$2 ORDER BY "weekNr" DESC;';
 
         const yearRes = await client.query(getAvailableYearsQuery, [userid]);
 
@@ -31,16 +31,16 @@ export const getAvailableDates = async (
             }
         }
 
-        await client.query("COMMIT");
+        await client.query('COMMIT');
 
         return {
             status: 200,
-            error: "",
+            error: '',
             data: availableDates,
             success: true,
         };
     } catch (e: any) {
-        await client.query("ROLLBACK");
+        await client.query('ROLLBACK');
         return { status: 400, error: e.message, data: [], success: false };
     } finally {
         client.release();
@@ -60,30 +60,30 @@ export const getTotalPerWeek = async (
 ): Promise<i.DaoResponse<i.TotalPerWeek>> => {
     const client: PoolClient = await db.getClient();
 
-    const getTotalPerWeekCategoryTypesQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
-        "FROM category, category_type " +
-        "WHERE category.weekid=$1 AND " +
-        "category.userid=$2 AND " +
-        "category_type.userid=category.userid AND " +
-        "category.categoryid=category_type.categoryid " +
-        "GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;";
+    const getTotalPerWeekCategoryTypesQuery = 'SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived ' +
+        'FROM category, category_type ' +
+        'WHERE category.weekid=$1 AND ' +
+        'category.userid=$2 AND ' +
+        'category_type.userid=category.userid AND ' +
+        'category.categoryid=category_type.categoryid ' +
+        'GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;';
 
-    const getTotalPerWeekActivityTypesQuery = "SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived " +
-        "FROM category, activity_type " +
-        "WHERE category.weekid=$1 AND " +
-        "category.activityid=activity_type.activityid AND " +
-        "category.userid=$2 AND " +
-        "category.userid=activity_type.userid " +
-        "GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived";
+    const getTotalPerWeekActivityTypesQuery = 'SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived ' +
+        'FROM category, activity_type ' +
+        'WHERE category.weekid=$1 AND ' +
+        'category.activityid=activity_type.activityid AND ' +
+        'category.userid=$2 AND ' +
+        'category.userid=activity_type.userid ' +
+        'GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived';
 
     try {
         // Begin transaction
-        await client.query("BEGIN");
+        await client.query('BEGIN');
 
         const totalPerWeekCategoryTypesRows: QueryResult<i.TotalPerWeekCategoryType> = await client.query(getTotalPerWeekCategoryTypesQuery, [weekid, userid]);
         const totalPerWeekActivityTypesRows: QueryResult<i.TotalPerWeekActivityType> = await client.query(getTotalPerWeekActivityTypesQuery, [weekid, userid]);
 
-        await client.query("COMMIT");
+        await client.query('COMMIT');
 
         const totalPerWeekCategoryTypes = totalPerWeekCategoryTypesRows.rows;
         const totalPerWeekActivityTypes = totalPerWeekActivityTypesRows.rows;
@@ -94,7 +94,7 @@ export const getTotalPerWeek = async (
             const activityTotal:number = findActivityAggregateCount(totalPerWeekActivityTypes, totalPerWeekCategoryTypes[i].categoryid);
 
             const emptyActivity: i.TotalPerWeekActivityType = {
-                activityid: "Other", archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal - activityTotal, long: "Other", short: "o", userid: totalPerWeekCategoryTypes[i].userid,
+                activityid: 'Other', archived: false, categoryid: totalPerWeekCategoryTypes[i].categoryid, count: categoryTotal - activityTotal, long: 'Other', short: 'o', userid: totalPerWeekCategoryTypes[i].userid,
             };
 
             totalPerWeekActivityTypes.push(emptyActivity);
@@ -103,7 +103,7 @@ export const getTotalPerWeek = async (
         if (totalPerWeekCategoryTypesRows.rowCount === 0) {
             return {
                 status: 404,
-                error: "This week has no analytics.",
+                error: 'This week has no analytics.',
                 data: {
                     categoryTypes: [],
                     activityTypes: [],
@@ -114,7 +114,7 @@ export const getTotalPerWeek = async (
 
         return {
             status: 200,
-            error: "",
+            error: '',
             data: {
                 categoryTypes: totalPerWeekCategoryTypes,
                 activityTypes: totalPerWeekActivityTypes,
@@ -122,7 +122,7 @@ export const getTotalPerWeek = async (
             success: true,
         };
     } catch (e: any) {
-        await client.query("ROLLBACK");
+        await client.query('ROLLBACK');
         return {
                 status: 400,
                 error: e.message,
@@ -159,25 +159,25 @@ export const getTotalPerDay = async (
         { weekDay: 6, categories: [], activities: [] },
     ];
 
-    const getTotalPerDayCategoriesQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name\n" +
-        "FROM category, (SELECT * FROM category_type WHERE userid=$1) AS \"categoryType\" \n" +
-        "WHERE category.userid=$2 \n" +
-        "AND category.weekid=$3\n" +
-        "AND category.\"weekDay\"=$4\n" +
-        "AND \"categoryType\".categoryid=category.categoryid \n" +
-        "GROUP BY category.categoryid, \"categoryType\".name";
+    const getTotalPerDayCategoriesQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name\n' +
+        'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
+        'WHERE category.userid=$2 \n' +
+        'AND category.weekid=$3\n' +
+        'AND category."weekDay"=$4\n' +
+        'AND "categoryType".categoryid=category.categoryid \n' +
+        'GROUP BY category.categoryid, "categoryType".name';
 
-    const getTotalPerDayActivitiesQuery = "SELECT activityid, COUNT(\"weekDay\")::int\n" +
-        "FROM category \n" +
-        "WHERE userid=$1 \n" +
-        "AND weekid=$2\n" +
-        "AND \"weekDay\"=$3\n" +
-        "GROUP BY activityid";
+    const getTotalPerDayActivitiesQuery = 'SELECT activityid, COUNT("weekDay")::int\n' +
+        'FROM category \n' +
+        'WHERE userid=$1 \n' +
+        'AND weekid=$2\n' +
+        'AND "weekDay"=$3\n' +
+        'GROUP BY activityid';
 
 
     try {
         // Begin transaction
-        await client.query("BEGIN");
+        await client.query('BEGIN');
 
         for (let i = 0; i < totalPerDay.length; i++) {
             const totalPerDayCategories: QueryResult<i.TotalPerDayCategoryType> = await client.query(getTotalPerDayCategoriesQuery, [userid, userid, weekid, i]);
@@ -189,16 +189,16 @@ export const getTotalPerDay = async (
             totalPerDay[i].activities.forEach((activity) => activity.weekDay = i);
         }
 
-        await client.query("COMMIT");
+        await client.query('COMMIT');
 
         return {
             status: 200,
-            error: "",
+            error: '',
             data: totalPerDay,
             success: true,
         };
     } catch (e: any) {
-        await client.query("ROLLBACK");
+        await client.query('ROLLBACK');
         return { status: 400, error: e.message, data: totalPerDay, success: false };
     } finally {
         client.release();
@@ -209,14 +209,14 @@ export const getAvailableMonths = async (
     userid: string,
 ):Promise<i.DaoResponse<i.AvailableMonth[]>> => {
     try {
-        const getAvailableMonthsQuery = "SELECT DISTINCT date_part('month', \"weekDayDate\") AS \"month\", date_part('year', \"weekDayDate\") AS \"year\", date_part('week', \"weekDayDate\") as \"weekNr\" \n" +
-            "FROM category \n" +
-            "WHERE userid=$1 " +
-            "ORDER BY \"year\" DESC;";
+        const getAvailableMonthsQuery = 'SELECT DISTINCT date_part(\'month\', "weekDayDate") AS "month", date_part(\'year\', "weekDayDate") AS "year", date_part(\'week\', "weekDayDate") as "weekNr" \n' +
+            'FROM category \n' +
+            'WHERE userid=$1 ' +
+            'ORDER BY "year" DESC;';
 
         const availableMonths:QueryResult<i.AvailableMonth> = await db.query(getAvailableMonthsQuery, [userid]);
 
-        return { status: 200, error: "", data: availableMonths.rows, success: true };
+        return { status: 200, error: '', data: availableMonths.rows, success: true };
     } catch (e:any) {
         return { status: 400, error: e.message, data: [], success: false };
     }
@@ -229,32 +229,32 @@ export const getTotalPerMonth = async (
 ):Promise<i.DaoResponse<i.TotalPerMonth>> => {
     const client: PoolClient = await db.getClient();
 
-    const getTotalPerMonthCategoryQuery = "SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived " +
-        "FROM category, category_type " +
-        "WHERE date_part('month', category.\"weekDayDate\")=$1 AND " +
-        "date_part('year', category.\"weekDayDate\")=$2 AND " +
-        "category.userid=$3 AND " +
-        "category_type.userid=category.userid AND " +
-        "category.categoryid=category_type.categoryid " +
-        "GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;";
+    const getTotalPerMonthCategoryQuery = 'SELECT category.categoryid, COUNT(category.categoryid)::int, category_type.name, category_type.color, category_type.userid, category_type.archived ' +
+        'FROM category, category_type ' +
+        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
+        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
+        'category.userid=$3 AND ' +
+        'category_type.userid=category.userid AND ' +
+        'category.categoryid=category_type.categoryid ' +
+        'GROUP BY category.categoryid, category_type.name, category_type.color, category_type.userid, category_type.archived;';
 
-    const getTotalPerMonthActivityQuery = "SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived " +
-        "FROM category, activity_type " +
-        "WHERE date_part('month', category.\"weekDayDate\")=$1 AND " +
-        "date_part('year', category.\"weekDayDate\")=$2 AND " +
-        "category.activityid=activity_type.activityid AND " +
-        "category.userid=$3 AND " +
-        "category.userid=activity_type.userid " +
-        "GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived";
+    const getTotalPerMonthActivityQuery = 'SELECT category.categoryid, category.activityid, COUNT(category.activityid)::int, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived ' +
+        'FROM category, activity_type ' +
+        'WHERE date_part(\'month\', category."weekDayDate")=$1 AND ' +
+        'date_part(\'year\', category."weekDayDate")=$2 AND ' +
+        'category.activityid=activity_type.activityid AND ' +
+        'category.userid=$3 AND ' +
+        'category.userid=activity_type.userid ' +
+        'GROUP BY category.categoryid, category.activityid, activity_type.long, activity_type.short, activity_type.userid, activity_type.archived';
 
     try {
         // Begin transaction
-        await client.query("BEGIN");
+        await client.query('BEGIN');
 
         const totalPerMonthCategoryRows:QueryResult<i.TotalPerMonthCategoryType> = await client.query(getTotalPerMonthCategoryQuery, [month, year, userid]);
         const totalPerMonthActivityRows:QueryResult<i.TotalPerMonthActivityType> = await client.query(getTotalPerMonthActivityQuery, [month, year, userid]);
 
-        await client.query("COMMIT");
+        await client.query('COMMIT');
 
         const totalPerMonthCategory = totalPerMonthCategoryRows.rows;
         const totalPerMonthActivity = totalPerMonthActivityRows.rows;
@@ -265,12 +265,12 @@ export const getTotalPerMonth = async (
             const activityTotal: number = findActivityAggregateCount(totalPerMonthActivity, totalPerMonthCategory[i].categoryid);
 
             const emptyActivity: i.TotalPerWeekActivityType = {
-                activityid: "Other",
+                activityid: 'Other',
                 archived: false,
                 categoryid: totalPerMonthCategory[i].categoryid,
                 count: categoryTotal - activityTotal,
-                long: "Other",
-                short: "o",
+                long: 'Other',
+                short: 'o',
                 userid: totalPerMonthCategory[i].userid,
             };
 
@@ -280,7 +280,7 @@ export const getTotalPerMonth = async (
         if (totalPerMonthCategoryRows.rowCount === 0) {
             return {
                 status: 404,
-                error: "This week has no analytics.",
+                error: 'This week has no analytics.',
                 data: {
                     categoryTypes: [],
                     activityTypes: [],
@@ -289,9 +289,9 @@ export const getTotalPerMonth = async (
             };
         }
 
-        return { status: 200, error: "", data: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity }, success: true };
+        return { status: 200, error: '', data: { categoryTypes: totalPerMonthCategory, activityTypes: totalPerMonthActivity }, success: true };
     } catch (e: any) {
-        await client.query("ROLLBACK");
+        await client.query('ROLLBACK');
         return { status: 400, error: e.message, data: {} as i.TotalPerMonth, success: false };
     } finally {
         client.release();
@@ -305,14 +305,14 @@ export const getTotalPerDaySpecific = async (
     year: number,
 ):Promise<i.DaoResponse<i.TotalPerDaySpecific>> => {
     try {
-        const getTotalPerDaySpecificQuery = "SELECT category.categoryid, COUNT(category.\"weekDay\")::int, \"categoryType\".name, \"categoryType\".color \n" +
-            "FROM category, (SELECT * FROM category_type WHERE userid=$1) AS \"categoryType\" \n" +
-            "WHERE category.userid=$2 \n" +
-            "AND date_part('year', category.\"weekDayDate\")=$3\n" +
-            "AND date_part('week', category.\"weekDayDate\")=$4 \n" +
-            "AND category.\"weekDay\"=$5\n" +
-            "AND \"categoryType\".categoryid=category.categoryid \n" +
-            "GROUP BY category.categoryid, \"categoryType\".name, \"categoryType\".color";
+        const getTotalPerDaySpecificQuery = 'SELECT category.categoryid, COUNT(category."weekDay")::int, "categoryType".name, "categoryType".color \n' +
+            'FROM category, (SELECT * FROM category_type WHERE userid=$1) AS "categoryType" \n' +
+            'WHERE category.userid=$2 \n' +
+            'AND date_part(\'year\', category."weekDayDate")=$3\n' +
+            'AND date_part(\'week\', category."weekDayDate")=$4 \n' +
+            'AND category."weekDay"=$5\n' +
+            'AND "categoryType".categoryid=category.categoryid \n' +
+            'GROUP BY category.categoryid, "categoryType".name, "categoryType".color';
 
         const totalPerDaySpecific: QueryResult<i.TotalPerDaySpecificCategoryType> = await db.query(getTotalPerDaySpecificQuery, [userid, userid, year, weekNr, day]);
 
@@ -327,7 +327,7 @@ export const getTotalPerDaySpecific = async (
 
         return {
             status: 200,
-            error: "",
+            error: '',
             data: {
                 weekDay: day,
                 categories: totalPerDaySpecific.rows,

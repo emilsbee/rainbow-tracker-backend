@@ -1,13 +1,13 @@
-import { Context } from "koa";
-const Router = require("koa-router");
+import { Context } from 'koa';
+const Router = require('koa-router');
 
-import { generateAccessToken, generateRefreshToken, validateRefreshToken } from "services";
-import { checkCredentials } from "dao";
-import { contentType } from "middleware";
+import { generateAccessToken, generateRefreshToken, validateRefreshToken } from 'services';
+import { checkCredentials } from 'dao';
+import { contentType } from 'middleware';
 
 export const authPublicRouter = new Router();
 
-authPublicRouter.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
+authPublicRouter.post('/auth/jwt/create', contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body;
 
     const { status, data: user, error } = await checkCredentials({ email, password });
@@ -23,17 +23,17 @@ authPublicRouter.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) 
     ctx.body = { ...user, accessToken, refreshToken };
 });
 
-authPublicRouter.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
+authPublicRouter.post('/auth/jwt/refresh', contentType.JSON, async (ctx: Context) => {
     const { refreshToken } =  ctx.request.body;
 
     if (!refreshToken) {
-        ctx.throw(401, "Valid refresh token must be provided.");
+        ctx.throw(401, 'Valid refresh token must be provided.');
     }
 
     const { userid, isValid } = await validateRefreshToken(refreshToken);
 
     if (!isValid || !userid) {
-        ctx.throw(401, "Invalid refresh token");
+        ctx.throw(401, 'Invalid refresh token');
     } else {
         const accessToken = await generateAccessToken({ userid, active: true });
         ctx.body = { accessToken };

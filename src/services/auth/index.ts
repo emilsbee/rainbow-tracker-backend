@@ -1,11 +1,11 @@
-import * as i from "types";
-import jwt from "jsonwebtoken";
-import { v4 as uuid } from "uuid";
-import { DateTime } from "luxon";
+import * as i from 'types';
+import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
+import { DateTime } from 'luxon';
 
-import { client } from "services";
+import { client } from 'services';
 
-import { authConfig } from "./config";
+import { authConfig } from './config';
 
 export const generateAccessToken: i.GenerateAccessToken = (data) => {
   return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: authConfig.ACCESS_TOKEN_EXPIRE });

@@ -1,4 +1,5 @@
-export * from "./user/types";
+export * from './user/types';
+export * from './category/types';
 
 export type DaoResponse<T> = {
     error: string;

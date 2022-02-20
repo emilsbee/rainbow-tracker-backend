@@ -1,6 +1,6 @@
 // External imports
-const util = require("util");
-import redis, { RedisClient } from "redis";
+const util = require('util');
+import redis, { RedisClient } from 'redis';
 
 const connectRedis = false;
 
@@ -15,17 +15,17 @@ if (connectRedis) {
     if (env) {
         envString = env.toUpperCase();
     } else {
-        throw new Error("You must have the environment variable NODE_ENV");
+        throw new Error('You must have the environment variable NODE_ENV');
     }
 
     // access the environment variables for current environment
-    const redisHost = process.env["REDIS_HOST_" + envString];
-    let redisPort: string | undefined | number = process.env["REDIS_PORT_" + envString];
+    const redisHost = process.env['REDIS_HOST_' + envString];
+    let redisPort: string | undefined | number = process.env['REDIS_PORT_' + envString];
 
     if (redisPort) {
         redisPort = parseInt(redisPort);
     } else {
-        throw new Error("Port provided for redis is not valid.");
+        throw new Error('Port provided for redis is not valid.');
     }
 
     redisClient = redis.createClient({

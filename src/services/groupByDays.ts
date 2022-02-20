@@ -1,5 +1,3 @@
-import { category, note } from "@prisma/client";
-
 /**
  * Given an array of categories or notes, this function creates a double
  * array ordered by days (starting at monday and ending sunday). This is for

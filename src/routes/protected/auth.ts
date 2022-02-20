@@ -1,11 +1,11 @@
-import { Context } from "koa";
-const Router = require("koa-router");
+import { Context } from 'koa';
+const Router = require('koa-router');
 
-import { removeRefreshToken } from "services";
+import { removeRefreshToken } from 'services';
 
 export const authRouter = new Router();
 
-authRouter.get("/auth/logout", async (ctx:Context) => {
+authRouter.get('/auth/logout', async (ctx:Context) => {
     const userid = ctx.state.user.userid;
 
     const success = await removeRefreshToken(userid);
@@ -18,6 +18,6 @@ authRouter.get("/auth/logout", async (ctx:Context) => {
 /**
  * Route for checking whether a user is currently logged in.
  */
- authRouter.get("/auth/is-logged-in", async (ctx:Context) => {
+ authRouter.get('/auth/is-logged-in', async (ctx:Context) => {
     ctx.status = 204;
 });

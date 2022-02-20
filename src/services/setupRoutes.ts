@@ -1,5 +1,5 @@
-import Application from "koa";
-import router from "koa-router";
+import Application from 'koa';
+import router from 'koa-router';
 
 import {
  userAdminRouter,
@@ -11,12 +11,12 @@ import {
  categoryTypeRouter,
  weekRouter,
  authPublicRouter,
-} from "routes";
+} from 'routes';
 
 export const setupRoutes = (app: Application):void => {
     // Admin router is for endpoints only accessible by someone with an admin access token.
     const adminRouter = new router();
-    adminRouter.use("/admin", userAdminRouter.routes(), userAdminRouter.allowedMethods());
+    adminRouter.use('/admin', userAdminRouter.routes(), userAdminRouter.allowedMethods());
 
     // Public router is for regular users.
     const publicRouter = new router();
@@ -31,7 +31,7 @@ export const setupRoutes = (app: Application):void => {
     );
 
     // Adds api preset to all api related routes.
-    const apiPresetRouter = new router({ prefix: "/api" });
+    const apiPresetRouter = new router({ prefix: '/api' });
     apiPresetRouter.use(
         adminRouter.routes(),
         publicRouter.routes(),

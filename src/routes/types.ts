@@ -1,2 +1,2 @@
-export * from "./admin/types";
-export * from "./protected/types";
+export * from './admin/types';
+export * from './protected/types';

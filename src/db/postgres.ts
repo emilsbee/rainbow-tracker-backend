@@ -1,5 +1,5 @@
-import fs from "fs";
-import { PoolClient, QueryResult, Pool } from "pg";
+import fs from 'fs';
+import { PoolClient, QueryResult, Pool } from 'pg';
 
 const pgpassword = process.env.PGPASSWORD;
 const pguser = process.env.PGUSER;
@@ -15,9 +15,9 @@ const pool = new Pool({
     database: pgdatabase,
     port: pgport ? parseInt(pgport) : 5432,
     ssl: {
-        ca: process.env.NODE_ENV === "production"
+        ca: process.env.NODE_ENV === 'production'
             ? process.env.CA_CERT
-            : fs.readFileSync("./ca-certificate.cer").toString(),
+            : fs.readFileSync('./ca-certificate.cer').toString(),
         rejectUnauthorized: false,
     },
 });

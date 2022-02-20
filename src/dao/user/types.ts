@@ -1,4 +1,4 @@
-import * as i from "types";
+import * as i from 'types';
 
 export type CheckCredentialsPayload = {
   email: string;

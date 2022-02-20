@@ -1,10 +1,10 @@
-import * as i from "types";
-import { Context } from "koa";
-import Router from "koa-router";
-import { DateTime } from "luxon";
+import { Context } from 'koa';
+import Router from 'koa-router';
+import { DateTime } from 'luxon';
+import { Week } from '@prisma/client';
 
-import { contentType } from "middleware";
-import { createWeek, getWeekByWeekid, getWeekId } from "dao";
+import { contentType } from 'middleware';
+import { createWeek, getWeekByWeekid, getWeekId } from 'dao';
 
 export const weekRouter = new Router(); // Initialize router
 
@@ -13,9 +13,9 @@ export const weekRouter = new Router(); // Initialize router
  * Also, generates the week's categories and notes.
  * @return week with notes and categories organized in days.
  */
- weekRouter.post("/weeks", contentType.JSON, async (ctx: Context) => {
+ weekRouter.post('/weeks', contentType.JSON, async (ctx: Context) => {
     const userid = ctx.state.user.userid;
-    const { weekNr, weekYear } = ctx.request.body as i.Week;
+    const { weekNr, weekYear } = ctx.request.body as Week;
     const { status, data: week, error } = await createWeek(weekNr, weekYear, userid);
 
     if (error.length > 0) {
@@ -26,7 +26,7 @@ export const weekRouter = new Router(); // Initialize router
     ctx.body = week;
 });
 
-weekRouter.get("/week", async (ctx: Context) => {
+weekRouter.get('/week', async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
@@ -40,7 +40,7 @@ weekRouter.get("/week", async (ctx: Context) => {
         const currentDate = DateTime.fromObject({ weekNumber: parseInt(weekNr), weekYear: parseInt(weekYear) });
 
         if (currentDate.toMillis() >= maxDate.toMillis()) {
-            ctx.throw(400, "A week can be created maximums 2 years in the future.");
+            ctx.throw(400, 'A week can be created maximums 2 years in the future.');
         } else {
             const { data, error: createWeekError, status: createWeekStatus } = await createWeek(parseInt(weekNr), parseInt(weekYear), userid);
 

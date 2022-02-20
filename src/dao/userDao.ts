@@ -1,14 +1,14 @@
-import * as i from "types";
-import { PoolClient, QueryResult } from "pg";
-const crypto = require("crypto");
-import { v4 as uuid } from "uuid";
+import * as i from 'types';
+import { PoolClient, QueryResult } from 'pg';
+const crypto = require('crypto');
+import { v4 as uuid } from 'uuid';
 
-import db from "../db/postgres";
+import db from '../db/postgres';
 
 export const getUserInfo = async (userid:string):Promise<i.DaoResponse<i.User>> => {
     const getUserInfoQuery: i.QueryType = {
-        name: "fetch-user-info",
-        text: "SELECT email, userid FROM app_user WHERE userid=$1;",
+        name: 'fetch-user-info',
+        text: 'SELECT email, userid FROM app_user WHERE userid=$1;',
         values: [userid],
     };
 
@@ -28,30 +28,30 @@ export const getUserInfo = async (userid:string):Promise<i.DaoResponse<i.User>> 
             user = userQuery.rows[0];
         }
 
-        return { status: 200, data: user, error: "", success: true };
+        return { status: 200, data: user, error: '', success: true };
     } catch (e: any) {
         return { status: 400, data: user, error: e.message, success: false };
     }
 };
 
 export const createUser = async (email:string, password:string):Promise<i.DaoResponse<i.User[]>> => {
-    const salt = crypto.randomBytes(16).toString("hex");
-    const passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, "sha512").toString("hex");
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 50, 'sha512').toString('hex');
     const newUser: i.User = {
         userid: uuid(),
         email,
-        password: "",
-        salt: "",
+        password: '',
+        salt: '',
     };
     const createUserQuery: i.QueryType = {
-        name: "Create user",
-        text: "INSERT INTO app_user(userid, email, password, salt) VALUES($1, $2, $3, $4);",
+        name: 'Create user',
+        text: 'INSERT INTO app_user(userid, email, password, salt) VALUES($1, $2, $3, $4);',
         values: [newUser.userid, email, passwordHash, salt],
     };
 
     try {
         await db.query(createUserQuery);
-        return { status: 201, data: [newUser], error: "", success: true };
+        return { status: 201, data: [newUser], error: '', success: true };
     } catch (err: any) {
         return { status: 422, data: [], error: err.message, success: false };
     }
@@ -62,22 +62,22 @@ export const deleteUser = async (userid:string):Promise<i.DaoResponse<null>> => 
 
     try {
         // Begin transaction
-        await client.query("BEGIN");
+        await client.query('BEGIN');
 
-        const deleteUserRowsQuery = "DELETE FROM : WHERE userid = $1;";
-        const tablesToDeleteFrom = ["category", "note", "activity_type", "category_type", "week", "app_user"];
+        const deleteUserRowsQuery = 'DELETE FROM : WHERE userid = $1;';
+        const tablesToDeleteFrom = ['category', 'note', 'activity_type', 'category_type', 'week', 'app_user'];
 
         for (let i = 0; i < tablesToDeleteFrom.length; i++) {
-            const newQuery = deleteUserRowsQuery.replace(":", tablesToDeleteFrom[i]);
+            const newQuery = deleteUserRowsQuery.replace(':', tablesToDeleteFrom[i]);
             await db.query(newQuery, [userid]);
         }
 
         // Commit transaction
-        await client.query("COMMIT");
+        await client.query('COMMIT');
 
-        return { status: 204, error: "", data: null, success: true };
+        return { status: 204, error: '', data: null, success: true };
     } catch (e: any) {
-        await client.query("ROLLBACK");
+        await client.query('ROLLBACK');
         return { status: 400, error: e.message, data: null, success: false };
     } finally {
         client.release();

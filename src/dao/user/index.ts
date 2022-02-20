@@ -1,10 +1,10 @@
-import * as i from "types";
-import * as s from "superstruct";
-const crypto = require("crypto");
+import * as i from 'types';
+import * as s from 'superstruct';
+const crypto = require('crypto');
 
-import { client } from "services";
+import { client } from 'services';
 
-import { CheckCredentialsModel } from "./models";
+import { CheckCredentialsModel } from './models';
 
 export const checkCredentials: i.CheckCredentials = async ({
     email,
@@ -24,7 +24,7 @@ export const checkCredentials: i.CheckCredentials = async ({
         });
 
         if (user) {
-            const givenPasswordHash = crypto.pbkdf2Sync(password, user.salt, 1000, 50, "sha512").toString("hex");
+            const givenPasswordHash = crypto.pbkdf2Sync(password, user.salt, 1000, 50, 'sha512').toString('hex');
 
             if (givenPasswordHash === user.password) {
                 return {
@@ -33,21 +33,21 @@ export const checkCredentials: i.CheckCredentials = async ({
                         email: user.email,
                     },
                     status: 200,
-                    error: "",
+                    error: '',
                     success: true,
                 };
             } else {
                 return {
                     data: null,
-                    error: "Incorrect email or password.",
+                    error: 'Incorrect email or password.',
                     status: 401,
                     success: true,
                 };
             }
         } else {
-            return { status: 401, data: null, error: "Incorrect email or password.", success: true };
+            return { status: 401, data: null, error: 'Incorrect email or password.', success: true };
         }
     } catch (e: any) {
-        return { status: 400, data: null, error: "Something went wrong.", success: false };
+        return { status: 400, data: null, error: 'Something went wrong.', success: false };
    };
 };
