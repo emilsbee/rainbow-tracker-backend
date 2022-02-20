@@ -3,10 +3,9 @@ import { Context } from "koa";
 const Router = require("koa-router");
 
 import contentType from "../../../middleware/contentType";
-import protect from "../../../middleware/auth";
 import { updateWeekDayNotes } from "../../../dao/noteDao";
 
-const router = new Router();
+export const noteRouter = new Router();
 
 /**
  * Route for updating a given week day's notes. So all notes from a specific week
@@ -14,7 +13,7 @@ const router = new Router();
  * updated is the note text itself . However, all the information of a note has to
  * be provided like the notePosition, weekid, etc.
  */
-router.patch("/week/:weekid/day/:day/notes", contentType.JSON, async (ctx:Context) => {
+ noteRouter.patch("/week/:weekid/day/:day/notes", contentType.JSON, async (ctx:Context) => {
     const weekid = ctx.params.weekid;
     const userid = ctx.state.user.userid;
     const day = ctx.params.day;
@@ -28,6 +27,3 @@ router.patch("/week/:weekid/day/:day/notes", contentType.JSON, async (ctx:Contex
 
     ctx.status = status;
 });
-
-
-export default router;

@@ -7,12 +7,11 @@ import {
     getActivityTypes,
     updateActivityType,
 } from "../../dao/activityTypeDao";
-import protect from "../../middleware/auth";
 import contentType from "../../middleware/contentType";
 
-const router = new Router();
+export const activityTypeRouter = new Router();
 
-router.patch("/activity-type/:activityid", contentType.JSON, async (ctx: Context) => {
+activityTypeRouter.patch("/activity-type/:activityid", contentType.JSON, async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const activityid: string = ctx.params.activityid;
     const activityToUpdate = ctx.request.body as i.ActivityType;
@@ -27,7 +26,7 @@ router.patch("/activity-type/:activityid", contentType.JSON, async (ctx: Context
     ctx.body = activityType;
 });
 
-router.get("/activity-types", async (ctx: Context) => {
+activityTypeRouter.get("/activity-types", async (ctx: Context) => {
     const userid = ctx.state.user.userid;
 
     const { status, data: activityTypes, error } = await getActivityTypes(userid);
@@ -40,7 +39,7 @@ router.get("/activity-types", async (ctx: Context) => {
     ctx.body = activityTypes;
 });
 
-router.post("/activity-types", contentType.JSON, async (ctx: Context) => {
+activityTypeRouter.post("/activity-types", contentType.JSON, async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const activityTypeToCreate = ctx.request.body as i.ActivityType;
 
@@ -53,6 +52,3 @@ router.post("/activity-types", contentType.JSON, async (ctx: Context) => {
     ctx.status = status;
     ctx.body = activityType;
 });
-
-
-export default router;

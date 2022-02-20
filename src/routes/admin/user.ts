@@ -6,9 +6,9 @@ import contentType from "../../middleware/contentType";
 import protect from "../../middleware/auth";
 import { createUser, deleteUser, getUserInfo } from "../../dao/userDao";
 
-const router = new Router(); // Initialize router
+export const userAdminRouter = new Router();
 
-router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
+userAdminRouter.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
     const userToCreate = ctx.request.body as i.User;
 
     const { status, data: user, error } = await createUser(userToCreate.email, userToCreate.password);
@@ -29,7 +29,7 @@ router.post("/users", contentType.JSON, protect.admin, async  (ctx:Context) => {
     }
 });
 
-router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
+userAdminRouter.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid = ctx.params.userid;
     const { status, error } = await deleteUser(userid);
 
@@ -40,7 +40,7 @@ router.delete("/users/:userid", protect.admin, async (ctx:Context) => {
     ctx.status = status;
 });
 
-router.get("/users/:userid", protect.admin, async (ctx:Context) => {
+userAdminRouter.get("/users/:userid", protect.admin, async (ctx:Context) => {
     const userid:string = ctx.params.userid;
 
     const { status, data, error } = await getUserInfo(userid);
@@ -53,5 +53,3 @@ router.get("/users/:userid", protect.admin, async (ctx:Context) => {
 
     ctx.body = data;
 });
-
-export default router;

@@ -1,20 +1,22 @@
 import Application from "koa";
 import router from "koa-router";
 
-import noteRouter from "../routes/protected/note/note";
-import analyticsRouter from "../routes/protected/analytics";
-import activityTypeRouter from "../routes/protected/activityType";
-import loginRouter from "../routes/public/login";
-import userRouter from "../routes/admin/user";
-import authRouter from "../routes/protected/auth";
-import weekRouter from "../routes/protected/week";
-import categoryTypeRouter from "../routes/protected/categoryType";
-import categoryRouter from "../routes/protected/category/category";
+import {
+ userAdminRouter,
+ categoryRouter,
+ noteRouter,
+ activityTypeRouter,
+ analyticsRouter,
+ authRouter,
+ categoryTypeRouter,
+ weekRouter,
+ authPublicRouter,
+} from "routes";
 
 export const setupRoutes = (app: Application):void => {
     // Admin router is for endpoints only accessible by someone with an admin access token.
     const adminRouter = new router();
-    adminRouter.use("/admin", userRouter.routes(), userRouter.allowedMethods());
+    adminRouter.use("/admin", userAdminRouter.routes(), userAdminRouter.allowedMethods());
 
     // Public router is for regular users.
     const publicRouter = new router();
@@ -33,7 +35,7 @@ export const setupRoutes = (app: Application):void => {
     apiPresetRouter.use(
         adminRouter.routes(),
         publicRouter.routes(),
-        loginRouter.routes(),
+        authPublicRouter.routes(),
     );
 
     app.use(apiPresetRouter.routes());

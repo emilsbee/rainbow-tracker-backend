@@ -6,14 +6,14 @@ import { DateTime, Duration } from "luxon";
 import contentType from "../../middleware/contentType";
 import { createWeek, getWeekByWeekid, getWeekId } from "../../dao/weekDao";
 
-const router = new Router(); // Initialize router
+export const weekRouter = new Router(); // Initialize router
 
 /**
  * Route for creating a week with a given query parameters week_number and week_year.
  * Also, generates the week's categories and notes.
  * @return week with notes and categories organized in days.
  */
-router.post("/weeks", contentType.JSON, async (ctx: Context) => {
+ weekRouter.post("/weeks", contentType.JSON, async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const { weekNr, weekYear } = ctx.request.body as i.Week;
     const { status, data: week, error } = await createWeek(weekNr, weekYear, userid);
@@ -26,7 +26,7 @@ router.post("/weeks", contentType.JSON, async (ctx: Context) => {
     ctx.body = week;
 });
 
-router.get("/week", async (ctx: Context) => {
+weekRouter.get("/week", async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
@@ -62,5 +62,3 @@ router.get("/week", async (ctx: Context) => {
         ctx.body = week;
     }
 });
-
-export default router;

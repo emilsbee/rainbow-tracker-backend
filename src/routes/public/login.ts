@@ -6,9 +6,9 @@ import { checkCredentials } from "dao";
 
 import contentType from "../../middleware/contentType";
 
-const router = new Router();
+export const authPublicRouter = new Router();
 
-router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
+authPublicRouter.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
     const { email, password } = ctx.request.body;
 
     const { status, data: user, error } = await checkCredentials({ email, password });
@@ -24,7 +24,7 @@ router.post("/auth/jwt/create", contentType.JSON, async (ctx:Context) => {
     ctx.body = { ...user, accessToken, refreshToken };
 });
 
-router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
+authPublicRouter.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
     const { refreshToken } =  ctx.request.body as { refreshToken: string };
 
     if (!refreshToken) {
@@ -41,5 +41,3 @@ router.post("/auth/jwt/refresh", contentType.JSON, async (ctx: Context) => {
         ctx.status = 200;
     }
 });
-
-export default router;
