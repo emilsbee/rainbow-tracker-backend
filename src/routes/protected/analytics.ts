@@ -36,7 +36,7 @@ export const analyticsRouter = new Router();
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const { data: weekid, error: weekIdError, status } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const { data: weekid, error: weekIdError, status } = await getWeekId({ weekNr: parseInt(weekNr), weekYear: parseInt(weekYear), userid });
 
     if (weekIdError.length > 0 || weekid == null) {
         ctx.throw(status, weekIdError, { path: __filename });
@@ -60,7 +60,7 @@ export const analyticsRouter = new Router();
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const { data: weekid, error: weekIdError, status } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const { data: weekid, error: weekIdError, status } = await getWeekId({ weekNr: parseInt(weekNr), weekYear: parseInt(weekYear), userid });
 
     if (weekIdError.length > 0 || weekid == null) {
         ctx.throw(status, weekIdError, { path: __filename });

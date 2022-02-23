@@ -5,3 +5,4 @@ export * from './groupByDays';
 export * from './prismaClient';
 export * from './setupMiddleware';
 export * from './setupRoutes';
+export * from './canCreateNewWeek';

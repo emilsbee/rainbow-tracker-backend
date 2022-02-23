@@ -1,5 +1,4 @@
 import * as i from 'types';
-import * as s from 'superstruct';
 const crypto = require('crypto');
 
 import { client } from 'services';
@@ -11,9 +10,9 @@ export const checkCredentials: i.CheckCredentials = async ({
     password,
 }) => {
     try {
-        s.assert({ email, password }, CheckCredentialsModel);
+        CheckCredentialsModel.parse({ email, password });
     } catch (e: any) {
-        return { status: 400, error: e.message, data: null, success: true };
+        return { status: 400, error: e.issues[0].message, data: undefined, success: true };
     };
 
     try {
@@ -49,5 +48,5 @@ export const checkCredentials: i.CheckCredentials = async ({
         }
     } catch (e: any) {
         return { status: 400, data: null, error: 'Something went wrong.', success: false };
-   };
+    };
 };

@@ -1,10 +1,10 @@
 import { Context } from 'koa';
 import Router from 'koa-router';
-import { DateTime } from 'luxon';
 import { Week } from '@prisma/client';
 
 import { contentType } from 'middleware';
-import { createWeek, getWeekByWeekid, getWeekId } from 'dao';
+import { createFullWeek, getFullWeekById, getWeekId } from 'dao';
+import { canCreateNewWeek } from 'services';
 
 export const weekRouter = new Router(); // Initialize router
 
@@ -16,7 +16,7 @@ export const weekRouter = new Router(); // Initialize router
  weekRouter.post('/weeks', contentType.JSON, async (ctx: Context) => {
     const userid = ctx.state.user.userid;
     const { weekNr, weekYear } = ctx.request.body as Week;
-    const { status, data: week, error } = await createWeek(weekNr, weekYear, userid);
+    const { status, data: week, error } = await createFullWeek({ weekNr, weekYear, userid });
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });
@@ -31,34 +31,33 @@ weekRouter.get('/week', async (ctx: Context) => {
     const weekNr = ctx.request.query.week_number as string;
     const weekYear = ctx.request.query.week_year as string;
 
-    const { data: weekid, error: weekIdError, status, success } = await getWeekId(parseInt(weekNr), parseInt(weekYear), userid);
+    const getWeekIdData = await getWeekId({ weekNr: parseInt(weekNr), weekYear: parseInt(weekYear), userid });
 
-    if (!success) {
-        ctx.throw(status, weekIdError);
-    } else if (!weekid) {
-        const maxDate = DateTime.now().plus({ years: 2 });
-        const currentDate = DateTime.fromObject({ weekNumber: parseInt(weekNr), weekYear: parseInt(weekYear) });
+    // Check for !success because even if weekid was not found, we want to create a new week.
+    // So only throw when the operation failed which is indicated by success property.
+    if (!getWeekIdData.success) {
+        ctx.throw(getWeekIdData.status, getWeekIdData.error);
+    } else if (!getWeekIdData.data) {
+        if (canCreateNewWeek(parseInt(weekNr), parseInt(weekYear))) {
+            const createWeekData = await createFullWeek({ weekNr: parseInt(weekNr), weekYear: parseInt(weekYear), userid });
 
-        if (currentDate.toMillis() >= maxDate.toMillis()) {
-            ctx.throw(400, 'A week can be created maximums 2 years in the future.');
-        } else {
-            const { data, error: createWeekError, status: createWeekStatus } = await createWeek(parseInt(weekNr), parseInt(weekYear), userid);
-
-            if (createWeekError.length > 0) {
-                ctx.throw(createWeekStatus, createWeekError);
+            if (createWeekData.error.length > 0 || !createWeekData.data) {
+                ctx.throw(createWeekData.status, createWeekData.error);
             }
 
             ctx.status = 200;
-            ctx.body = data;
+            ctx.body = createWeekData.data;
+        } else {
+            ctx.throw(400, 'A week can be created maximums 2 years in the future.');
         }
     } else {
-        const { data: week, status, error: weekError } = await getWeekByWeekid(weekid, userid);
+        const getWeekByWeekIdData = await getFullWeekById({ weekid: getWeekIdData.data, userid });
 
-        if (weekError.length > 0) {
-            ctx.throw(status, weekError, { path: __filename });
+        if (getWeekByWeekIdData.error.length > 0 || !getWeekByWeekIdData.data) {
+            ctx.throw(getWeekByWeekIdData.status, getWeekByWeekIdData.error);
         }
 
-        ctx.status = status;
-        ctx.body = week;
+        ctx.status = 200;
+        ctx.body = getWeekByWeekIdData.data;
     }
 });

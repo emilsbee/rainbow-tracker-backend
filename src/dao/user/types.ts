@@ -1,10 +1,9 @@
 import * as i from 'types';
+import { z } from 'zod';
 
-export type CheckCredentialsPayload = {
-  email: string;
-  password: string;
-}
+import { CheckCredentialsModel } from 'models';
+
 
 export type CheckCredentials = (
-  data: CheckCredentialsPayload
-) => Promise<i.DaoResponse<{ email: string, userid: string } | null>>;
+  data: z.infer<typeof CheckCredentialsModel>
+) => Promise<i.DaoResponse<{ email: string, userid: string } | null | undefined>>;

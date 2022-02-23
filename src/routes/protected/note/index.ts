@@ -3,7 +3,7 @@ const Router = require('koa-router');
 import { Note } from '@prisma/client';
 
 import { contentType } from 'middleware';
-import { updateWeekDayNotes } from 'dao';
+import { updateNotes } from 'dao';
 
 export const noteRouter = new Router();
 
@@ -19,7 +19,7 @@ export const noteRouter = new Router();
     const day = ctx.params.day;
     const notes = ctx.request.body as Note[];
 
-    const { status, error } = await updateWeekDayNotes(weekid, userid, notes, day);
+    const { status, error } = await updateNotes({ userid, notes });
 
     if (error.length > 0) {
         ctx.throw(status, error, { path: __filename });

@@ -1,7 +1,8 @@
-import * as i from 'types';
-import * as s from 'superstruct';
+import { z } from 'zod';
 
-export const CheckCredentialsModel: s.Describe<i.CheckCredentialsPayload> = s.object({
-  email: s.string(),
-  password: s.string(),
+import { EmailModel, PasswordModel } from 'models';
+
+export const CheckCredentialsModel = z.object({
+  email: EmailModel,
+  password: PasswordModel,
 });
