@@ -6,3 +6,5 @@ export * from './prismaClient';
 export * from './setupMiddleware';
 export * from './setupRoutes';
 export * from './canCreateNewWeek';
+export * from './sortActivityTypesByArchived';
+export * from './sortCategoryTypesByArchived';

@@ -3,8 +3,9 @@ import { PoolClient, QueryResult } from 'pg';
 import { v4 as uuid } from 'uuid';
 import { ActivityType, CategoryType } from '@prisma/client';
 
+import { sortActivityTypesByArchived, sortCategoryTypesByArchived } from 'services';
+
 import db from '../../db/postgres';
-import { sortActivityTypesByArchived, sortCategoryTypesByArchived } from './helpers';
 
 /**
  * Archives a category type by a given categoryid. Also, archives all the activity types
